@@ -1,0 +1,43 @@
+
+<ion-content padding>
+  <button (click)="login()">Login</button>
+  <button (click)="getInfoAddress()">Get info address</button>
+  <div *ngIf="this.infos">
+    <ion-list>
+      <ion-item >
+        blockchain_height : {{this.infos.blockchain_height}}
+      </ion-item>
+      <ion-item >
+        locked_funds : {{this.infos.locked_funds}}
+      </ion-item>
+      <ion-item >
+        new_address : {{this.infos.new_address}}
+      </ion-item>
+      <ion-item >
+        scanned_block_height : {{this.infos.scanned_block_height}}
+      </ion-item>
+      <ion-item >
+        scanned_block_timestamp : {{this.infos.scanned_block_timestamp}}
+      </ion-item>
+      <ion-item >
+        scanned_height : {{this.infos.scanned_height}}
+      </ion-item>
+      <ion-item >
+        spent_outputs : {{this.infos.spent_outputs}}
+      </ion-item>
+      <ion-item >
+        start_height : {{this.infos.start_height}}
+      </ion-item>
+      <ion-item >
+        status : {{this.infos.status}}
+      </ion-item>
+      <ion-item >
+        total_received : {{this.infos.total_received}}
+      </ion-item>
+      <ion-item >
+        total_sent : {{this.infos.total_sent}}
+      </ion-item>
+    </ion-list>
+    
+  </div>
+</ion-content>

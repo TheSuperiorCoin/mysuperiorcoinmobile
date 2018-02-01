@@ -1,0 +1,8 @@
+{
+  "name": "SuperiorWallet",
+  "app_id": "47bda53f",
+  "type": "ionic-angular",
+  "integrations": {
+    "cordova": {}
+  }
+}
