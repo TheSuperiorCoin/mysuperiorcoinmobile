@@ -1,7 +1,7 @@
 
 <ion-content padding>
-  <button (click)="login()">Login</button>
-  <button (click)="getInfoAddress()">Get info address</button>
+  <button ion-button (click)="login()">Login</button>
+  <button ion-button color="secondary" (click)="getInfoAddress()">Get info address</button>
   <div *ngIf="this.infos">
     <ion-list>
       <ion-item >
