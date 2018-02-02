@@ -14,11 +14,15 @@ export class HomePage {
     private sApplication: ApplicationProvider
   
   ) {
-
+    
   }
-
+  decodeMnemomic(){
+    let encodedSeed = "tail pedantic happens mullet oozed jailed superior seismic website noises fewest onboard unmask utopia impel rudely cowl glass ribbon sword against nuisance optical nanny superior";
+    let seed = this.sApplication.decode_seed(encodedSeed);
+    //console.log(seed);
+  }
   login(){
-    this.sApplication.login().then((result) => {
+    this.sApplication.login().then((result) => { 
         
         console.log('la');
         console.log(result);

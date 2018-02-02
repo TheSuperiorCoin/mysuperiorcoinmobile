@@ -12,6 +12,11 @@ import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { ApplicationProvider } from '../providers/application/application';
 import {HttpClientModule, HttpClient} from '@angular/common/http';
+import { MnemonicProvider } from '../providers/mnemonic/mnemonic';
+import { Crc32Provider } from '../providers/crc32/crc32';
+import { CnutilProvider } from '../providers/cnutil/cnutil';
+import { ConfigProvider } from '../providers/config/config';
+import { NaclProvider } from '../providers/nacl/nacl';
 @NgModule({
   declarations: [
     MyApp,
@@ -24,7 +29,7 @@ import {HttpClientModule, HttpClient} from '@angular/common/http';
     BrowserModule,
     IonicModule.forRoot(MyApp),
     HttpClientModule,
-    HttpModule
+    HttpModule,
   ],
   bootstrap: [IonicApp],
   entryComponents: [
@@ -38,7 +43,12 @@ import {HttpClientModule, HttpClient} from '@angular/common/http';
     StatusBar,
     SplashScreen,
     {provide: ErrorHandler, useClass: IonicErrorHandler},
-    ApplicationProvider
+    ApplicationProvider,
+    MnemonicProvider,
+    Crc32Provider,
+    CnutilProvider,
+    ConfigProvider,
+    NaclProvider,
   ]
 })
 export class AppModule {}
