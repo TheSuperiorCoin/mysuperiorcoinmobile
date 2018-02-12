@@ -1,8 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { MnemonicProvider } from '../mnemonic/mnemonic';
-import { ConfigProvider } from '../config/config';
 import { NaclProvider } from '../nacl/nacl';
+import { ConfigProvider } from '../config/config';
+import { Base58Provider } from '../base58/base58';
+import { Base58Provider } from '../base58/base58';
+import { Base58Provider } from '../base58/base58';
 
 /*
   Generated class for the CnutilProvider provider.
@@ -12,36 +15,39 @@ import { NaclProvider } from '../nacl/nacl';
 */
 @Injectable()
 export class CnutilProvider {
-
+    CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX:any;
+    CRYPTONOTE_PUBLIC_INTEGRATED_ADDRESS_BASE58_PREFIX:any;
+    ADDRESS_CHECKSUM_SIZE = 4;
   constructor(
     public http: HttpClient,
     public sMnemonic: MnemonicProvider,
-    public sConfig:ConfigProvider,
-    public sNacl:NaclProvider
+    public config:ConfigProvider,
+    public sNacl:NaclProvider,
+    public cnBase: Base58Provider
   ) {
     console.log('Hello CnutilProvider Provider');
   }
   init(){
 
-  let config:any = {};// shallow copy of initConfig
+  /*let this.config:any = {};// shallow copy of initthis.config
 
-  for (let key in this.sConfig.initConfig) {
-      config[key] = this.sConfig.initConfig[key];
-  }
+  for (let key in this.sthis.config.initthis.config) {
+      this.config[key] = this.sthis.config.initthis.config[key];
+  }*/
 
-  //config.coinUnits = new JSBigInt(10).pow(config.coinUnitPlaces);
+  //this.config.coinUnits = new JSBigInt(10).pow(this.config.coinUnitPlaces);
 
   let HASH_STATE_BYTES = 200;
   let HASH_SIZE = 32;
-  let ADDRESS_CHECKSUM_SIZE = 4;
+  
   let INTEGRATED_ID_SIZE = 8;
   let ENCRYPTED_PAYMENT_ID_TAIL = 141;
-  let CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX = config.addressPrefix;
-  let CRYPTONOTE_PUBLIC_INTEGRATED_ADDRESS_BASE58_PREFIX = config.integratedAddressPrefix;
-  if (config.testnet === true)
+  this.CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX = this.config.addressPrefix;
+  this.CRYPTONOTE_PUBLIC_INTEGRATED_ADDRESS_BASE58_PREFIX = this.config.integratedAddressPrefix;
+  if (this.config.testnet === true)
   {
-      CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX = config.addressPrefixTestnet;
-      CRYPTONOTE_PUBLIC_INTEGRATED_ADDRESS_BASE58_PREFIX = config.integratedAddressPrefixTestnet;
+    this.CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX = this.config.addressPrefixTestnet;
+    this.CRYPTONOTE_PUBLIC_INTEGRATED_ADDRESS_BASE58_PREFIX = this.config.integratedAddressPrefixTestnet;
   }
   let UINT64_MAX = Math.pow(2, 64);//new JSBigInt(2).pow(64);
   let CURRENT_TX_VERSION = 2;
@@ -116,7 +122,7 @@ export class CnutilProvider {
   //creates a Pedersen commitment from an amount (in scalar form) and a mask
   //C = bG + aH where b = mask, a = amount
   commit(amount, mask){
-      if (!valid_hex(mask) || mask.length !== 64 || !valid_hex(amount) || amount.length !== 64){
+      if (!this.valid_hex(mask) || mask.length !== 64 || !!this.valid_hex(amount) || amount.length !== 64){
           throw "invalid amount or mask!";
       }
       let C = this.ge_double_scalarmult_base_lettime(amount, H, mask);
@@ -124,7 +130,7 @@ export class CnutilProvider {
   }
 
   zeroCommit(amount){
-      if (!valid_hex(amount) || amount.length !== 64){
+      if (!!this.valid_hex(amount) || amount.length !== 64){
           throw "invalid amount!";
       }
       let C = this.ge_double_scalarmult_base_lettime(amount, H, I);
@@ -250,17 +256,17 @@ export class CnutilProvider {
 
   // Generate a 256-bit crypto random
   rand_32 () {
-      return mn_random(256);
+      return this.sMnemonic.mn_random(256);
   };
 
   // Generate a 128-bit crypto random
   rand_16 () {
-      return mn_random(128);
+      return this.sMnemonic.mn_random(128);
   };
 
   // Generate a 64-bit crypto random
   rand_8 () {
-      return mn_random(64);
+      return this.sMnemonic.mn_random(64);
   };    
 
   encode_letint (i) {
@@ -322,7 +328,8 @@ export class CnutilProvider {
       if (sec.length !== 64) {
           throw "Invalid sec length";
       }
-      return this.bintohex(Module.ge_scalarmult_base(this.hextobin(sec)));
+     
+      return this.bintohex(this.sNacl.ge_scalarmult_base(this.hextobin(sec)));
   };
 
   //alias
@@ -339,16 +346,16 @@ export class CnutilProvider {
   };
 
   pubkeys_to_string (spend, view) {
-      let prefix = this.encode_letint(CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX);
+      let prefix = this.encode_letint(this.CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX);
       let data = prefix + spend + view;
       let checksum = this.cn_fast_hash(data);
-      return cnBase58.encode(data + checksum.slice(0, ADDRESS_CHECKSUM_SIZE * 2));
+      return this.cnBase.encode(data + checksum.slice(0, this.ADDRESS_CHECKSUM_SIZE * 2));
   };
 
   get_account_integrated_address (address, payment_id8) {
       let decoded_address = decode_address(address);
 
-      let prefix = this.encode_letint(CRYPTONOTE_PUBLIC_INTEGRATED_ADDRESS_BASE58_PREFIX);        
+      let prefix = this.encode_letint(this.CRYPTONOTE_PUBLIC_INTEGRATED_ADDRESS_BASE58_PREFIX);        
       let data = prefix + decoded_address.spend  + decoded_address.view + payment_id8;    
 
       let checksum = this.cn_fast_hash(data);
@@ -454,14 +461,14 @@ export class CnutilProvider {
           first = seed;
       }
       let spend = this.generate_keys(first);
-      let prefix = this.encode_letint(CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX);
-      return cnBase58.encode(prefix + spend.pub).slice(0, 44);
+      let prefix = this.encode_letint(this.CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX);
+      return this.cnBase.encode(prefix + spend.pub).slice(0, 44);
   };
   
   decode_address (address) {
-      let dec = cnBase58.decode(address);
-      let expectedPrefix = this.encode_letint(CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX);
-      let expectedPrefixInt = this.encode_letint(CRYPTONOTE_PUBLIC_INTEGRATED_ADDRESS_BASE58_PREFIX);
+      let dec = this.cnBase.decode(address);
+      let expectedPrefix = this.encode_letint(this.CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX);
+      let expectedPrefixInt = this.encode_letint(this.CRYPTONOTE_PUBLIC_INTEGRATED_ADDRESS_BASE58_PREFIX);
       let prefix = dec.slice(0, expectedPrefix.length);
       if (prefix !== expectedPrefix && prefix !== expectedPrefixInt) {
           throw "Invalid address prefix";
@@ -1844,16 +1851,16 @@ export class CnutilProvider {
           units = units.slice(1);
       }
       let decimal;
-      if (units.length >= config.coinUnitPlaces) {
-          decimal = units.substr(units.length - config.coinUnitPlaces, config.coinUnitPlaces);
+      if (units.length >= this.config.coinUnitPlaces) {
+          decimal = units.substr(units.length - this.config.coinUnitPlaces, this.config.coinUnitPlaces);
       } else {
-          decimal = padLeft(units, config.coinUnitPlaces, '0');
+          decimal = padLeft(units, this.config.coinUnitPlaces, '0');
       }
-      return symbol + (units.substr(0, units.length - config.coinUnitPlaces) || '0') + '.' + decimal;
+      return symbol + (units.substr(0, units.length - this.config.coinUnitPlaces) || '0') + '.' + decimal;
   };
 
   formatMoneyFullSymbol (units) {
-      return this.formatMoneyFull(units) + ' ' + config.coinSymbol;
+      return this.formatMoneyFull(units) + ' ' + this.config.coinSymbol;
   };
 
   formatMoney (units) {
@@ -1865,7 +1872,7 @@ export class CnutilProvider {
   };
 
   formatMoneySymbol (units) {
-      return this.formatMoney(units) + ' ' + config.coinSymbol;
+      return this.formatMoney(units) + ' ' + this.config.coinSymbol;
   };
 
   parseMoney (str) {
@@ -1877,31 +1884,31 @@ export class CnutilProvider {
       let decimalIndex = str.indexOf('.');
       if (decimalIndex == -1) {
           if (negative) {
-              return JSBigInt.multiply(str, config.coinUnits).negate();
+              return JSBigInt.multiply(str, this.config.coinUnits).negate();
           }
-          return JSBigInt.multiply(str, config.coinUnits);
+          return JSBigInt.multiply(str, this.config.coinUnits);
       }
-      if (decimalIndex + config.coinUnitPlaces + 1 < str.length) {
-          str = str.substr(0, decimalIndex + config.coinUnitPlaces + 1);
+      if (decimalIndex + this.config.coinUnitPlaces + 1 < str.length) {
+          str = str.substr(0, decimalIndex + this.config.coinUnitPlaces + 1);
       }
       if (negative) {
-          return new JSBigInt(str.substr(0, decimalIndex)).exp10(config.coinUnitPlaces)
-              .add(new JSBigInt(str.substr(decimalIndex + 1)).exp10(decimalIndex + config.coinUnitPlaces - str.length + 1)).negate;
+          return new JSBigInt(str.substr(0, decimalIndex)).exp10(this.config.coinUnitPlaces)
+              .add(new JSBigInt(str.substr(decimalIndex + 1)).exp10(decimalIndex + this.config.coinUnitPlaces - str.length + 1)).negate;
       }
-      return new JSBigInt(str.substr(0, decimalIndex)).exp10(config.coinUnitPlaces)
-          .add(new JSBigInt(str.substr(decimalIndex + 1)).exp10(decimalIndex + config.coinUnitPlaces - str.length + 1));
+      return new JSBigInt(str.substr(0, decimalIndex)).exp10(this.config.coinUnitPlaces)
+          .add(new JSBigInt(str.substr(decimalIndex + 1)).exp10(decimalIndex + this.config.coinUnitPlaces - str.length + 1));
   };
 
   decompose_amount_into_digits (amount) {
       /*if (dust_threshold === undefined) {
-       dust_threshold = config.dustThreshold;
+       dust_threshold = this.config.dustThreshold;
        }*/
       amount = amount.toString();
       let ret = [];
       while (amount.length > 0) {
           //split all the way down since v2 fork
           /*let remaining = new JSBigInt(amount);
-           if (remaining.compare(config.dustThreshold) <= 0) {
+           if (remaining.compare(this.config.dustThreshold) <= 0) {
            if (remaining.compare(0) > 0) {
            ret.push(remaining);
            }
@@ -1948,10 +1955,10 @@ export class CnutilProvider {
   };
 
   is_tx_unlocked (unlock_time, blockchain_height) {
-      if (!config.maxBlockNumber) {
-          throw "Max block number is not set in config!";
+      if (!this.config.maxBlockNumber) {
+          throw "Max block number is not set in this.config!";
       }
-      if (unlock_time < config.maxBlockNumber) {
+      if (unlock_time < this.config.maxBlockNumber) {
           // unlock time is block height
           return blockchain_height >= unlock_time;
       } else {
@@ -1962,13 +1969,13 @@ export class CnutilProvider {
   };
 
   tx_locked_reason (unlock_time, blockchain_height) {
-      if (unlock_time < config.maxBlockNumber) {
+      if (unlock_time < this.config.maxBlockNumber) {
           // unlock time is block height
           let numBlocks = unlock_time - blockchain_height;
           if (numBlocks <= 0) {
               return "Transaction is unlocked";
           }
-          let unlock_prediction = moment().add(numBlocks * config.avgBlockTime, 'seconds');
+          let unlock_prediction = moment().add(numBlocks * this.config.avgBlockTime, 'seconds');
           //return "Will be unlocked in " + numBlocks + " blocks, ~" + unlock_prediction.fromNow(true) + ", " + unlock_prediction.calendar() + "";
           return "Will be unlocked in " + numBlocks + " blocks, ~" + unlock_prediction.fromNow(true);
       } else {

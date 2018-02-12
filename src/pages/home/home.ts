@@ -17,15 +17,20 @@ export class HomePage {
     
   }
   decodeMnemomic(){
-    let encodedSeed = "tail pedantic happens mullet oozed jailed superior seismic website noises fewest onboard unmask utopia impel rudely cowl glass ribbon sword against nuisance optical nanny superior";
-    let seed = this.sApplication.decode_seed(encodedSeed);
-    //console.log(seed);
+    let t = this.sApplication.vanityAddress.toggleGeneration();
+    console.log(this.sApplication.vanityAddress.seed);
+    console.log(this.sApplication.vanityAddress.found);
+    this.sApplication.mNemonic = this.sApplication.vanityAddress.found['mnemonic'];
+    console.log(this.sApplication.mNemonic);
+    let seed = this.sApplication.decode_seed(this.sApplication.mNemonic);
+    console.log(seed);
+
+    this.sApplication.viewKey = seed;
+    this.sApplication.address = this.sApplication.vanityAddress.found['address'];
   }
   login(){
     this.sApplication.login().then((result) => { 
         
-        console.log('la');
-        console.log(result);
       /*let datas:any = result;
       if(datas.status == false){
         this.loading.dismiss();

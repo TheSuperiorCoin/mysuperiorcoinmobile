@@ -21,7 +21,6 @@ export class NaclProvider {
   }
 
   constructor(public http: HttpClient) {
-    console.log('Hello NaclProvider Provider');
   }
 
     // Ported in 2014 by Dmitry Chestnykh and Devi Mandiri.
@@ -94,11 +93,11 @@ export class NaclProvider {
     
     pack25519(o, n) {
       let i, j, b;
-      let m = this.gf(), t = this.gf();
+      let m = this.gf(null), t = this.gf(null);
       for (i = 0; i < 16; i++) t[i] = n[i];
-      car25519(t);
-      car25519(t);
-      car25519(t);
+      this.car25519(t);
+      this.car25519(t);
+      this.car25519(t);
       for (j = 0; j < 2; j++) {
         m[0] = t[0] - 0xffed;
         for (i = 1; i < 15; i++) {
@@ -108,7 +107,7 @@ export class NaclProvider {
         m[15] = t[15] - 0x7fff - ((m[14]>>16) & 1);
         b = (m[15]>>16) & 1;
         m[14] &= 0xffff;
-        sel25519(t, m, 1-b);
+        this.sel25519(t, m, 1-b);
       }
       for (i = 0; i < 16; i++) {
         o[2*i] = t[i] & 0xff;
@@ -118,14 +117,14 @@ export class NaclProvider {
     
     neq25519(a, b) {
       let c = new Uint8Array(32), d = new Uint8Array(32);
-      pack25519(c, a);
-      pack25519(d, b);
-      return crypto_verify_32(c, 0, d, 0);
+      this.pack25519(c, a);
+      this.pack25519(d, b);
+      return this.crypto_verify_32(c, 0, d, 0);
     }
     
     par25519(a) {
       let d = new Uint8Array(32);
-      pack25519(d, a);
+      this.pack25519(d, a);
       return d[0] & 1;
     }
     
@@ -298,95 +297,95 @@ export class NaclProvider {
     }
     
     S(o, a) {
-      M(o, a, a);
+      this.M(o, a, a);
     }
     
     inv25519(o, i) {
-      let c = this.gf();
+      let c = this.gf(null);
       let a;
       for (a = 0; a < 16; a++) c[a] = i[a];
       for (a = 253; a >= 0; a--) {
-        S(c, c);
-        if(a !== 2 && a !== 4) M(c, c, i);
+        this.S(c, c);
+        if(a !== 2 && a !== 4) this.M(c, c, i);
       }
       for (a = 0; a < 16; a++) o[a] = c[a];
     }
     
     pow2523(o, i) {
-      let c = this.gf();
+      let c = this.gf(null);
       let a;
       for (a = 0; a < 16; a++) c[a] = i[a];
       for (a = 250; a >= 0; a--) {
-          S(c, c);
-          if(a !== 1) M(c, c, i);
+        this.S(c, c);
+          if(a !== 1) this.M(c, c, i);
       }
       for (a = 0; a < 16; a++) o[a] = c[a];
     }
     
     add(p, q) {
-      let a = this.gf(), b = this.gf(), c = this.gf(),
-          d = this.gf(), e = this.gf(), f = this.gf(),
-          g = this.gf(), h = this.gf(), t = this.gf();
+      let a = this.gf(null), b = this.gf(null), c = this.gf(null),
+          d = this.gf(null), e = this.gf(null), f = this.gf(null),
+          g = this.gf(null), h = this.gf(null), t = this.gf(null);
     
-      Z(a, p[1], p[0]);
-      Z(t, q[1], q[0]);
-      M(a, a, t);
-      A(b, p[0], p[1]);
-      A(t, q[0], q[1]);
-      M(b, b, t);
-      M(c, p[3], q[3]);
-      M(c, c, D2);
-      M(d, p[2], q[2]);
-      A(d, d, d);
-      Z(e, b, a);
-      Z(f, d, c);
-      A(g, d, c);
-      A(h, b, a);
+      this.Z(a, p[1], p[0]);
+      this.Z(t, q[1], q[0]);
+      this.M(a, a, t);
+      this.A(b, p[0], p[1]);
+      this.A(t, q[0], q[1]);
+      this.M(b, b, t);
+      this.M(c, p[3], q[3]);
+      this.M(c, c, this.D2);
+      this.M(d, p[2], q[2]);
+      this.A(d, d, d);
+      this.Z(e, b, a);
+      this.Z(f, d, c);
+      this.A(g, d, c);
+      this.A(h, b, a);
     
-      M(p[0], e, f);
-      M(p[1], h, g);
-      M(p[2], g, f);
-      M(p[3], e, h);
+      this.M(p[0], e, f);
+      this.M(p[1], h, g);
+      this.M(p[2], g, f);
+      this.M(p[3], e, h);
     }
     
     cswap(p, q, b) {
       let i;
       for (i = 0; i < 4; i++) {
-        sel25519(p[i], q[i], b);
+        this.sel25519(p[i], q[i], b);
       }
     }
     
     pack(r, p) {
-      let tx = this.gf(), ty = this.gf(), zi = this.gf();
-      inv25519(zi, p[2]);
-      M(tx, p[0], zi);
-      M(ty, p[1], zi);
-      pack25519(r, ty);
-      r[31] ^= par25519(tx) << 7;
+      let tx = this.gf(null), ty = this.gf(null), zi = this.gf(null);
+      this.inv25519(zi, p[2]);
+      this.M(tx, p[0], zi);
+      this.M(ty, p[1], zi);
+      this.pack25519(r, ty);
+      r[31] ^= this.par25519(tx) << 7;
     }
     
     scalarmult(p, q, s) {
       let b, i;
-      set25519(p[0], this.gf0);
-      set25519(p[1], this.gf1);
-      set25519(p[2], this.gf1);
-      set25519(p[3], this.gf0);
+      this.set25519(p[0], this.gf0);
+      this.set25519(p[1], this.gf1);
+      this.set25519(p[2], this.gf1);
+      this.set25519(p[3], this.gf0);
       for (i = 255; i >= 0; --i) {
         b = (s[(i/8)|0] >> (i&7)) & 1;
-        cswap(p, q, b);
-        add(q, p);
-        add(p, p);
-        cswap(p, q, b);
+        this.cswap(p, q, b);
+        this.add(q, p);
+        this.add(p, p);
+        this.cswap(p, q, b);
       }
     }
     
     scalarbase(p, s) {
-      let q = [this.gf(), this.gf(), this.gf(), this.gf()];
-      set25519(q[0], X);
-      set25519(q[1], Y);
-      set25519(q[2], this.gf1);
-      M(q[3], X, Y);
-      scalarmult(p, q, s);
+      let q = [this.gf(null), this.gf(null), this.gf(null), this.gf(null)];
+      this.set25519(q[0], this.X);
+      this.set25519(q[1], this.Y);
+      this.set25519(q[2], this.gf1);
+      this.M(q[3], this.X, this.Y);
+      this.scalarmult(p, q, s);
     }
     
     //new functions for CN - scalar operations are handled externally
@@ -398,6 +397,7 @@ export class NaclProvider {
     }
     
     //res = s*G
+    
     ge_scalarmult_base(s) {
       let p = [this.gf(null), this.gf(null), this.gf(null), this.gf(null)];
       this.scalarbase(p, s);
@@ -408,8 +408,8 @@ export class NaclProvider {
     
     //res = s*P
     ge_scalarmult(P, s) {
-      let p = [this.gf(), this.gf(), this.gf(), this.gf()],
-      upk = [this.gf(), this.gf(), this.gf(), this.gf()],
+      let p = [this.gf(null), this.gf(null), this.gf(null), this.gf(null)],
+      upk = [this.gf(null), this.gf(null), this.gf(null), this.gf(null)],
       res = new Uint8Array(32);
       ge_neg(P);
       if (unpackneg(upk, P) !== 0) throw "non-0 error on point decode";
@@ -420,9 +420,9 @@ export class NaclProvider {
     
     //res = c*P + r*G
     ge_double_scalarmult_base_vartime(c, P, r) {
-      let uP = [this.gf(), this.gf(), this.gf(), this.gf()],
-      cP = [this.gf(), this.gf(), this.gf(), this.gf()],
-      rG = [this.gf(), this.gf(), this.gf(), this.gf()],
+      let uP = [this.gf(null), this.gf(null), this.gf(null), this.gf(null)],
+      cP = [this.gf(null), this.gf(null), this.gf(null), this.gf(null)],
+      rG = [this.gf(null), this.gf(null), this.gf(null), this.gf(null)],
       res = new Uint8Array(32);
       ge_neg(P);
       if (unpackneg(uP, P) !== 0) throw "non-0 error on point decode";
@@ -435,10 +435,10 @@ export class NaclProvider {
     
     //name changed to reflect not using precomp; res = r*Pb + c*I
     ge_double_scalarmult_postcomp_vartime(r, Pb, c, I) {
-      let uPb = [this.gf(), this.gf(), this.gf(), this.gf()],
-      uI = [this.gf(), this.gf(), this.gf(), this.gf()],
-      cI = [this.gf(), this.gf(), this.gf(), this.gf()],
-      rPb = [this.gf(), this.gf(), this.gf(), this.gf()],
+      let uPb = [this.gf(null), this.gf(null), this.gf(null), this.gf(null)],
+      uI = [this.gf(null), this.gf(null), this.gf(null), this.gf(null)],
+      cI = [this.gf(null), this.gf(null), this.gf(null), this.gf(null)],
+      rPb = [this.gf(null), this.gf(null), this.gf(null), this.gf(null)],
       res = new Uint8Array(32);
       ge_neg(Pb);
       if (unpackneg(uPb, Pb) !== 0) throw "non-0 error on point decode";
@@ -453,8 +453,8 @@ export class NaclProvider {
     
     //res = P + Q
     ge_add(P, Q) {
-      let uP = [this.gf(), this.gf(), this.gf(), this.gf()],
-      uQ = [this.gf(), this.gf(), this.gf(), this.gf()],
+      let uP = [this.gf(null), this.gf(null), this.gf(null), this.gf(null)],
+      uQ = [this.gf(null), this.gf(null), this.gf(null), this.gf(null)],
       res = new Uint8Array(32);
       ge_neg(P);
       ge_neg(Q);
@@ -500,9 +500,9 @@ export class NaclProvider {
     }
     
     unpackneg(r, p) {
-      let t = this.gf(), chk = this.gf(), num = this.gf(),
-          den = this.gf(), den2 = this.gf(), den4 = this.gf(),
-          den6 = this.gf();
+      let t = this.gf(null), chk = this.gf(null), num = this.gf(null),
+          den = this.gf(null), den2 = this.gf(null), den4 = this.gf(null),
+          den6 = this.gf(null);
     
       set25519(r[2], this.gf1);
       unpack25519(r[1], p);

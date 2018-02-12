@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Http, Headers, RequestOptions } from '@angular/http';
 import { MnemonicProvider } from '../mnemonic/mnemonic';
 import { CnutilProvider } from '../cnutil/cnutil';
+import { VanityAddressProvider } from '../vanity-address/vanity-address';
 
 /*
   Generated class for the ApplicationProvider provider.
@@ -14,17 +15,18 @@ import { CnutilProvider } from '../cnutil/cnutil';
 export class ApplicationProvider {
   remotePath:string = "https://mysuperiorcoin.com:1984";
   mnemonic_language:string = 'english';
-  address:string = "5Q9EiDmY9ExftqJYUE2Gvi8WqsBfUnUVkRpsUJLaWLszfBbB6PihJiXYwcnkHRVEQZ1vqkFDRZpMNKMGytPXs2g7V12YZNp";
-  viewKey:string =  "5a7391be3d2d89c160cb746fa83b57a1cecf516ee2ee1a72b782208bbd2d0d03";
-
+  address:string;// = "5Q9EiDmY9ExftqJYUE2Gvi8WqsBfUnUVkRpsUJLaWLszfBbB6PihJiXYwcnkHRVEQZ1vqkFDRZpMNKMGytPXs2g7V12YZNp";
+  viewKey:string;// =  "5a7391be3d2d89c160cb746fa83b57a1cecf516ee2ee1a72b782208bbd2d0d03";
+  mNemonic:string;
   constructor(
     public http: HttpClient,
     public sMnemonic: MnemonicProvider,
-    public sCnutil:CnutilProvider
+    public sCnutil:CnutilProvider,
+    public vanityAddress:VanityAddressProvider
   ) {
     console.log('Hello ApplicationProvider Provider');
   }
-
+  
   login() {
     let headers = new Headers(
       {
@@ -106,7 +108,7 @@ export class ApplicationProvider {
               seed = this.sMnemonic.mn_decode(mnemonic, this.mnemonic_language);
               break; 
       }
-      console.log(seed);
+     
       keys = this.sCnutil.create_address(seed);
 
       //console.log(keys);

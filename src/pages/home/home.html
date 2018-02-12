@@ -3,6 +3,19 @@
   <button ion-button (click)="login()">Login</button>
   <button ion-button color="secondary" (click)="getInfoAddress()">Get info address</button>
   <button ion-button color="danger" (click)="decodeMnemomic()">Decode</button>
+  <div >
+    <ion-list>
+      <ion-item *ngIf="this.sApplication.address">
+        address : {{this.sApplication.address}}
+      </ion-item>
+      <ion-item *ngIf="this.sApplication.viewKey">
+        view key : {{this.sApplication.viewKey}}
+      </ion-item>
+      <ion-item *ngIf="this.sApplication.mNemonic">
+        mNemonic : {{this.sApplication.mNemonic}}
+      </ion-item>
+    </ion-list>
+  </div>
   <div *ngIf="this.infos">
     <ion-list>
       <ion-item >

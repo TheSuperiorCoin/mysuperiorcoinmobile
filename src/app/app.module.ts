@@ -17,6 +17,8 @@ import { Crc32Provider } from '../providers/crc32/crc32';
 import { CnutilProvider } from '../providers/cnutil/cnutil';
 import { ConfigProvider } from '../providers/config/config';
 import { NaclProvider } from '../providers/nacl/nacl';
+import { VanityAddressProvider } from '../providers/vanity-address/vanity-address';
+import { Base58Provider } from '../providers/base58/base58';
 @NgModule({
   declarations: [
     MyApp,
@@ -49,6 +51,8 @@ import { NaclProvider } from '../providers/nacl/nacl';
     CnutilProvider,
     ConfigProvider,
     NaclProvider,
+    VanityAddressProvider,
+    Base58Provider,
   ]
 })
 export class AppModule {}
