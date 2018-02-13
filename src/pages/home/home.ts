@@ -72,11 +72,11 @@ export class HomePage {
   }
   getInfoAddress(w){
     this.infos = null;
- 
-    this.sApplication.addressInfo(w).then((result) => {
+    this.sApplication.openedWallet = w;
+    this.sApplication.addressInfo().then((result) => {
         
-        console.log('la');
-        console.log(result);
+       
+        this.sApplication.openedWallet.datas = result;
         this.infos = result;
         
       /*let datas:any = result;

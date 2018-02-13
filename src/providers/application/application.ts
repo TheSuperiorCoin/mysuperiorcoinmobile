@@ -98,28 +98,26 @@ export class ApplicationProvider {
       });
     });
   }
-  addressInfo(w) {
+  addressInfo() {
     let headers = new Headers(
       {
         'Content-Type' : 'application/json'
       });
       let options:any = new RequestOptions({ headers: headers });
       
-    w.decodeSeed(this.decode_seed(w));
+    this.openedWallet.decodeSeed(this.decode_seed(this.openedWallet));
     let data:any = {
-      address: w.address, 
-      view_key: w.viewKey
+      address: this.openedWallet.address, 
+      view_key: this.openedWallet.viewKey
     };
     
     data = JSON.stringify(data);
-    console.log(data);
-    this.openedWallet = w;
     return new Promise((resolve, reject) => {
       this.http.post(this.remotePath+'/get_address_info', data, options).toPromise().then((response) =>
       {
         let res = response;
         console.log(JSON.stringify(res));
-        this.openedWallet.datas = response;
+        
         resolve(res);
       }) 
       .catch((error) =>
