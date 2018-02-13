@@ -110,13 +110,15 @@ export class ApplicationProvider {
       address: w.address, 
       view_key: w.viewKey
     };
-    console.log(data);
+    
     data = JSON.stringify(data);
+    console.log(data);
     this.openedWallet = w;
     return new Promise((resolve, reject) => {
       this.http.post(this.remotePath+'/get_address_info', data, options).toPromise().then((response) =>
       {
         let res = response;
+        console.log(JSON.stringify(res));
         this.openedWallet.datas = response;
         resolve(res);
       }) 
