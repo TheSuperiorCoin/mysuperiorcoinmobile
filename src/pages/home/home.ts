@@ -78,6 +78,7 @@ export class HomePage {
         console.log('la');
         console.log(result);
         this.infos = result;
+        
       /*let datas:any = result;
       if(datas.status == false){
         this.loading.dismiss();
