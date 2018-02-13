@@ -1,16 +1,16 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+//import { BigIntegerProvider } from '../big-integer/big-integer';
 
-/*
-  Generated class for the Base58Provider provider.
+declare var JSBigInt;
 
-  See https://angular.io/guide/dependency-injection for more info on providers
-  and Angular DI.
-*/
 @Injectable()
 export class Base58Provider {
 
-  constructor(public http: HttpClient) {
+  constructor(
+        public http: HttpClient,
+        //public bigInt: BigIntegerProvider
+    ) {
     for (var i = 0; i < this.alphabet_str.length; i++) {
       this.alphabet.push(this.alphabet_str.charCodeAt(i));
     }
@@ -28,7 +28,7 @@ export class Base58Provider {
     full_block_size = 8;
     full_encoded_block_size = 11;
 
-    //UINT64_MAX = new JSBigInt(2).pow(64);
+    UINT64_MAX = JSBigInt(2,null).pow(64);
 
     hextobin(hex) {
         if (hex.length % 2 !== 0) throw "Hex string has invalid length!";
@@ -68,7 +68,7 @@ export class Base58Provider {
             throw "Invalid input length";
         }
         var res = JSBigInt.ZERO;
-        var twopow8 = new JSBigInt(2).pow(8);
+        var twopow8 = JSBigInt(2,null).pow(8);
         var i = 0;
         switch (9 - data.length) {
         case 1:
@@ -99,7 +99,7 @@ export class Base58Provider {
         if (size < 1 || size > 8) {
             throw "Invalid input length";
         }
-        var twopow8 = new JSBigInt(2).pow(8);
+        var twopow8 = JSBigInt(2,null).pow(8);
         for (var i = size - 1; i >= 0; i--) {
             res[i] = num.remainder(twopow8).toJSValue();
             num = num.divide(twopow8);
@@ -150,56 +150,56 @@ export class Base58Provider {
     }
 
     decode_block (data, buf, index) {
-        if (data.length < 1 || data.length > full_encoded_block_size) {
+        if (data.length < 1 || data.length > this.full_encoded_block_size) {
             throw "Invalid block length: " + data.length;
         }
 
-        var res_size = encoded_block_sizes.indexOf(data.length);
+        var res_size = this.encoded_block_sizes.indexOf(data.length);
         if (res_size <= 0) {
             throw "Invalid block size";
         }
-        var res_num = new JSBigInt(0);
-        var order = new JSBigInt(1);
+        var res_num = JSBigInt(0, null);
+        var order = JSBigInt(1, null);
         for (var i = data.length - 1; i >= 0; i--) {
-            var digit = alphabet.indexOf(data[i]);
+            var digit = this.alphabet.indexOf(data[i]);
             if (digit < 0) {
                 throw "Invalid symbol";
             }
             var product = order.multiply(digit).add(res_num);
             // if product > UINT64_MAX
-            if (product.compare(UINT64_MAX) === 1) {
+            if (product.compare(this.UINT64_MAX) === 1) {
                 throw "Overflow";
             }
             res_num = product;
-            order = order.multiply(alphabet_size);
+            order = order.multiply(this.alphabet_size);
         }
-        if (res_size < full_block_size && (new JSBigInt(2).pow(8 * res_size).compare(res_num) <= 0)) {
+        if (res_size < this.full_block_size && (JSBigInt(2,null).pow(8 * res_size).compare(res_num) <= 0)) {
             throw "Overflow 2";
         }
-        buf.set(uint64_to_8be(res_num, res_size), index);
+        buf.set(this.uint64_to_8be(res_num, res_size), index);
         return buf;
     };
 
     decode (enc) {
-        enc = strtobin(enc);
+        enc = this.strtobin(enc);
         if (enc.length === 0) {
             return "";
         }
-        var full_block_count = Math.floor(enc.length / full_encoded_block_size);
-        var last_block_size = enc.length % full_encoded_block_size;
-        var last_block_decoded_size = encoded_block_sizes.indexOf(last_block_size);
+        var full_block_count = Math.floor(enc.length / this.full_encoded_block_size);
+        var last_block_size = enc.length % this.full_encoded_block_size;
+        var last_block_decoded_size = this.encoded_block_sizes.indexOf(last_block_size);
         if (last_block_decoded_size < 0) {
             throw "Invalid encoded length";
         }
-        var data_size = full_block_count * full_block_size + last_block_decoded_size;
+        var data_size = full_block_count * this.full_block_size + last_block_decoded_size;
         var data = new Uint8Array(data_size);
         for (var i = 0; i < full_block_count; i++) {
-            data = b58.decode_block(enc.subarray(i * full_encoded_block_size, i * full_encoded_block_size + full_encoded_block_size), data, i * full_block_size);
+            data = this.decode_block(enc.subarray(i * this.full_encoded_block_size, i * this.full_encoded_block_size + this.full_encoded_block_size), data, i * this.full_block_size);
         }
         if (last_block_size > 0) {
-            data = b58.decode_block(enc.subarray(full_block_count * full_encoded_block_size, full_block_count * full_encoded_block_size + last_block_size), data, full_block_count * full_block_size);
+            data = this.decode_block(enc.subarray(full_block_count * this.full_encoded_block_size, full_block_count * this.full_encoded_block_size + last_block_size), data, full_block_count * this.full_block_size);
         }
-        return bintohex(data);
+        return this.bintohex(data);
     };
 
 

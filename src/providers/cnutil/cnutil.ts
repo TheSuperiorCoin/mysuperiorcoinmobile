@@ -4,87 +4,55 @@ import { MnemonicProvider } from '../mnemonic/mnemonic';
 import { NaclProvider } from '../nacl/nacl';
 import { ConfigProvider } from '../config/config';
 import { Base58Provider } from '../base58/base58';
-import { Base58Provider } from '../base58/base58';
-import { Base58Provider } from '../base58/base58';
+//import { BigIntegerProvider } from '../big-integer/big-integer';
+import moment from 'moment';
+import keccak256 from 'js-sha3';
 
-/*
-  Generated class for the CnutilProvider provider.
-
-  See https://angular.io/guide/dependency-injection for more info on providers
-  and Angular DI.
-*/
+declare var Module;
+declare var JSBigInt;
 @Injectable()
 export class CnutilProvider {
+    HASH_STATE_BYTES = 200;
+    HASH_SIZE = 32;
     CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX:any;
     CRYPTONOTE_PUBLIC_INTEGRATED_ADDRESS_BASE58_PREFIX:any;
     ADDRESS_CHECKSUM_SIZE = 4;
-  constructor(
-    public http: HttpClient,
-    public sMnemonic: MnemonicProvider,
-    public config:ConfigProvider,
-    public sNacl:NaclProvider,
-    public cnBase: Base58Provider
-  ) {
-    console.log('Hello CnutilProvider Provider');
-  }
-  init(){
-
-  /*let this.config:any = {};// shallow copy of initthis.config
-
-  for (let key in this.sthis.config.initthis.config) {
-      this.config[key] = this.sthis.config.initthis.config[key];
-  }*/
-
-  //this.config.coinUnits = new JSBigInt(10).pow(this.config.coinUnitPlaces);
-
-  let HASH_STATE_BYTES = 200;
-  let HASH_SIZE = 32;
+    INTEGRATED_ID_SIZE = 8;
+    ENCRYPTED_PAYMENT_ID_TAIL = 141;
+    RCTTypeFull = 1;
+    RCTTypeSimple = 2;
+    H = "8b655970153799af2aeadc9ff1add0ea6c7251d54154cfa92c173a0dd39c1f94"; //base H for amounts
+    l = "7237005577332262213973186563042994240857116359379907606001950938285454250989"; //curve order (not RCT specific)
+    I = "0100000000000000000000000000000000000000000000000000000000000000"; //identity element
+    Z = "0000000000000000000000000000000000000000000000000000000000000000"; //zero scalar
+    TX_EXTRA_NONCE_MAX_COUNT = 255;
+    TX_EXTRA_TAGS = {
+        PADDING: '00',
+        PUBKEY: '01',
+        NONCE: '02',
+        MERGE_MINING: '03'
+    };
+    TX_EXTRA_NONCE_TAGS = {
+        PAYMENT_ID: '00',
+        ENCRYPTED_PAYMENT_ID: '01'
+    };
+    KEY_SIZE = 32;
+    STRUCT_SIZES = {
+        GE_P3: 160,
+        GE_P2: 120,
+        GE_P1P1: 160,
+        GE_CACHED: 160,
+        EC_SCALAR: 32,
+        EC_POINT: 32,
+        KEY_IMAGE: 32,
+        GE_DSMP: 160 * 8, // ge_cached * 8
+        SIGNATURE: 64 // ec_scalar * 2
+    };
+    UINT64_MAX = Math.pow(2, 64);//JSBigInt(2).pow(64);
+    CURRENT_TX_VERSION = 2;
+    OLD_TX_VERSION = 1;
   
-  let INTEGRATED_ID_SIZE = 8;
-  let ENCRYPTED_PAYMENT_ID_TAIL = 141;
-  this.CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX = this.config.addressPrefix;
-  this.CRYPTONOTE_PUBLIC_INTEGRATED_ADDRESS_BASE58_PREFIX = this.config.integratedAddressPrefix;
-  if (this.config.testnet === true)
-  {
-    this.CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX = this.config.addressPrefixTestnet;
-    this.CRYPTONOTE_PUBLIC_INTEGRATED_ADDRESS_BASE58_PREFIX = this.config.integratedAddressPrefixTestnet;
-  }
-  let UINT64_MAX = Math.pow(2, 64);//new JSBigInt(2).pow(64);
-  let CURRENT_TX_VERSION = 2;
-  let OLD_TX_VERSION = 1;
-  let RCTTypeFull = 1;
-  let RCTTypeSimple = 2;
-  let TX_EXTRA_NONCE_MAX_COUNT = 255;
-  let TX_EXTRA_TAGS = {
-      PADDING: '00',
-      PUBKEY: '01',
-      NONCE: '02',
-      MERGE_MINING: '03'
-  };
-  let TX_EXTRA_NONCE_TAGS = {
-      PAYMENT_ID: '00',
-      ENCRYPTED_PAYMENT_ID: '01'
-  };
-  let KEY_SIZE = 32;
-  let STRUCT_SIZES = {
-      GE_P3: 160,
-      GE_P2: 120,
-      GE_P1P1: 160,
-      GE_CACHED: 160,
-      EC_SCALAR: 32,
-      EC_POINT: 32,
-      KEY_IMAGE: 32,
-      GE_DSMP: 160 * 8, // ge_cached * 8
-      SIGNATURE: 64 // ec_scalar * 2
-  };
-
-  //RCT lets
-  let H = "8b655970153799af2aeadc9ff1add0ea6c7251d54154cfa92c173a0dd39c1f94"; //base H for amounts
-  let l = "7237005577332262213973186563042994240857116359379907606001950938285454250989"; //curve order (not RCT specific)
-  let I = "0100000000000000000000000000000000000000000000000000000000000000"; //identity element
-  let Z = "0000000000000000000000000000000000000000000000000000000000000000"; //zero scalar
-  //H2 object to speed up some operations
-  let H2 = ["8b655970153799af2aeadc9ff1add0ea6c7251d54154cfa92c173a0dd39c1f94", "8faa448ae4b3e2bb3d4d130909f55fcd79711c1c83cdbccadd42cbe1515e8712",
+    H2 = ["8b655970153799af2aeadc9ff1add0ea6c7251d54154cfa92c173a0dd39c1f94", "8faa448ae4b3e2bb3d4d130909f55fcd79711c1c83cdbccadd42cbe1515e8712",
       "12a7d62c7791654a57f3e67694ed50b49a7d9e3fc1e4c7a0bde29d187e9cc71d", "789ab9934b49c4f9e6785c6d57a498b3ead443f04f13df110c5427b4f214c739",
       "771e9299d94f02ac72e38e44de568ac1dcb2edc6edb61f83ca418e1077ce3de8", "73b96db43039819bdaf5680e5c32d741488884d18d93866d4074a849182a8a64",
       "8d458e1c2f68ebebccd2fd5d379f5e58f8134df3e0e88cad3d46701063a8d412", "09551edbe494418e81284455d64b35ee8ac093068a5f161fa6637559177ef404",
@@ -117,7 +85,40 @@ export class CnutilProvider {
       "60b626a033b55f27d7676c4095eababc7a2c7ede2624b472e97f64f96b8cfc0e", "e5b52bc927468df71893eb8197ef820cf76cb0aaf6e8e4fe93ad62d803983104",
       "056541ae5da9961be2b0a5e895e5c5ba153cbb62dd561a427bad0ffd41923199", "f8fef05a3fa5c9f3eba41638b247b711a99f960fe73aa2f90136aeb20329b888"];
 
+
+  constructor(
+    public http: HttpClient,
+    public sMnemonic: MnemonicProvider,
+    public config:ConfigProvider,
+    public sNacl:NaclProvider,
+    public cnBase: Base58Provider,
+    /*public bigInt:BigIntegerProvider*/
+  ) {
+    this.init();
+  }
+  init(){
+
+  /*let this.config:any = {};// shallow copy of initthis.config
+
+  for (let key in this.sthis.config.initthis.config) {
+      this.config[key] = this.sthis.config.initthis.config[key];
+  }*/
+
+  //this.config.coinUnits = JSBigInt(10).pow(this.config.coinUnitPlaces);
+
+  
+  
+  
+  this.CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX = this.config.addressPrefix;
+  this.CRYPTONOTE_PUBLIC_INTEGRATED_ADDRESS_BASE58_PREFIX = this.config.integratedAddressPrefix;
+  if (this.config.testnet === true)
+  {
+    this.CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX = this.config.addressPrefixTestnet;
+    this.CRYPTONOTE_PUBLIC_INTEGRATED_ADDRESS_BASE58_PREFIX = this.config.integratedAddressPrefixTestnet;
+  }
+
 }
+  
   //begin rct new functions
   //creates a Pedersen commitment from an amount (in scalar form) and a mask
   //C = bG + aH where b = mask, a = amount
@@ -125,7 +126,7 @@ export class CnutilProvider {
       if (!this.valid_hex(mask) || mask.length !== 64 || !!this.valid_hex(amount) || amount.length !== 64){
           throw "invalid amount or mask!";
       }
-      let C = this.ge_double_scalarmult_base_lettime(amount, H, mask);
+      let C = this.ge_double_scalarmult_base_lettime(amount, this.H, mask);
       return C;
   }
 
@@ -133,7 +134,7 @@ export class CnutilProvider {
       if (!!this.valid_hex(amount) || amount.length !== 64){
           throw "invalid amount!";
       }
-      let C = this.ge_double_scalarmult_base_lettime(amount, H, I);
+      let C = this.ge_double_scalarmult_base_lettime(amount, this.H, this.I);
       return C;
   }
 
@@ -179,44 +180,44 @@ export class CnutilProvider {
   d2h(integer){
       if (typeof integer !== "string" && integer.toString().length > 15){throw "integer should be entered as a string for precision";}
       let padding = "";
-      for (i = 0; i < 63; i++){
+      for (let i = 0; i < 63; i++){
           padding += "0";
       }
-      return (padding + JSBigInt(integer).toString(16).toLowerCase()).slice(-64);
+      return (padding + JSBigInt(integer, null).toString(16).toLowerCase()).slice(-64);
   }
 
   //integer (string) to scalar
   d2s(integer){
-      return swapEndian(d2h(integer));
+      return this.swapEndian(this.d2h(integer));
   }
 
   //scalar to integer (string)
   s2d(scalar){
-      return JSBigInt.parse(swapEndian(scalar), 16).toString();
+      return JSBigInt.parse(this.swapEndian(scalar), 16).toString();
   }
 
   //convert integer string to 64bit "binary" little-endian string
   d2b(integer){
       if (typeof integer !== "string" && integer.toString().length > 15){throw "integer should be entered as a string for precision";}
       let padding = "";
-      for (i = 0; i < 63; i++){
+      for (let i = 0; i < 63; i++){
           padding += "0";
       }
-      let a = new JSBigInt(integer);
+      let a = JSBigInt(integer, null);
       if (a.toString(2).length > 64){throw "amount overflows uint64!";}
-      return swapEndianC((padding + a.toString(2)).slice(-64));
+      return this.swapEndianC((padding + a.toString(2)).slice(-64));
   }
 
   //convert integer string to 64bit base 4 little-endian string
   d2b4(integer){
       if (typeof integer !== "string" && integer.toString().length > 15){throw "integer should be entered as a string for precision";}
       let padding = "";
-      for (i = 0; i < 31; i++){
+      for (let i = 0; i < 31; i++){
           padding += "0";
       }
-      let a = new JSBigInt(integer);
+      let a = JSBigInt(integer, null);
       if (a.toString(2).length > 64){throw "amount overflows uint64!";}
-      return swapEndianC((padding + a.toString(4)).slice(-32));
+      return this.swapEndianC((padding + a.toString(4)).slice(-32));
   }
   //end rct new functions
 
@@ -231,7 +232,7 @@ export class CnutilProvider {
       let bin1 = this.hextobin(hex1);
       let bin2 = this.hextobin(hex2);
       let xor = new Uint8Array(bin1.length);
-      for (i = 0; i < xor.length; i++){
+      for (let i = 0; i < xor.length; i++){
           xor[i] = bin1[i] ^ bin2[i];
       }
       return this.bintohex(xor);
@@ -270,14 +271,26 @@ export class CnutilProvider {
   };    
 
   encode_letint (i) {
-      i = new JSBigInt(i);
+
+      i = JSBigInt(i,null);
+        //console.log(i);
       let out = '';
+      let index:any = 0;
       // While i >= b10000000
       while (i.compare(0x80) >= 0) {
+        //console.log(i.compare(0x80)+' >= 0');
           // out.append i & b01111111 | b10000000
           out += ("0" + ((i.lowVal() & 0x7f) | 0x80).toString(16)).slice(-2);
-          i = i.divide(new JSBigInt(2).pow(7));
+          let t:any = JSBigInt(2,null).pow(7);
+        
+
+          let div:any = i.quotient(t);
+          i = div;
+         
+          index++;
+          //if(index>10) break;
       }
+      
       out += ("0" + i.toJSValue().toString(16)).slice(-2);
       return out;
   };
@@ -310,16 +323,17 @@ export class CnutilProvider {
   };
 
   cn_fast_hash (input, inlen) {
-      /*if (inlen === undefined || !inlen) {
+      if (inlen === null || !inlen) {
           inlen = Math.floor(input.length / 2);
-      }*/
+      }
       if (input.length % 2 !== 0 || !this.valid_hex(input)) {
           throw "Input invalid";
       }
       //update to use new keccak impl (approx 45x faster)
-      //let state = this.keccak(input, inlen, HASH_STATE_BYTES);
-      //return state.substr(0, HASH_SIZE * 2);
-      return keccak_256(this.hextobin(input));
+      /*let state = this.keccak(input, inlen, this.HASH_STATE_BYTES);
+      return state.substr(0, this.HASH_SIZE * 2);*/
+      let v:any = keccak256.keccak256(this.hextobin(input));
+      return v;
   };
 
 
@@ -348,19 +362,19 @@ export class CnutilProvider {
   pubkeys_to_string (spend, view) {
       let prefix = this.encode_letint(this.CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX);
       let data = prefix + spend + view;
-      let checksum = this.cn_fast_hash(data);
+      let checksum = this.cn_fast_hash(data,null);
       return this.cnBase.encode(data + checksum.slice(0, this.ADDRESS_CHECKSUM_SIZE * 2));
   };
 
   get_account_integrated_address (address, payment_id8) {
-      let decoded_address = decode_address(address);
+      let decoded_address = this.decode_address(address);
 
       let prefix = this.encode_letint(this.CRYPTONOTE_PUBLIC_INTEGRATED_ADDRESS_BASE58_PREFIX);        
       let data = prefix + decoded_address.spend  + decoded_address.view + payment_id8;    
 
-      let checksum = this.cn_fast_hash(data);
+      let checksum = this.cn_fast_hash(data,null);
 
-      return cnBase58.encode(data + checksum.slice(0, ADDRESS_CHECKSUM_SIZE * 2));
+      return this.cnBase.encode(data + checksum.slice(0, this.ADDRESS_CHECKSUM_SIZE * 2));
   };    
 
 
@@ -369,7 +383,7 @@ export class CnutilProvider {
 
       let key_derivation = this.generate_key_derivation(tx_public_key, acc_prv_view_key);    
 
-      let pid_key = this.cn_fast_hash(key_derivation + ENCRYPTED_PAYMENT_ID_TAIL.toString(16)).slice(0, INTEGRATED_ID_SIZE * 2);
+      let pid_key = this.cn_fast_hash(key_derivation + this.ENCRYPTED_PAYMENT_ID_TAIL.toString(16),null).slice(0, this.INTEGRATED_ID_SIZE * 2);
 
       let decrypted_payment_id = this.hex_xor(payment_id8, pid_key);
 
@@ -393,6 +407,7 @@ export class CnutilProvider {
       if (seed.length !== 64) throw "Invalid input length!";
       let sec = this.sc_reduce32(seed);
       let pub = this.sec_key_to_pub(sec);
+
       return {
           'sec': sec,
           'pub': pub
@@ -410,8 +425,7 @@ export class CnutilProvider {
       return this.sc_reduce32(this.rand_32());
   };
 
-  /* no longer used
-  this.keccak (hex, inlen, outlen) {
+  keccak (hex, inlen, outlen) {
       let input = this.hextobin(hex);
       if (input.length !== inlen) {
           throw "Invalid input length";
@@ -427,7 +441,7 @@ export class CnutilProvider {
       Module._free(input_mem);
       Module._free(out_mem);
       return this.bintohex(output);
-  };*/
+  }
 
 
   create_address (seed) {
@@ -456,13 +470,16 @@ export class CnutilProvider {
   create_addr_prefix (seed) {
       let first;
       if (seed.length !== 64) {
-          first = this.cn_fast_hash(seed);
+          first = this.cn_fast_hash(seed,null);
       } else {
           first = seed;
       }
+  
       let spend = this.generate_keys(first);
       let prefix = this.encode_letint(this.CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX);
-      return this.cnBase.encode(prefix + spend.pub).slice(0, 44);
+      let v:any = this.cnBase.encode(prefix + spend.pub).slice(0, 44);
+   
+      return v;
   };
   
   decode_address (address) {
@@ -476,13 +493,16 @@ export class CnutilProvider {
       dec = dec.slice(expectedPrefix.length);
       let spend = dec.slice(0, 64);
       let view = dec.slice(64, 128);
+      let checksum:any;
+      let expectedChecksum:any;
+      let intPaymentId:any = false;
       if (prefix === expectedPrefixInt){
-          let intPaymentId = dec.slice(128, 128 + (INTEGRATED_ID_SIZE * 2));
-          let checksum = dec.slice(128 + (INTEGRATED_ID_SIZE * 2), 128 + (INTEGRATED_ID_SIZE * 2) + (ADDRESS_CHECKSUM_SIZE * 2));
-          let expectedChecksum = this.cn_fast_hash(prefix + spend + view + intPaymentId).slice(0, ADDRESS_CHECKSUM_SIZE * 2);
+        intPaymentId = dec.slice(128, 128 + (this.INTEGRATED_ID_SIZE * 2));
+          checksum = dec.slice(128 + (this.INTEGRATED_ID_SIZE * 2), 128 + (this.INTEGRATED_ID_SIZE * 2) + (this.ADDRESS_CHECKSUM_SIZE * 2));
+          expectedChecksum = this.cn_fast_hash(prefix + spend + view + intPaymentId, null).slice(0, this.ADDRESS_CHECKSUM_SIZE * 2);
       } else {
-          let checksum = dec.slice(128, 128 + (ADDRESS_CHECKSUM_SIZE * 2));
-          let expectedChecksum = this.cn_fast_hash(prefix + spend + view).slice(0, ADDRESS_CHECKSUM_SIZE * 2);
+          checksum = dec.slice(128, 128 + (this.ADDRESS_CHECKSUM_SIZE * 2));
+          expectedChecksum = this.cn_fast_hash(prefix + spend + view, null).slice(0, this.ADDRESS_CHECKSUM_SIZE * 2);
       }
       if (checksum !== expectedChecksum) {
           throw "Invalid checksum";
@@ -508,7 +528,7 @@ export class CnutilProvider {
   };
 
   hash_to_scalar (buf) {
-      let hash = this.cn_fast_hash(buf);
+      let hash = this.cn_fast_hash(buf, null);
       let scalar = this.sc_reduce32(hash);
       return scalar;
   };
@@ -519,16 +539,16 @@ export class CnutilProvider {
           throw "Invalid input length";
       }
       let P = this.ge_scalarmult(pub, sec);
-      return this.ge_scalarmult(P, d2s(8)); //mul8 to ensure group
+      return this.ge_scalarmult(P, this.d2s(8)); //mul8 to ensure group
   };
 
   derivation_to_scalar (derivation, output_index) {
       let buf = "";
-      if (derivation.length !== (STRUCT_SIZES.EC_POINT * 2)) {
+      if (derivation.length !== (this.STRUCT_SIZES.EC_POINT * 2)) {
           throw "Invalid derivation length!";
       }
       buf += derivation;
-      let enc = encode_letint(output_index);
+      let enc = this.encode_letint(output_index);
       if (enc.length > 10 * 2) {
           throw "output_index didn't fit in 64-bit letint";
       }
@@ -540,14 +560,14 @@ export class CnutilProvider {
       if (derivation.length !== 64 || sec.length !== 64) {
           throw "Invalid input length!";
       }
-      let scalar_m = Module._malloc(STRUCT_SIZES.EC_SCALAR);
+      let scalar_m = Module._malloc(this.STRUCT_SIZES.EC_SCALAR);
       let scalar_b = this.hextobin(this.derivation_to_scalar(derivation, out_index));
       Module.HEAPU8.set(scalar_b, scalar_m);
-      let base_m = Module._malloc(KEY_SIZE);
+      let base_m = Module._malloc(this.KEY_SIZE);
       Module.HEAPU8.set(this.hextobin(sec), base_m);
-      let derived_m = Module._malloc(STRUCT_SIZES.EC_SCALAR);
+      let derived_m = Module._malloc(this.STRUCT_SIZES.EC_SCALAR);
       Module.ccall("sc_add", "void", ["number", "number", "number"], [derived_m, base_m, scalar_m]);
-      let res = Module.HEAPU8.subarray(derived_m, derived_m + STRUCT_SIZES.EC_SCALAR);
+      let res = Module.HEAPU8.subarray(derived_m, derived_m + this.STRUCT_SIZES.EC_SCALAR);
       Module._free(scalar_m);
       Module._free(base_m);
       Module._free(derived_m);
@@ -558,10 +578,10 @@ export class CnutilProvider {
       if (derivation.length !== 64 || pub.length !== 64) {
           throw "Invalid input length!";
       }
-      let derivation_m = Module._malloc(KEY_SIZE);
+      let derivation_m = Module._malloc(this.KEY_SIZE);
       let derivation_b = this.hextobin(derivation);
       Module.HEAPU8.set(derivation_b, derivation_m);
-      let base_m = Module._malloc(KEY_SIZE);
+      let base_m = Module._malloc(this.KEY_SIZE);
       let base_b = this.hextobin(pub);
       Module.HEAPU8.set(base_b, base_m);
       let point1_m = Module._malloc(STRUCT_SIZES.GE_P3);
@@ -569,7 +589,7 @@ export class CnutilProvider {
       let point3_m = Module._malloc(STRUCT_SIZES.GE_CACHED);
       let point4_m = Module._malloc(STRUCT_SIZES.GE_P1P1);
       let point5_m = Module._malloc(STRUCT_SIZES.GE_P2);
-      let derived_key_m = Module._malloc(KEY_SIZE);
+      let derived_key_m = Module._malloc(this.KEY_SIZE);
       if (Module.ccall("ge_frombytes_lettime", "bool", ["number", "number"], [point1_m, base_m]) !== 0) {
           throw "ge_frombytes_lettime returned non-zero error code";
       }
@@ -581,7 +601,7 @@ export class CnutilProvider {
       Module.ccall("ge_add", "void", ["number", "number", "number"], [point4_m, point1_m, point3_m]);
       Module.ccall("ge_p1p1_to_p2", "void", ["number", "number"], [point5_m, point4_m]);
       Module.ccall("ge_tobytes", "void", ["number", "number"], [derived_key_m, point5_m]);
-      let res = Module.HEAPU8.subarray(derived_key_m, derived_key_m + KEY_SIZE);
+      let res = Module.HEAPU8.subarray(derived_key_m, derived_key_m + this.KEY_SIZE);
       Module._free(derivation_m);
       Module._free(base_m);
       Module._free(scalar_m);
@@ -603,19 +623,19 @@ export class CnutilProvider {
   };
 
   hash_to_ec (key) {
-      if (key.length !== (KEY_SIZE * 2)) {
+      if (key.length !== (this.KEY_SIZE * 2)) {
           throw "Invalid input length";
       }
-      let h_m = Module._malloc(HASH_SIZE);
-      let point_m = Module._malloc(STRUCT_SIZES.GE_P2);
-      let point2_m = Module._malloc(STRUCT_SIZES.GE_P1P1);
-      let res_m = Module._malloc(STRUCT_SIZES.GE_P3);
-      let hash = this.hextobin(this.cn_fast_hash(key, KEY_SIZE));
+      let h_m = Module._malloc(this.HASH_SIZE);
+      let point_m = Module._malloc(this.STRUCT_SIZES.GE_P2);
+      let point2_m = Module._malloc(this.STRUCT_SIZES.GE_P1P1);
+      let res_m = Module._malloc(this.STRUCT_SIZES.GE_P3);
+      let hash = this.hextobin(this.cn_fast_hash(key, this.KEY_SIZE));
       Module.HEAPU8.set(hash, h_m);
       Module.ccall("ge_fromfe_frombytes_lettime", "void", ["number", "number"], [point_m, h_m]);
       Module.ccall("ge_mul8", "void", ["number", "number"], [point2_m, point_m]);
       Module.ccall("ge_p1p1_to_p3", "void", ["number", "number"], [res_m, point2_m]);
-      let res = Module.HEAPU8.subarray(res_m, res_m + STRUCT_SIZES.GE_P3);
+      let res = Module.HEAPU8.subarray(res_m, res_m + this.STRUCT_SIZES.GE_P3);
       Module._free(h_m);
       Module._free(point_m);
       Module._free(point2_m);
@@ -625,48 +645,48 @@ export class CnutilProvider {
 
   //returns a 32 byte point via "ge_p3_tobytes" rather than a 160 byte "p3", otherwise same as above;
   hash_to_ec_2 (key) {
-      if (key.length !== (KEY_SIZE * 2)) {
+      if (key.length !== (this.KEY_SIZE * 2)) {
           throw "Invalid input length";
       }
-      let h_m = Module._malloc(HASH_SIZE);
-      let point_m = Module._malloc(STRUCT_SIZES.GE_P2);
-      let point2_m = Module._malloc(STRUCT_SIZES.GE_P1P1);
-      let res_m = Module._malloc(STRUCT_SIZES.GE_P3);
-      let hash = this.hextobin(this.cn_fast_hash(key, KEY_SIZE));
-      let res2_m = Module._malloc(KEY_SIZE);
+      let h_m = Module._malloc(this.HASH_SIZE);
+      let point_m = Module._malloc(this.STRUCT_SIZES.GE_P2);
+      let point2_m = Module._malloc(this.STRUCT_SIZES.GE_P1P1);
+      let res_m = Module._malloc(this.STRUCT_SIZES.GE_P3);
+      let hash = this.hextobin(this.cn_fast_hash(key, this.KEY_SIZE));
+      let res2_m = Module._malloc(this.KEY_SIZE);
       Module.HEAPU8.set(hash, h_m);
       Module.ccall("ge_fromfe_frombytes_lettime", "void", ["number", "number"], [point_m, h_m]);
       Module.ccall("ge_mul8", "void", ["number", "number"], [point2_m, point_m]);
       Module.ccall("ge_p1p1_to_p3", "void", ["number", "number"], [res_m, point2_m]);
       Module.ccall("ge_p3_tobytes", "void", ["number", "number"], [res2_m, res_m]);
-      let res = Module.HEAPU8.subarray(res2_m, res2_m + KEY_SIZE);
+      let res = Module.HEAPU8.subarray(res2_m, res2_m + this.KEY_SIZE);
       Module._free(h_m);
       Module._free(point_m);
       Module._free(point2_m);
       Module._free(res_m);
       Module._free(res2_m);
       return this.bintohex(res);
-  };
+  }
 
   generate_key_image_2 (pub, sec) {
       if (!pub || !sec || pub.length !== 64 || sec.length !== 64) {
           throw "Invalid input length";
       }
-      let pub_m = Module._malloc(KEY_SIZE);
-      let sec_m = Module._malloc(KEY_SIZE);
+      let pub_m = Module._malloc(this.KEY_SIZE);
+      let sec_m = Module._malloc(this.KEY_SIZE);
       Module.HEAPU8.set(this.hextobin(pub), pub_m);
       Module.HEAPU8.set(this.hextobin(sec), sec_m);
       if (Module.ccall("sc_check", "number", ["number"], [sec_m]) !== 0) {
           throw "sc_check(sec) != 0";
       }
-      let point_m = Module._malloc(STRUCT_SIZES.GE_P3);
-      let point2_m = Module._malloc(STRUCT_SIZES.GE_P2);
+      let point_m = Module._malloc(this.STRUCT_SIZES.GE_P3);
+      let point2_m = Module._malloc(this.STRUCT_SIZES.GE_P2);
       let point_b = this.hextobin(this.hash_to_ec(pub));
       Module.HEAPU8.set(point_b, point_m);
-      let image_m = Module._malloc(STRUCT_SIZES.KEY_IMAGE);
+      let image_m = Module._malloc(this.STRUCT_SIZES.KEY_IMAGE);
       Module.ccall("ge_scalarmult", "void", ["number", "number", "number"], [point2_m, sec_m, point_m]);
       Module.ccall("ge_tobytes", "void", ["number", "number"], [image_m, point2_m]);
-      let res = Module.HEAPU8.subarray(image_m, image_m + STRUCT_SIZES.KEY_IMAGE);
+      let res = Module.HEAPU8.subarray(image_m, image_m + this.STRUCT_SIZES.KEY_IMAGE);
       Module._free(pub_m);
       Module._free(sec_m);
       Module._free(point_m);
@@ -704,7 +724,7 @@ export class CnutilProvider {
 
       let mask;
 
-      if (enc_mask === I)
+      if (enc_mask === this.I)
       {
           // this is for ringct coinbase txs (rct type 0). they are ringct tx that have identity mask
           mask = enc_mask; // enc_mask is idenity mask returned by backend.
@@ -712,7 +732,7 @@ export class CnutilProvider {
       else
       {
           // for other ringct types or for non-ringct txs to this.
-          mask = enc_mask ? sc_sub(enc_mask, hash_to_scalar(derivation_to_scalar(recv_derivation, out_index))) : I; //decode mask, or d2s(1) if no mask
+          mask = enc_mask ? this.sc_sub(enc_mask, this.hash_to_scalar(this.derivation_to_scalar(recv_derivation, out_index))) : this.I; //decode mask, or d2s(1) if no mask
       }
 
       let ephemeral_pub = this.derive_public_key(recv_derivation, out_index, keys.spend.pub);
@@ -740,8 +760,8 @@ export class CnutilProvider {
 
   //adds two points together, order does not matter
   /*this.ge_add2 (point1, point2) {
-      let point1_m = Module._malloc(KEY_SIZE);
-      let point2_m = Module._malloc(KEY_SIZE);
+      let point1_m = Module._malloc(this.KEY_SIZE);
+      let point2_m = Module._malloc(this.KEY_SIZE);
       let point1_m2 = Module._malloc(STRUCT_SIZES.GE_P3);
       let point2_m2 = Module._malloc(STRUCT_SIZES.GE_P3);
       Module.HEAPU8.set(this.hextobin(point1), point1_m);
@@ -752,7 +772,7 @@ export class CnutilProvider {
       if (Module.ccall("ge_frombytes_lettime", "bool", ["number", "number"], [point2_m2, point2_m]) !== 0) {
           throw "ge_frombytes_lettime returned non-zero error code";
       }
-      let sum_m = Module._malloc(KEY_SIZE);
+      let sum_m = Module._malloc(this.KEY_SIZE);
       let p2_m = Module._malloc(STRUCT_SIZES.GE_P2);
       let p1_m = Module._malloc(STRUCT_SIZES.GE_P1P1);
       let p3_m = Module._malloc(STRUCT_SIZES.GE_CACHED);
@@ -760,7 +780,7 @@ export class CnutilProvider {
       Module.ccall("ge_add", "void", ["number", "number", "number"], [p1_m, point1_m2, p3_m]);
       Module.ccall("ge_p1p1_to_p2", "void", ["number", "number"], [p2_m, p1_m]);
       Module.ccall("ge_tobytes", "void", ["number", "number"], [sum_m, p2_m]);
-      let res = Module.HEAPU8.subarray(sum_m, sum_m + KEY_SIZE);
+      let res = Module.HEAPU8.subarray(sum_m, sum_m + this.KEY_SIZE);
       Module._free(point1_m);
       Module._free(point1_m2);
       Module._free(point2_m);
@@ -781,8 +801,8 @@ export class CnutilProvider {
 
   //order matters
   ge_sub (point1, point2) {
-      point2n = ge_neg(point2);
-      return ge_add(point1, point2n);
+      let point2n = this.ge_neg(point2);
+      return this.ge_add(point1, point2n);
   };
 
   //adds two scalars together
@@ -790,13 +810,13 @@ export class CnutilProvider {
       if (scalar1.length !== 64 || scalar2.length !== 64) {
           throw "Invalid input length!";
       }
-      let scalar1_m = Module._malloc(STRUCT_SIZES.EC_SCALAR);
-      let scalar2_m = Module._malloc(STRUCT_SIZES.EC_SCALAR);
+      let scalar1_m = Module._malloc(this.STRUCT_SIZES.EC_SCALAR);
+      let scalar2_m = Module._malloc(this.STRUCT_SIZES.EC_SCALAR);
       Module.HEAPU8.set(this.hextobin(scalar1), scalar1_m);
       Module.HEAPU8.set(this.hextobin(scalar2), scalar2_m);
-      let derived_m = Module._malloc(STRUCT_SIZES.EC_SCALAR);
+      let derived_m = Module._malloc(this.STRUCT_SIZES.EC_SCALAR);
       Module.ccall("sc_add", "void", ["number", "number", "number"], [derived_m, scalar1_m, scalar2_m]);
-      let res = Module.HEAPU8.subarray(derived_m, derived_m + STRUCT_SIZES.EC_SCALAR);
+      let res = Module.HEAPU8.subarray(derived_m, derived_m + this.STRUCT_SIZES.EC_SCALAR);
       Module._free(scalar1_m);
       Module._free(scalar2_m);
       Module._free(derived_m);
@@ -808,13 +828,13 @@ export class CnutilProvider {
       if (scalar1.length !== 64 || scalar2.length !== 64) {
           throw "Invalid input length!";
       }
-      let scalar1_m = Module._malloc(STRUCT_SIZES.EC_SCALAR);
-      let scalar2_m = Module._malloc(STRUCT_SIZES.EC_SCALAR);
+      let scalar1_m = Module._malloc(this.STRUCT_SIZES.EC_SCALAR);
+      let scalar2_m = Module._malloc(this.STRUCT_SIZES.EC_SCALAR);
       Module.HEAPU8.set(this.hextobin(scalar1), scalar1_m);
       Module.HEAPU8.set(this.hextobin(scalar2), scalar2_m);
-      let derived_m = Module._malloc(STRUCT_SIZES.EC_SCALAR);
+      let derived_m = Module._malloc(this.STRUCT_SIZES.EC_SCALAR);
       Module.ccall("sc_sub", "void", ["number", "number", "number"], [derived_m, scalar1_m, scalar2_m]);
-      let res = Module.HEAPU8.subarray(derived_m, derived_m + STRUCT_SIZES.EC_SCALAR);
+      let res = Module.HEAPU8.subarray(derived_m, derived_m + this.STRUCT_SIZES.EC_SCALAR);
       Module._free(scalar1_m);
       Module._free(scalar2_m);
       Module._free(derived_m);
@@ -826,24 +846,24 @@ export class CnutilProvider {
       if (scalar1.length !== 64 || scalar2.length !== 64) {
           throw "Invalid input length!";
       }
-      return d2s(JSBigInt(s2d(scalar1)).multiply(JSBigInt(s2d(scalar2))).remainder(l).toString());
+      return this.d2s(JSBigInt(this.s2d(scalar1),null).multiply(JSBigInt(this.s2d(scalar2),null)).remainder(this.l).toString());
   };
 
   //res = c - (ab) mod l; argument names copied from the signature implementation
   sc_mulsub (sigc, sec, k) {
-      if (k.length !== KEY_SIZE * 2 || sigc.length !== KEY_SIZE * 2 || sec.length !== KEY_SIZE * 2 || !this.valid_hex(k) || !this.valid_hex(sigc) || !this.valid_hex(sec)) {
+      if (k.length !== this.KEY_SIZE * 2 || sigc.length !== this.KEY_SIZE * 2 || sec.length !== this.KEY_SIZE * 2 || !this.valid_hex(k) || !this.valid_hex(sigc) || !this.valid_hex(sec)) {
           throw "bad scalar";
       }
-      let sec_m = Module._malloc(KEY_SIZE);
+      let sec_m = Module._malloc(this.KEY_SIZE);
       Module.HEAPU8.set(this.hextobin(sec), sec_m);
-      let sigc_m = Module._malloc(KEY_SIZE);
+      let sigc_m = Module._malloc(this.KEY_SIZE);
       Module.HEAPU8.set(this.hextobin(sigc), sigc_m);
-      let k_m = Module._malloc(KEY_SIZE);
+      let k_m = Module._malloc(this.KEY_SIZE);
       Module.HEAPU8.set(this.hextobin(k), k_m);
-      let res_m = Module._malloc(KEY_SIZE);
+      let res_m = Module._malloc(this.KEY_SIZE);
 
       Module.ccall("sc_mulsub", "void", ["number", "number", "number", "number"], [res_m, sigc_m, sec_m, k_m]);
-      res = Module.HEAPU8.subarray(res_m, res_m + KEY_SIZE);
+      let res = Module.HEAPU8.subarray(res_m, res_m + this.KEY_SIZE);
       Module._free(k_m);
       Module._free(sec_m);
       Module._free(sigc_m);
@@ -948,12 +968,12 @@ export class CnutilProvider {
     let alpha = [];
     for (let i = 0; i < nrings; i++){
       index = parseInt(iv[i]);
-      alpha[i] = random_scalar();
-      L[index][i] = ge_scalarmult_base(alpha[i]);
+      alpha[i] = this.random_scalar();
+      L[index][i] = this.ge_scalarmult_base(alpha[i]);
       for (let j = index + 1; j < size; j++){
-        bb.s[j][i] = random_scalar();
-        let c = hash_to_scalar(L[j-1][i]);
-        L[j][i] = ge_double_scalarmult_base_lettime(c, pm[j][i], bb.s[j][i]);
+        bb.s[j][i] = this.random_scalar();
+        let c = this.hash_to_scalar(L[j-1][i]);
+        L[j][i] = this.ge_double_scalarmult_base_lettime(c, pm[j][i], bb.s[j][i]);
       }
     }
     //hash last row to create ee
@@ -961,16 +981,17 @@ export class CnutilProvider {
     for (let i = 0; i < nrings; i++){
       ltemp += L[size-1][i];
     }
-    bb.ee = hash_to_scalar(ltemp);
+    bb.ee = this.hash_to_scalar(ltemp);
     //compute the rest from 0 to secret index
     for (let i = 0; i < nrings; i++){
       let cc = bb.ee
-      for (let j = 0; j < iv[i]; j++){
-        bb.s[j][i] = random_scalar();
-        let LL = ge_double_scalarmult_base_lettime(cc, pm[j][i], bb.s[j][i]);
-        cc = hash_to_scalar(LL);
+      let j:any;
+      for (j = 0; j < iv[i]; j++){
+        bb.s[j][i] = this.random_scalar();
+        let LL = this.ge_double_scalarmult_base_lettime(cc, pm[j][i], bb.s[j][i]);
+        cc = this.hash_to_scalar(LL);
       }
-      bb.s[j][i] = sc_mulsub(xv[i], cc, alpha[i]);
+      bb.s[j][i] = this.sc_mulsub(xv[i], cc, alpha[i]);
     }
     return bb;
   };
@@ -984,12 +1005,12 @@ export class CnutilProvider {
   //commitMaskObj = {C: commit, mask: mask}
   proveRange (commitMaskObj, amount, nrings, enc_seed, exponent){
     let size = 2;
-    let C = I; //identity
-    let mask = Z; //zero scalar
-    let indices = d2b(amount); //base 2 for now
+    let C = this.I; //identity
+    let mask = this.Z; //zero scalar
+    let indices = this.d2b(amount); //base 2 for now
     let sig = {
-      Ci: []
-      //exp: exponent //doesn't exist for now
+      Ci: [],
+      bsig:{}
     }
     /*payload stuff - ignore for now
     seeds = new Array(3);
@@ -1005,29 +1026,29 @@ export class CnutilProvider {
     }
     let j;
     //start at index and fill PM left and right -- PM[0] holds Ci
-    for (i = 0; i < nrings; i++){
-      ai[i] = random_scalar();
+    for (let i = 0; i < nrings; i++){
+      ai[i] = this.random_scalar();
       j = indices[i];
-      PM[j][i] = ge_scalarmult_base(ai[i]);
+      PM[j][i] = this.ge_scalarmult_base(ai[i]);
       while (j > 0){
         j--;
-        PM[j][i] = ge_add(PM[j+1][i], H2[i]); //will need to use i*2 for base 4 (or different object)
+        PM[j][i] = this.ge_add(PM[j+1][i], this.H2[i]); //will need to use i*2 for base 4 (or different object)
       }
       j = indices[i];
       while (j < size - 1){
         j++;
-        PM[j][i] = ge_sub(PM[j-1][i], H2[i]); //will need to use i*2 for base 4 (or different object)
+        PM[j][i] = this.ge_sub(PM[j-1][i], this.H2[i]); //will need to use i*2 for base 4 (or different object)
       }
-      mask = sc_add(mask, ai[i]);
+      mask = this.sc_add(mask, ai[i]);
     }
     /*
     * some more payload stuff here
     */
     //copy commitments to sig and sum them to commitment
-    for (i = 0; i < nrings; i++){
+    for (let i = 0; i < nrings; i++){
       //if (i < nrings - 1) //for later version
       sig.Ci[i] = PM[0][i];
-      C = ge_add(C, PM[0][i]);
+      C = this.ge_add(C, PM[0][i]);
     }
     /* exponent stuff - ignore for now
     if (exponent){
@@ -1049,7 +1070,7 @@ export class CnutilProvider {
       if (typeof array[i] !== "string"){throw "unexpected array element";}
       buf += array[i];
     }
-    return hash_to_scalar(buf);
+    return this.hash_to_scalar(buf);
   }
   
   // Gen creates a signature which proves that for some column in the keymatrix "pk"
@@ -1074,47 +1095,47 @@ export class CnutilProvider {
       ss: [],
       cc: null
     };
-    for (i = 0; i < cols; i++){
+    for (let i = 0; i < cols; i++){
       rv.ss[i] = [];
     }
     let toHash = []; //holds 6 elements: message, pubkey, dsRow L, dsRow R, commitment, ndsRow L
     toHash[0] = message;
     
     //secret index (pubkey section)
-    alpha[0] = random_scalar(); //need to save alphas for later
+    alpha[0] = this.random_scalar(); //need to save alphas for later
     toHash[1] = pk[index][0]; //secret index pubkey
-    toHash[2] = ge_scalarmult_base(alpha[0]); //dsRow L
-    toHash[3] = generate_key_image_2(pk[index][0], alpha[0]); //dsRow R (key image check)
+    toHash[2] = this.ge_scalarmult_base(alpha[0]); //dsRow L
+    toHash[3] = this.generate_key_image_2(pk[index][0], alpha[0]); //dsRow R (key image check)
     //secret index (commitment section)
-    alpha[1] = random_scalar();
+    alpha[1] = this.random_scalar();
     toHash[4] = pk[index][1]; //secret index commitment
-    toHash[5] = ge_scalarmult_base(alpha[1]); //ndsRow L
+    toHash[5] = this.ge_scalarmult_base(alpha[1]); //ndsRow L
   
-    c_old = array_hash_to_scalar(toHash);
+    c_old = this.array_hash_to_scalar(toHash);
   
-    i = (index + 1) % cols;
+    let i = (index + 1) % cols;
     if (i === 0){
       rv.cc = c_old;
     }
     while (i != index){
-      rv.ss[i][0] = random_scalar(); //dsRow ss
-      rv.ss[i][1] = random_scalar(); //ndsRow ss
+      rv.ss[i][0] = this.random_scalar(); //dsRow ss
+      rv.ss[i][1] = this.random_scalar(); //ndsRow ss
   
       //!secret index (pubkey section)
       toHash[1] = pk[i][0];
-      toHash[2] = ge_double_scalarmult_base_lettime(c_old, pk[i][0], rv.ss[i][0]);
-      toHash[3] = ge_double_scalarmult_postcomp_lettime(rv.ss[i][0], pk[i][0], c_old, kimg);
+      toHash[2] = this.ge_double_scalarmult_base_lettime(c_old, pk[i][0], rv.ss[i][0]);
+      toHash[3] = this.ge_double_scalarmult_postcomp_lettime(rv.ss[i][0], pk[i][0], c_old, kimg);
       //!secret index (commitment section)
       toHash[4] = pk[i][1];
-      toHash[5] = ge_double_scalarmult_base_lettime(c_old, pk[i][1], rv.ss[i][1]);
-      c_old = array_hash_to_scalar(toHash); //hash to get next column c
+      toHash[5] = this.ge_double_scalarmult_base_lettime(c_old, pk[i][1], rv.ss[i][1]);
+      c_old = this.array_hash_to_scalar(toHash); //hash to get next column c
       i = (i + 1) % cols;
       if (i === 0){
         rv.cc = c_old;
       }
     }
     for (i = 0; i < rows; i++){
-      rv.ss[index][i] = sc_mulsub(c_old, xx[i], alpha[i]);
+      rv.ss[index][i] = this.sc_mulsub(c_old, xx[i], alpha[i]);
     }
     return rv;
   };
@@ -1129,20 +1150,20 @@ export class CnutilProvider {
     for (let i = 0; i < cols; i++){
       PK[i] = [];
       PK[i][0] = pubs[i].dest;
-      PK[i][1] = ge_sub(pubs[i].mask, Cout);
+      PK[i][1] = this.ge_sub(pubs[i].mask, Cout);
     }
     xx[0] = inSk.x;
-    xx[1] = sc_sub(inSk.a, mask);
+    xx[1] = this.sc_sub(inSk.a, mask);
     return this.MLSAG_Gen(message, PK, xx, kimg, index);
   };
 
   get_pre_mlsag_hash (rv) {
       let hashes = "";
       hashes += rv.message;
-      hashes += this.cn_fast_hash(this.serialize_rct_base(rv));
-      let buf = serialize_range_proofs(rv);
-      hashes += this.cn_fast_hash(buf);
-      return this.cn_fast_hash(hashes);
+      hashes += this.cn_fast_hash(this.serialize_rct_base(rv), null);
+      let buf = this.serialize_range_proofs(rv);
+      hashes += this.cn_fast_hash(buf, null);
+      return this.cn_fast_hash(hashes, null);
   }
 
   serialize_range_proofs(rv) {
@@ -1154,7 +1175,7 @@ export class CnutilProvider {
               }
           }
           buf += rv.p.rangeSigs[i].bsig.ee;
-          for (j = 0; j < rv.p.rangeSigs[i].Ci.length; j++) {
+          for (let j = 0; j < rv.p.rangeSigs[i].Ci.length; j++) {
               buf += rv.p.rangeSigs[i].Ci[j];
           }
       }
@@ -1180,8 +1201,8 @@ export class CnutilProvider {
     if (inAmounts.length !== inSk.length){throw "mismatched inAmounts/inSk";}
     if (indices.length !== inSk.length){throw "mismatched indices/inSk";}
     
-    rv = {
-      type: inSk.length === 1 ? RCTTypeFull : RCTTypeSimple,
+    let rv = {
+      type: inSk.length === 1 ? this.RCTTypeFull : this.RCTTypeSimple,
       message: message,
       outPk: [],
       p: {
@@ -1193,46 +1214,47 @@ export class CnutilProvider {
       pseudoOuts: []
     };
     
-    let sumout = Z;
+    let sumout = this.Z;
     let cmObj = {
       C: null,
       mask: null
     };
     let nrings = 64; //for base 2/current
     //compute range proofs, etc
-    for (i = 0; i < outAmounts.length; i++){
+    for (let i = 0; i < outAmounts.length; i++){
       let teststart = new Date().getTime();
       rv.p.rangeSigs[i] = this.proveRange(cmObj, outAmounts[i], nrings, 0, 0);
       let testfinish = new Date().getTime() - teststart;
       console.log("Time take for range proof " + i + ": " + testfinish);
       rv.outPk[i] = cmObj.C;
-      sumout = sc_add(sumout, cmObj.mask);
-      rv.ecdhInfo[i] = this.encode_rct_ecdh({mask: cmObj.mask, amount: d2s(outAmounts[i])}, amountKeys[i]);
+      sumout = this.sc_add(sumout, cmObj.mask);
+      rv.ecdhInfo[i] = this.encode_rct_ecdh({mask: cmObj.mask, amount: this.d2s(outAmounts[i])}, amountKeys[i]);
     }
 
     //simple
     if (rv.type === 2){
       let ai = [];
-      let sumpouts = Z;
+      let sumpouts = this.Z;
       //create pseudoOuts
+      let i:any;
       for (i = 0; i < inAmounts.length - 1; i++){
-        ai[i] = random_scalar();
-        sumpouts = sc_add(sumpouts, ai[i]);
-        rv.pseudoOuts[i] = commit(d2s(inAmounts[i]), ai[i]);
+        ai[i] = this.random_scalar();
+        sumpouts = this.sc_add(sumpouts, ai[i]);
+        rv.pseudoOuts[i] = this.commit(this.d2s(inAmounts[i]), ai[i]);
       }
-      ai[i] = sc_sub(sumout, sumpouts);
-      rv.pseudoOuts[i] = commit(d2s(inAmounts[i]), ai[i]);
+      ai[i] = this.sc_sub(sumout, sumpouts);
+      rv.pseudoOuts[i] = this.commit(this.d2s(inAmounts[i]), ai[i]);
       let full_message = this.get_pre_mlsag_hash(rv);
-      for (i = 0; i < inAmounts.length; i++){
+      for (let i = 0; i < inAmounts.length; i++){
         rv.p.MGs.push(this.proveRctMG(full_message, mixRing[i], inSk[i], kimg[i], ai[i], rv.pseudoOuts[i], indices[i]));
       }
     } else {
-      let sumC = I;
+      let sumC = this.I;
       //get sum of output commitments to use in MLSAG
-      for (i = 0; i < rv.outPk.length; i++){
-        sumC = ge_add(sumC, rv.outPk[i]);
+      for (let i = 0; i < rv.outPk.length; i++){
+        sumC = this.ge_add(sumC, rv.outPk[i]);
       }
-      sumC = ge_add(sumC, ge_scalarmult(H, d2s(rv.txnFee)));
+      sumC = this.ge_add(sumC, this.ge_scalarmult(this.H, this.d2s(rv.txnFee)));
       let full_message = this.get_pre_mlsag_hash(rv);
       rv.p.MGs.push(this.proveRctMG(full_message, mixRing[0], inSk[0], kimg[0], sumout, sumC, indices[0]));
     }
@@ -1245,7 +1267,7 @@ export class CnutilProvider {
   add_pub_key_to_extra (extra, pubkey) {
       if (pubkey.length !== 64) throw "Invalid pubkey length";
       // Append pubkey tag and pubkey
-      extra += TX_EXTRA_TAGS.PUBKEY + pubkey;
+      extra += this.TX_EXTRA_TAGS.PUBKEY + pubkey;
       return extra;
   };
 
@@ -1254,11 +1276,11 @@ export class CnutilProvider {
       if ((nonce.length % 2) !== 0) {
           throw "Invalid extra nonce";
       }
-      if ((nonce.length / 2) > TX_EXTRA_NONCE_MAX_COUNT) {
-          throw "Extra nonce must be at most " + TX_EXTRA_NONCE_MAX_COUNT + " bytes";
+      if ((nonce.length / 2) > this.TX_EXTRA_NONCE_MAX_COUNT) {
+          throw "Extra nonce must be at most " + this.TX_EXTRA_NONCE_MAX_COUNT + " bytes";
       }
       // Add nonce tag
-      extra += TX_EXTRA_TAGS.NONCE;
+      extra += this.TX_EXTRA_TAGS.NONCE;
       // Encode length of nonce
       extra += ('0' + (nonce.length / 2).toString(16)).slice(-2);
       // Write nonce
@@ -1272,9 +1294,9 @@ export class CnutilProvider {
       }
       let res = '';
       if (pid_encrypt) {
-          res += TX_EXTRA_NONCE_TAGS.ENCRYPTED_PAYMENT_ID;
+          res += this.TX_EXTRA_NONCE_TAGS.ENCRYPTED_PAYMENT_ID;
       } else {
-          res += TX_EXTRA_NONCE_TAGS.PAYMENT_ID;
+          res += this.TX_EXTRA_NONCE_TAGS.PAYMENT_ID;
       }
       res += payment_id;
       return res;
@@ -1283,21 +1305,21 @@ export class CnutilProvider {
   abs_to_rel_offsets (offsets) {
       if (offsets.length === 0) return offsets;
       for (let i = offsets.length - 1; i >= 1; --i) {
-          offsets[i] = new JSBigInt(offsets[i]).subtract(offsets[i - 1]).toString();
+          offsets[i] = JSBigInt(offsets[i],null).subtract(offsets[i - 1]).toString();
       }
       return offsets;
   };
 
   get_tx_prefix_hash (tx) {
       let prefix = this.serialize_tx(tx, true);
-      return this.cn_fast_hash(prefix);
+      return this.cn_fast_hash(prefix, null);
   };
 
   get_tx_hash (tx) {
       if (typeof(tx) === 'string') {
-          return this.cn_fast_hash(tx);
+          return this.cn_fast_hash(tx, null);
       } else {
-          return this.cn_fast_hash(this.serialize_tx(tx));
+          return this.cn_fast_hash(this.serialize_tx(tx, null),null);
       }
   };
 
@@ -1310,7 +1332,7 @@ export class CnutilProvider {
       //  vout: [{amount: uint64, target: {key: hex}},...],
       //  signatures: [[s,s,...],...]
       //}
-      if (headeronly === undefined) {
+      if (headeronly === null) {
           headeronly = false;
       }
       let buf = "";
@@ -1369,11 +1391,11 @@ export class CnutilProvider {
       let hashes = "";
       let buf = "";
       buf += this.serialize_tx(tx, true);
-      hashes += this.cn_fast_hash(buf);
+      hashes += this.cn_fast_hash(buf, null);
       let buf2 = this.serialize_rct_base(tx.rct_signatures);
-      hashes += this.cn_fast_hash(buf2);
+      hashes += this.cn_fast_hash(buf2, null);
       buf += buf2;
-      let buf3 = serialize_range_proofs(tx.rct_signatures);
+      let buf3 = this.serialize_range_proofs(tx.rct_signatures);
       //add MGs
       for (let i = 0; i < tx.rct_signatures.p.MGs.length; i++) {
           for (let j = 0; j < tx.rct_signatures.p.MGs[i].ss.length; j++) {
@@ -1382,9 +1404,9 @@ export class CnutilProvider {
           }
           buf3 += tx.rct_signatures.p.MGs[i].cc;
       }
-      hashes += this.cn_fast_hash(buf3);
+      hashes += this.cn_fast_hash(buf3, null);
       buf += buf3;
-      let hash = this.cn_fast_hash(hashes);
+      let hash = this.cn_fast_hash(hashes, null);
       return {
           raw: buf,
           hash: hash,
@@ -1404,24 +1426,24 @@ export class CnutilProvider {
       if (rv.ecdhInfo.length !== rv.outPk.length) {
           throw "mismatched outPk/ecdhInfo!";
       }
-      for (i = 0; i < rv.ecdhInfo.length; i++) {
+      for (let i = 0; i < rv.ecdhInfo.length; i++) {
           buf += rv.ecdhInfo[i].mask;
           buf += rv.ecdhInfo[i].amount;
       }
-      for (i = 0; i < rv.outPk.length; i++) {
+      for (let i = 0; i < rv.outPk.length; i++) {
           buf += rv.outPk[i];
       }
       return buf;
   };
 
   generate_ring_signature (prefix_hash, k_image, keys, sec, real_index) {
-      if (k_image.length !== STRUCT_SIZES.KEY_IMAGE * 2) {
+      if (k_image.length !== this.STRUCT_SIZES.KEY_IMAGE * 2) {
           throw "invalid key image length";
       }
-      if (sec.length !== KEY_SIZE * 2) {
+      if (sec.length !== this.KEY_SIZE * 2) {
           throw "Invalid secret key length";
       }
-      if (prefix_hash.length !== HASH_SIZE * 2 || !this.valid_hex(prefix_hash)) {
+      if (prefix_hash.length !== this.HASH_SIZE * 2 || !this.valid_hex(prefix_hash)) {
           throw "Invalid prefix hash";
       }
       if (real_index >= keys.length || real_index < 0) {
@@ -1440,25 +1462,25 @@ export class CnutilProvider {
       let _ge_frombytes_lettime = Module.cwrap("ge_frombytes_lettime", "number", ["number", "number"]);
       let _ge_dsm_precomp = Module.cwrap("ge_dsm_precomp", "void", ["number", "number"]);
 
-      let buf_size = STRUCT_SIZES.EC_POINT * 2 * keys.length;
-      let buf_m = Module._malloc(buf_size);
-      let sig_size = STRUCT_SIZES.SIGNATURE * keys.length;
-      let sig_m = Module._malloc(sig_size);
+      
+      
+      let sig_size = this.STRUCT_SIZES.SIGNATURE * keys.length;
+      this.sig_m = Module._malloc(sig_size);
 
       // Struct pointer helper functions
       
-      let image_m = Module._malloc(STRUCT_SIZES.KEY_IMAGE);
+      let image_m = Module._malloc(this.STRUCT_SIZES.KEY_IMAGE);
       Module.HEAPU8.set(this.hextobin(k_image), image_m);
       let i;
-      let image_unp_m = Module._malloc(STRUCT_SIZES.GE_P3);
-      let image_pre_m = Module._malloc(STRUCT_SIZES.GE_DSMP);
-      let sum_m = Module._malloc(STRUCT_SIZES.EC_SCALAR);
-      let k_m = Module._malloc(STRUCT_SIZES.EC_SCALAR);
-      let h_m = Module._malloc(STRUCT_SIZES.EC_SCALAR);
-      let tmp2_m = Module._malloc(STRUCT_SIZES.GE_P2);
-      let tmp3_m = Module._malloc(STRUCT_SIZES.GE_P3);
-      let pub_m = Module._malloc(KEY_SIZE);
-      let sec_m = Module._malloc(KEY_SIZE);
+      let image_unp_m = Module._malloc(this.STRUCT_SIZES.GE_P3);
+      let image_pre_m = Module._malloc(this.STRUCT_SIZES.GE_DSMP);
+      let sum_m = Module._malloc(this.STRUCT_SIZES.EC_SCALAR);
+      let k_m = Module._malloc(this.STRUCT_SIZES.EC_SCALAR);
+      let h_m = Module._malloc(this.STRUCT_SIZES.EC_SCALAR);
+      let tmp2_m = Module._malloc(this.STRUCT_SIZES.GE_P2);
+      let tmp3_m = Module._malloc(this.STRUCT_SIZES.GE_P3);
+      let pub_m = Module._malloc(this.KEY_SIZE);
+      let sec_m = Module._malloc(this.KEY_SIZE);
       Module.HEAPU8.set(this.hextobin(sec), sec_m);
       if (_ge_frombytes_lettime(image_unp_m, image_m) != 0) {
           throw "failed to call ge_frombytes_lettime";
@@ -1471,36 +1493,36 @@ export class CnutilProvider {
               let rand = this.random_scalar();
               Module.HEAPU8.set(this.hextobin(rand), k_m);
               _ge_scalarmult_base(tmp3_m, k_m);
-              _ge_p3_tobytes(buf_a(i), tmp3_m);
+              _ge_p3_tobytes(this.buf_a(i), tmp3_m);
               let ec = this.hash_to_ec(keys[i]);
               Module.HEAPU8.set(this.hextobin(ec), tmp3_m);
               _ge_scalarmult(tmp2_m, k_m, tmp3_m);
-              _ge_tobytes(buf_b(i), tmp2_m);
+              _ge_tobytes(this.buf_b(i), tmp2_m);
           } else {
-              Module.HEAPU8.set(this.hextobin(this.random_scalar()), sig_c(i));
-              Module.HEAPU8.set(this.hextobin(this.random_scalar()), sig_r(i));
+              Module.HEAPU8.set(this.hextobin(this.random_scalar()), this.sig_c(i));
+              Module.HEAPU8.set(this.hextobin(this.random_scalar()), this.sig_r(i));
               Module.HEAPU8.set(this.hextobin(keys[i]), pub_m);
               if (Module.ccall("ge_frombytes_lettime", "void", ["number", "number"], [tmp3_m, pub_m]) !== 0) {
                   throw "Failed to call ge_frombytes_lettime";
               }
-              _ge_double_scalarmult_base_lettime(tmp2_m, sig_c(i), tmp3_m, sig_r(i));
-              _ge_tobytes(buf_a(i), tmp2_m);
+              _ge_double_scalarmult_base_lettime(tmp2_m, this.sig_c(i), tmp3_m, this.sig_r(i));
+              _ge_tobytes(this.buf_a(i), tmp2_m);
               let ec = this.hash_to_ec(keys[i]);
               Module.HEAPU8.set(this.hextobin(ec), tmp3_m);
-              _ge_double_scalarmult_precomp_lettime(tmp2_m, sig_r(i), tmp3_m, sig_c(i), image_pre_m);
-              _ge_tobytes(buf_b(i), tmp2_m);
-              _sc_add(sum_m, sum_m, sig_c(i));
+              _ge_double_scalarmult_precomp_lettime(tmp2_m, this.sig_r(i), tmp3_m, this.sig_c(i), image_pre_m);
+              _ge_tobytes(this.buf_b(i), tmp2_m);
+              _sc_add(sum_m, sum_m, this.sig_c(i));
           }
       }
-      let buf_bin = Module.HEAPU8.subarray(buf_m, buf_m + buf_size);
+      let buf_bin = Module.HEAPU8.subarray(this.buf_m, this.buf_m + this.buf_size);
       let scalar = this.hash_to_scalar(prefix_hash + this.bintohex(buf_bin));
       Module.HEAPU8.set(this.hextobin(scalar), h_m);
-      _sc_sub(sig_c(real_index), h_m, sum_m);
-      _sc_mulsub(sig_r(real_index), sig_c(real_index), sec_m, k_m);
-      let sig_data = this.bintohex(Module.HEAPU8.subarray(sig_m, sig_m + sig_size));
+      _sc_sub(this.sig_c(real_index), h_m, sum_m);
+      _sc_mulsub(this.sig_r(real_index), this.sig_c(real_index), sec_m, k_m);
+      let sig_data = this.bintohex(Module.HEAPU8.subarray(this.sig_m, this.sig_m + sig_size));
       let sigs = [];
       for (let k = 0; k < keys.length; k++) {
-          sigs.push(sig_data.slice(STRUCT_SIZES.SIGNATURE * 2 * k, STRUCT_SIZES.SIGNATURE * 2 * (k + 1)));
+          sigs.push(sig_data.slice(this.STRUCT_SIZES.SIGNATURE * 2 * k, this.STRUCT_SIZES.SIGNATURE * 2 * (k + 1)));
       }
       Module._free(image_m);
       Module._free(image_unp_m);
@@ -1510,23 +1532,26 @@ export class CnutilProvider {
       Module._free(h_m);
       Module._free(tmp2_m);
       Module._free(tmp3_m);
-      Module._free(buf_m);
-      Module._free(sig_m);
+      Module._free(this.buf_m);
+      Module._free(this.sig_m);
       Module._free(pub_m);
       Module._free(sec_m);
       return sigs;
   };
+  buf_size;
+  buf_m;
+  sig_m;
   buf_a(i) {
-    return buf_m + STRUCT_SIZES.EC_POINT * (2 * i);
+    return this.buf_m + this.STRUCT_SIZES.EC_POINT * (2 * i);
   }
   buf_b(i) {
-      return buf_m + STRUCT_SIZES.EC_POINT * (2 * i + 1);
+      return this.buf_m + this.STRUCT_SIZES.EC_POINT * (2 * i + 1);
   }
   sig_c(i) {
-      return sig_m + STRUCT_SIZES.EC_SCALAR * (2 * i);
+      return this.sig_m + this.STRUCT_SIZES.EC_SCALAR * (2 * i);
   }
   sig_r(i) {
-      return sig_m + STRUCT_SIZES.EC_SCALAR * (2 * i + 1);
+      return this.sig_m + this.STRUCT_SIZES.EC_SCALAR * (2 * i + 1);
   }
   construct_tx (keys, sources, dsts, fee_amount, payment_id, pid_encrypt, realDestViewKey, unlock_time, rct) {
       //we move payment ID stuff here, because we need txkey to encrypt
@@ -1534,12 +1559,12 @@ export class CnutilProvider {
       console.log(txkey);
       let extra = '';
       if (payment_id) {
-          if (pid_encrypt && payment_id.length !== INTEGRATED_ID_SIZE * 2) {
-              throw "payment ID must be " + INTEGRATED_ID_SIZE + " bytes to be encrypted!";
+          if (pid_encrypt && payment_id.length !== this.INTEGRATED_ID_SIZE * 2) {
+              throw "payment ID must be " + this.INTEGRATED_ID_SIZE + " bytes to be encrypted!";
           }
           console.log("Adding payment id: " + payment_id);
           if (pid_encrypt) { //get the derivation from our passed viewkey, then hash that + tail to get encryption key
-              let pid_key = this.cn_fast_hash(this.generate_key_derivation(realDestViewKey, txkey.sec) + ENCRYPTED_PAYMENT_ID_TAIL.toString(16)).slice(0, INTEGRATED_ID_SIZE * 2);
+              let pid_key = this.cn_fast_hash(this.generate_key_derivation(realDestViewKey, txkey.sec) + this.ENCRYPTED_PAYMENT_ID_TAIL.toString(16),null).slice(0, this.INTEGRATED_ID_SIZE * 2);
               console.log("Txkeys:", txkey, "Payment ID key:", pid_key);
               payment_id = this.hex_xor(payment_id, pid_key);
           }
@@ -1549,11 +1574,13 @@ export class CnutilProvider {
       }
       let tx = {
           unlock_time: unlock_time,
-          version: rct ? CURRENT_TX_VERSION : OLD_TX_VERSION,
+          version: rct ? this.CURRENT_TX_VERSION : this.OLD_TX_VERSION,
           extra: extra,
           prvkey: '',
           vin: [],
-          vout: []
+          vout: [],
+          rct_signatures:null,
+          signatures:null
       };
       if (rct) {
           tx.rct_signatures = {};
@@ -1591,17 +1618,19 @@ export class CnutilProvider {
           // will have identity mask. Non-ringct txs will have  sources[i].mask set to null.
           // this only works if beckend will produce masks in get_unspent_outs for
           // coinbaser ringct txs.
-          is_rct_coinbases.push((sources[i].mask ? sources[i].mask === I : 0));
+          is_rct_coinbases.push((sources[i].mask ? sources[i].mask === this.I : 0));
 
 
           if (res.in_ephemeral.pub !== sources[i].outputs[sources[i].real_out].key) {
               throw "in_ephemeral.pub != source.real_out.key";
           }
-          let input_to_key = {};
-          input_to_key.type = "input_to_key";
-          input_to_key.amount = sources[i].amount;
-          input_to_key.k_image = res.image;
-          input_to_key.key_offsets = [];
+          let input_to_key = {
+            type : "input_to_key",
+            amount : sources[i].amount,
+            k_image : res.image,
+            key_offsets : []
+          };
+
           for (j = 0; j < sources[i].outputs.length; ++j) {
               input_to_key.key_offsets.push(sources[i].outputs[j].index);
           }
@@ -1612,7 +1641,7 @@ export class CnutilProvider {
       let out_index = 0;
       let amountKeys = []; //rct only
       for (i = 0; i < dsts.length; ++i) {
-          if (new JSBigInt(dsts[i].amount).compare(0) < 0) {
+          if (JSBigInt(dsts[i].amount,null).compare(0) < 0) {
               throw "dst.amount < 0"; //amount can be zero if no change
           }
           dsts[i].keys = this.decode_address(dsts[i].address);
@@ -1622,7 +1651,8 @@ export class CnutilProvider {
           }
           let out_ephemeral_pub = this.derive_public_key(out_derivation, out_index, dsts[i].keys.spend);
           let out = {
-              amount: dsts[i].amount.toString()
+              amount: dsts[i].amount.toString(),
+              target: null
           };
           // txout_to_key
           out.target = {
@@ -1665,7 +1695,7 @@ export class CnutilProvider {
                   //tx.vin[i].amount = "0";
               //}
 
-              if (in_contexts[i].mask !== I || is_rct_coinbases[i] === true)
+              if (in_contexts[i].mask !== this.I || is_rct_coinbases[i] === true)
               {
                   // if input is rct (has a valid mask), 0 out amount
                   // coinbase ringct txs also have mask === I, so their amount
@@ -1688,7 +1718,7 @@ export class CnutilProvider {
               tx.vout[i].amount = "0"; //zero out all rct outputs
           }
           let tx_prefix_hash = this.get_tx_prefix_hash(tx);
-          tx.rct_signatures = genRct(tx_prefix_hash, inSk, keyimages, /*destinations, */inAmounts, outAmounts, mixRing, amountKeys, indices, txnFee);
+          tx.rct_signatures = this.genRct(tx_prefix_hash, inSk, keyimages, /*destinations, */inAmounts, outAmounts, mixRing, amountKeys, indices, txnFee);
 
       }
       console.log(tx);
@@ -1725,7 +1755,7 @@ export class CnutilProvider {
       let needed_money = JSBigInt.ZERO;
       for (i = 0; i < dsts.length; ++i) {
           needed_money = needed_money.add(dsts[i].amount);
-          if (needed_money.compare(UINT64_MAX) !== -1) {
+          if (needed_money.compare(this.UINT64_MAX) !== -1) {
               throw "Output overflow!";
           }
       }
@@ -1734,17 +1764,22 @@ export class CnutilProvider {
       console.log('Selected transfers: ', outputs);
       for (i = 0; i < outputs.length; ++i) {
           found_money = found_money.add(outputs[i].amount);
-          if (found_money.compare(UINT64_MAX) !== -1) {
+          if (found_money.compare(this.UINT64_MAX) !== -1) {
               throw "Input overflow!";
           }
           let src = {
-              outputs: []
+              outputs: [],
+              amount:null,
+              real_out_tx_key:null,
+              real_out:null,
+              real_out_in_tx:null,
+              mask:null
           };
-          src.amount = new JSBigInt(outputs[i].amount).toString();
+          src.amount = JSBigInt(outputs[i].amount,null).toString();
           if (mix_outs.length !== 0) {
               // Sort fake outputs by global index
               mix_outs[i].outputs.sort(function(a, b) {
-                  return new JSBigInt(a.global_index).compare(b.global_index);
+                  return JSBigInt(a.global_index).compare(b.global_index);
               });
               j = 0;
               while ((src.outputs.length < fake_outputs_count) && (j < mix_outs[i].outputs.length)) {
@@ -1754,34 +1789,41 @@ export class CnutilProvider {
                       j++;
                       continue;
                   }
-                  let oe = {};
-                  oe.index = out.global_index.toString();
-                  oe.key = out.public_key;
+                  let oe = {
+                    index : out.global_index.toString(),
+                    key : out.public_key,
+                    commit:null
+                  };
+         
                   if (rct){
                       if (out.rct){
                           oe.commit = out.rct.slice(0,64); //add commitment from rct mix outs
                       } else {
                           if (outputs[i].rct) {throw "mix rct outs missing commit";}
-                          oe.commit = zeroCommit(d2s(src.amount)); //create identity-masked commitment for non-rct mix input
+                          oe.commit = this.zeroCommit(this.d2s(src.amount)); //create identity-masked commitment for non-rct mix input
                       }
                   }
                   src.outputs.push(oe);
                   j++;
               }
           }
-          let real_oe = {};
-          real_oe.index = new JSBigInt(outputs[i].global_index || 0).toString();
-          real_oe.key = outputs[i].public_key;
+          let real_oe = {
+            index: JSBigInt(outputs[i].global_index || 0,null).toString(),
+            key: outputs[i].public_key,
+            commit:null,
+
+          };
+
           if (rct){
               if (outputs[i].rct) {
                   real_oe.commit = outputs[i].rct.slice(0,64); //add commitment for real input
               } else {
-                  real_oe.commit = zeroCommit(d2s(src.amount)); //create identity-masked commitment for non-rct input
+                  real_oe.commit = this.zeroCommit(this.d2s(src.amount)); //create identity-masked commitment for non-rct input
               }
           }
           let real_index = src.outputs.length;
           for (j = 0; j < src.outputs.length; j++) {
-              if (new JSBigInt(real_oe.index).compare(src.outputs[j].index) < 0) {
+              if (JSBigInt(real_oe.index,null).compare(src.outputs[j].index) < 0) {
                   real_index = j;
                   break;
               }
@@ -1812,7 +1854,7 @@ export class CnutilProvider {
               throw "early fee calculation != later";
           }
       } else if (cmp > 0) {
-          throw "Need more money than found! (have: " + cnUtil.formatMoney(found_money) + " need: " + cnUtil.formatMoney(needed_money) + ")";
+          throw "Need more money than found! (have: " + this.formatMoney(found_money) + " need: " + this.formatMoney(needed_money) + ")";
       }
       return this.construct_tx(keys, sources, dsts, fee_amount, payment_id, pid_encrypt, realDestViewKey, unlock_time, rct);
   };
@@ -1854,7 +1896,7 @@ export class CnutilProvider {
       if (units.length >= this.config.coinUnitPlaces) {
           decimal = units.substr(units.length - this.config.coinUnitPlaces, this.config.coinUnitPlaces);
       } else {
-          decimal = padLeft(units, this.config.coinUnitPlaces, '0');
+          decimal = this.padLeft(units, this.config.coinUnitPlaces, '0');
       }
       return symbol + (units.substr(0, units.length - this.config.coinUnitPlaces) || '0') + '.' + decimal;
   };
@@ -1864,7 +1906,7 @@ export class CnutilProvider {
   };
 
   formatMoney (units) {
-      let f = trimRight(this.formatMoneyFull(units), '0');
+      let f = this.trimRight(this.formatMoneyFull(units), '0');
       if (f[f.length - 1] === '.') {
           return f.slice(0, f.length - 1);
       }
@@ -1884,19 +1926,19 @@ export class CnutilProvider {
       let decimalIndex = str.indexOf('.');
       if (decimalIndex == -1) {
           if (negative) {
-              return JSBigInt.multiply(str, this.config.coinUnits).negate();
+          return JSBigInt.multiply(str/*, this.config.coinUnits*/).negate();
           }
-          return JSBigInt.multiply(str, this.config.coinUnits);
+          return JSBigInt.multiply(str/*, this.config.coinUnits*/);
       }
       if (decimalIndex + this.config.coinUnitPlaces + 1 < str.length) {
           str = str.substr(0, decimalIndex + this.config.coinUnitPlaces + 1);
       }
       if (negative) {
-          return new JSBigInt(str.substr(0, decimalIndex)).exp10(this.config.coinUnitPlaces)
-              .add(new JSBigInt(str.substr(decimalIndex + 1)).exp10(decimalIndex + this.config.coinUnitPlaces - str.length + 1)).negate;
+          return JSBigInt(str.substr(0, decimalIndex),null).exp10(this.config.coinUnitPlaces)
+              .add(JSBigInt(str.substr(decimalIndex + 1),null).exp10(decimalIndex + this.config.coinUnitPlaces - str.length + 1)).negate;
       }
-      return new JSBigInt(str.substr(0, decimalIndex)).exp10(this.config.coinUnitPlaces)
-          .add(new JSBigInt(str.substr(decimalIndex + 1)).exp10(decimalIndex + this.config.coinUnitPlaces - str.length + 1));
+      return JSBigInt(str.substr(0, decimalIndex),null).exp10(this.config.coinUnitPlaces)
+          .add(JSBigInt(str.substr(decimalIndex + 1),null).exp10(decimalIndex + this.config.coinUnitPlaces - str.length + 1));
   };
 
   decompose_amount_into_digits (amount) {
@@ -1907,7 +1949,7 @@ export class CnutilProvider {
       let ret = [];
       while (amount.length > 0) {
           //split all the way down since v2 fork
-          /*let remaining = new JSBigInt(amount);
+          /*let remaining = JSBigInt(amount);
            if (remaining.compare(this.config.dustThreshold) <= 0) {
            if (remaining.compare(0) > 0) {
            ret.push(remaining);
@@ -1920,7 +1962,7 @@ export class CnutilProvider {
               while (digit.length < amount.length) {
                   digit += "0";
               }
-              ret.push(new JSBigInt(digit));
+              ret.push(JSBigInt(digit,null));
           }
           amount = amount.slice(1);
       }

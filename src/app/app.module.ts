@@ -19,6 +19,9 @@ import { ConfigProvider } from '../providers/config/config';
 import { NaclProvider } from '../providers/nacl/nacl';
 import { VanityAddressProvider } from '../providers/vanity-address/vanity-address';
 import { Base58Provider } from '../providers/base58/base58';
+import { IonicStorageModule } from '@ionic/storage';
+
+//import { BigIntegerProvider } from '../providers/big-integer/big-integer';
 @NgModule({
   declarations: [
     MyApp,
@@ -32,6 +35,8 @@ import { Base58Provider } from '../providers/base58/base58';
     IonicModule.forRoot(MyApp),
     HttpClientModule,
     HttpModule,
+    IonicStorageModule.forRoot()
+
   ],
   bootstrap: [IonicApp],
   entryComponents: [
@@ -53,6 +58,7 @@ import { Base58Provider } from '../providers/base58/base58';
     NaclProvider,
     VanityAddressProvider,
     Base58Provider,
+    //BigIntegerProvider,
   ]
 })
 export class AppModule {}

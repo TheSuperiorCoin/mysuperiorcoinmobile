@@ -31,7 +31,6 @@ export class ConfigProvider {
   debugMode = false;
     
   constructor(public http: HttpClient) {
-    console.log('Hello ConfigProvider Provider');
     
   }
 

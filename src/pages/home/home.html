@@ -1,57 +1,63 @@
 
 <ion-content padding>
-  <button ion-button (click)="login()">Login</button>
-  <button ion-button color="secondary" (click)="getInfoAddress()">Get info address</button>
-  <button ion-button color="danger" (click)="decodeMnemomic()">Decode</button>
-  <div >
+  
+  <button ion-button color="danger" (click)="createWallet()">Create wallet</button>
+  <button ion-button color="danger" (click)="this.sApplication.eraseWallets()">RAZ</button>
+  <ion-list *ngIf="this.sApplication.wallets">
+      <ion-item *ngFor="let w of this.sApplication.wallets" >
+        <h2>{{w.name}} </h2>
+        <p>{{w.address}} </p>
+        <button ion-button clear item-end (click)="getInfoAddress(w)">View</button>
+      </ion-item>
+  </ion-list>
+
+  <div *ngIf="this.sApplication.openedWallet">
     <ion-list>
-      <ion-item *ngIf="this.sApplication.address">
-        address : {{this.sApplication.address}}
+      <ion-item *ngIf="this.sApplication.openedWallet.address">
+        address : {{this.sApplication.openedWallet.address}} 
       </ion-item>
-      <ion-item *ngIf="this.sApplication.viewKey">
-        view key : {{this.sApplication.viewKey}}
+      <ion-item *ngIf="this.sApplication.openedWallet.viewKey">
+        view key : {{this.sApplication.openedWallet.viewKey}}
       </ion-item>
-      <ion-item *ngIf="this.sApplication.mNemonic">
-        mNemonic : {{this.sApplication.mNemonic}}
+      <ion-item *ngIf="this.sApplication.openedWallet.mNemonic">
+        mNemonic : {{this.sApplication.openedWallet.mNemonic}}
       </ion-item>
-    </ion-list>
-  </div>
-  <div *ngIf="this.infos">
-    <ion-list>
-      <ion-item >
-        blockchain_height : {{this.infos.blockchain_height}}
-      </ion-item>
-      <ion-item >
-        locked_funds : {{this.infos.locked_funds}}
-      </ion-item>
-      <ion-item >
-        new_address : {{this.infos.new_address}}
-      </ion-item>
-      <ion-item >
-        scanned_block_height : {{this.infos.scanned_block_height}}
-      </ion-item>
-      <ion-item >
-        scanned_block_timestamp : {{this.infos.scanned_block_timestamp}}
-      </ion-item>
-      <ion-item >
-        scanned_height : {{this.infos.scanned_height}}
-      </ion-item>
-      <ion-item >
-        spent_outputs : {{this.infos.spent_outputs}}
-      </ion-item>
-      <ion-item >
-        start_height : {{this.infos.start_height}}
-      </ion-item>
-      <ion-item >
-        status : {{this.infos.status}}
-      </ion-item>
-      <ion-item >
-        total_received : {{this.infos.total_received}}
-      </ion-item>
-      <ion-item >
-        total_sent : {{this.infos.total_sent}}
-      </ion-item>
-    </ion-list>
     
+    <div *ngIf="this.sApplication.openedWallet.datas">
+        <ion-item >
+          blockchain_height : {{this.sApplication.openedWallet.datas.blockchain_height}}
+        </ion-item>
+        <ion-item >
+          locked_funds : {{this.sApplication.openedWallet.datas.locked_funds}}
+        </ion-item>
+        <ion-item >
+          new_address : {{this.sApplication.openedWallet.datas.new_address}}
+        </ion-item>
+        <ion-item >
+          scanned_block_height : {{this.sApplication.openedWallet.datas.scanned_block_height}}
+        </ion-item>
+        <ion-item >
+          scanned_block_timestamp : {{this.sApplication.openedWallet.datas.scanned_block_timestamp}}
+        </ion-item>
+        <ion-item >
+          scanned_height : {{this.sApplication.openedWallet.datas.scanned_height}}
+        </ion-item>
+        <ion-item >
+          spent_outputs : {{this.sApplication.openedWallet.datas.spent_outputs}}
+        </ion-item>
+        <ion-item >
+          start_height : {{this.sApplication.openedWallet.datas.start_height}}
+        </ion-item>
+        <ion-item >
+          status : {{this.sApplication.openedWallet.datas.status}}
+        </ion-item>
+        <ion-item >
+          total_received : {{this.sApplication.openedWallet.datas.total_received}}
+        </ion-item>
+        <ion-item >
+          total_sent : {{this.sApplication.openedWallet.datas.total_sent}}
+        </ion-item>
+        </div>
+      </ion-list>
   </div>
 </ion-content>

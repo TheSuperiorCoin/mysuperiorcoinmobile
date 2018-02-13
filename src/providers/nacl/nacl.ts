@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
+declare var Module;
 /*
   Generated class for the NaclProvider provider.
 
@@ -411,10 +412,10 @@ export class NaclProvider {
       let p = [this.gf(null), this.gf(null), this.gf(null), this.gf(null)],
       upk = [this.gf(null), this.gf(null), this.gf(null), this.gf(null)],
       res = new Uint8Array(32);
-      ge_neg(P);
-      if (unpackneg(upk, P) !== 0) throw "non-0 error on point decode";
-      scalarmult(p, upk, s);
-      pack(res, p);
+      this.ge_neg(P);
+      if (this.unpackneg(upk, P) !== 0) throw "non-0 error on point decode";
+      this.scalarmult(p, upk, s);
+      this.pack(res, p);
       return res;
     }
     
@@ -424,12 +425,12 @@ export class NaclProvider {
       cP = [this.gf(null), this.gf(null), this.gf(null), this.gf(null)],
       rG = [this.gf(null), this.gf(null), this.gf(null), this.gf(null)],
       res = new Uint8Array(32);
-      ge_neg(P);
-      if (unpackneg(uP, P) !== 0) throw "non-0 error on point decode";
-      scalarmult(cP, uP, c);
-      scalarbase(rG, r);
-      add(rG, cP);
-      pack(res, rG);
+      this.ge_neg(P);
+      if (this.unpackneg(uP, P) !== 0) throw "non-0 error on point decode";
+      this.scalarmult(cP, uP, c);
+      this.scalarbase(rG, r);
+      this.add(rG, cP);
+      this.pack(res, rG);
       return res;
     }
     
@@ -440,14 +441,14 @@ export class NaclProvider {
       cI = [this.gf(null), this.gf(null), this.gf(null), this.gf(null)],
       rPb = [this.gf(null), this.gf(null), this.gf(null), this.gf(null)],
       res = new Uint8Array(32);
-      ge_neg(Pb);
-      if (unpackneg(uPb, Pb) !== 0) throw "non-0 error on point decode";
-      scalarmult(rPb, uPb, r);
-      ge_neg(I);
-      if (unpackneg(uI, I) !== 0) throw "non-0 error on point decode";
-      scalarmult(cI, uI, c);
-      add(rPb, cI);
-      pack(res, rPb);
+      this.ge_neg(Pb);
+      if (this.unpackneg(uPb, Pb) !== 0) throw "non-0 error on point decode";
+      this.scalarmult(rPb, uPb, r);
+      this.ge_neg(I);
+      if (this.unpackneg(uI, I) !== 0) throw "non-0 error on point decode";
+      this.scalarmult(cI, uI, c);
+      this.add(rPb, cI);
+      this.pack(res, rPb);
       return res;
     }
     
@@ -456,12 +457,12 @@ export class NaclProvider {
       let uP = [this.gf(null), this.gf(null), this.gf(null), this.gf(null)],
       uQ = [this.gf(null), this.gf(null), this.gf(null), this.gf(null)],
       res = new Uint8Array(32);
-      ge_neg(P);
-      ge_neg(Q);
-      if (unpackneg(uP, P) !== 0) throw "non-0 error on point decode";
-      if (unpackneg(uQ, Q) !== 0) throw "non-0 error on point decode";
-      add(uP, uQ);
-      pack(res, uP);
+      this.ge_neg(P);
+      this.ge_neg(Q);
+      if (this.unpackneg(uP, P) !== 0) throw "non-0 error on point decode";
+      if (this.unpackneg(uQ, Q) !== 0) throw "non-0 error on point decode";
+      this.add(uP, uQ);
+      this.pack(res, uP);
       return res;
     }
     
@@ -472,7 +473,7 @@ export class NaclProvider {
       for (i = 63; i >= 32; --i) {
         carry = 0;
         for (j = i - 32, k = i - 12; j < k; ++j) {
-          x[j] += carry - 16 * x[i] * L[j - (i - 32)];
+          x[j] += carry - 16 * x[i] * this.L[j - (i - 32)];
           carry = (x[j] + 128) >> 8;
           x[j] -= carry * 256;
         }
@@ -481,11 +482,11 @@ export class NaclProvider {
       }
       carry = 0;
       for (j = 0; j < 32; j++) {
-        x[j] += carry - (x[31] >> 4) * L[j];
+        x[j] += carry - (x[31] >> 4) * this.L[j];
         carry = x[j] >> 8;
         x[j] &= 255;
       }
-      for (j = 0; j < 32; j++) x[j] -= carry * L[j];
+      for (j = 0; j < 32; j++) x[j] -= carry * this.L[j];
       for (i = 0; i < 32; i++) {
         x[i+1] += x[i] >> 8;
         r[i] = x[i] & 255;
@@ -496,7 +497,7 @@ export class NaclProvider {
       let x = new Float64Array(64), i;
       for (i = 0; i < 64; i++) x[i] = r[i];
       for (i = 0; i < 64; i++) r[i] = 0;
-      modL(r, x);
+      this.modL(r, x);
     }
     
     unpackneg(r, p) {
@@ -504,36 +505,36 @@ export class NaclProvider {
           den = this.gf(null), den2 = this.gf(null), den4 = this.gf(null),
           den6 = this.gf(null);
     
-      set25519(r[2], this.gf1);
-      unpack25519(r[1], p);
-      S(num, r[1]);
-      M(den, num, D);
-      Z(num, num, r[2]);
-      A(den, r[2], den);
+      this.set25519(r[2], this.gf1);
+      this.unpack25519(r[1], p);
+      this.S(num, r[1]);
+      this.M(den, num, this.D);
+      this.Z(num, num, r[2]);
+      this.A(den, r[2], den);
     
-      S(den2, den);
-      S(den4, den2);
-      M(den6, den4, den2);
-      M(t, den6, num);
-      M(t, t, den);
+      this.S(den2, den);
+      this.S(den4, den2);
+      this.M(den6, den4, den2);
+      this.M(t, den6, num);
+      this.M(t, t, den);
     
-      pow2523(t, t);
-      M(t, t, num);
-      M(t, t, den);
-      M(t, t, den);
-      M(r[0], t, den);
+      this.pow2523(t, t);
+      this.M(t, t, num);
+      this.M(t, t, den);
+      this.M(t, t, den);
+      this.M(r[0], t, den);
     
-      S(chk, r[0]);
-      M(chk, chk, den);
-      if (neq25519(chk, num)) M(r[0], r[0], I);
+      this.S(chk, r[0]);
+      this.M(chk, chk, den);
+      if (this.neq25519(chk, num)) this.M(r[0], r[0], this.I);
     
-      S(chk, r[0]);
-      M(chk, chk, den);
-      if (neq25519(chk, num)) return -1;
+      this.S(chk, r[0]);
+      this.M(chk, chk, den);
+      if (this.neq25519(chk, num)) return -1;
     
-      if (par25519(r[0]) === (p[31]>>7)) Z(r[0], this.gf0, r[0]);
+      if (this.par25519(r[0]) === (p[31]>>7)) this.Z(r[0], this.gf0, r[0]);
     
-      M(r[3], r[0], r[1]);
+      this.M(r[3], r[0], r[1]);
       return 0;
     }
     
@@ -548,13 +549,13 @@ export class NaclProvider {
     
     randomBytes (n) {
       let b = new Uint8Array(n);
-      randombytes(b, n);
+      //randombytes(b, n);
       return b;
     };
     
     setPRNG (fn) {
-      randombytes = fn;
-    };
+      this.randombytes = fn;
+    }
     /*
     (function() {
       // Initialize PRNG if environment provides CSPRNG.

@@ -2,11 +2,12 @@ import { Component } from '@angular/core';
 import { NavController } from 'ionic-angular';
 import { ApplicationProvider } from '../../providers/application/application';
 
+
 @Component({
   selector: 'page-home',
   templateUrl: 'home.html'
 })
-export class HomePage {
+export class HomePage { 
   infos:any;
 
   constructor(
@@ -16,17 +17,22 @@ export class HomePage {
   ) {
     
   }
+
+  createWallet(){
+    this.sApplication.createWallet();
+  }
   decodeMnemomic(){
     let t = this.sApplication.vanityAddress.toggleGeneration();
-    console.log(this.sApplication.vanityAddress.seed);
-    console.log(this.sApplication.vanityAddress.found);
     this.sApplication.mNemonic = this.sApplication.vanityAddress.found['mnemonic'];
-    console.log(this.sApplication.mNemonic);
+    this.sApplication.address = this.sApplication.vanityAddress.found['address'];
     let seed = this.sApplication.decode_seed(this.sApplication.mNemonic);
+    console.log(this.sApplication.mNemonic);
+    console.log(this.sApplication.address);
+    console.log(this.sApplication.keys);
     console.log(seed);
 
-    this.sApplication.viewKey = seed;
-    this.sApplication.address = this.sApplication.vanityAddress.found['address'];
+    this.sApplication.viewKey = this.sApplication.keys.view.sec;
+    
   }
   login(){
     this.sApplication.login().then((result) => { 
@@ -64,9 +70,10 @@ export class HomePage {
       console.log(err);
     });
   }
-  getInfoAddress(){
+  getInfoAddress(w){
     this.infos = null;
-    this.sApplication.addressInfo().then((result) => {
+ 
+    this.sApplication.addressInfo(w).then((result) => {
         
         console.log('la');
         console.log(result);

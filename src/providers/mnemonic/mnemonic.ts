@@ -123,9 +123,9 @@ mn_random(bits) {
         /// Doing this in the loop is chunky, blame Microsoft and the in-flux status of the window.crypto standard
         if (typeof window !== 'undefined' && window.crypto && window.crypto.getRandomValues) {
             window.crypto.getRandomValues(array);
-        } else if (typeof window !== 'undefined' && typeof window.msCrypto === 'object' && typeof window.msCrypto.getRandomValues === 'function') {
+        } /*else if (typeof window !== 'undefined' && typeof window.msCrypto === 'object' && typeof window.msCrypto.getRandomValues === 'function') {
             window.msCrypto.getRandomValues(array);
-        } else {
+        }*/ else {
             throw "Unfortunately MyMonero only runs on browsers that support the JavaScript Crypto API";
         }
 

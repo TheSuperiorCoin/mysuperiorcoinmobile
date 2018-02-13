@@ -18,7 +18,8 @@ export class VanityAddressProvider {
   seed:any;
   last_generated:any;
   bestMatch:any = 0;
-  prefix:any;
+  prefix:String;
+
 
   constructor(
     public http: HttpClient,
@@ -26,7 +27,7 @@ export class VanityAddressProvider {
     public mnemonic:MnemonicProvider,
     public config:ConfigProvider
   ) {
-    this.prefix = this.config.addressPrefix;
+    this.prefix = this.config.addressPrefix.toString();
   }
   score(address, prefix) {
       address = address.toUpperCase();
@@ -37,15 +38,15 @@ export class VanityAddressProvider {
   }
 
 startGeneration(prefix) {
- 
     this.found = {};
     this.num_searched = 0;
     this.seed = this.cnUtil.rand_32();
+
     this.bestMatch = 0;
     this.last_generated = 0;
-    //this.prefix = this.prefix.toUpperCase();
-
-    setTimeout(this.generateAddress(), 0);
+    this.prefix = this.prefix.toUpperCase();
+    return this.generateAddress();
+    //setTimeout(this.generateAddress(), 0);
 }
 generateAddress() {
   for (var i = 0; i < 10; ++i) {
@@ -53,6 +54,7 @@ generateAddress() {
       var address = this.cnUtil.create_addr_prefix(this.seed);
       ++this.num_searched;
       var sc = this.score(address, this.prefix);
+      
       if (sc === this.prefix.length) {
           this.found = {
               mnemonic: this.mnemonic.mn_encode(this.seed,null),
@@ -62,6 +64,7 @@ generateAddress() {
           this.running = false;
           break;
       } else {
+        
           if (sc >= this.bestMatch) {
             this.bestMatch = sc;
               this.found = {
@@ -78,13 +81,17 @@ generateAddress() {
         this.seed = this.cnUtil.keccak(this.seed, 16, 32).slice(0, 30) + '00';
       }
   }
+
   if (this.num_searched - this.last_generated > 10000) {
-      this.seed = this.cnUtil.rand_16();
+      this.seed = this.cnUtil.rand_32();
       this.last_generated = this.num_searched;
   }
+
   this.num_searched = this.num_searched;
   //this.$apply();
-  setTimeout(this.generateAddress(), 0);
+  //setTimeout(this.generateAddress(), 0);
+  this.running = false;
+  return this;
 }
 /*this.$on('$destroy', function () {
     this.running = false;
@@ -100,7 +107,7 @@ toggleGeneration() {
             return;
         }
         
-        this.startGeneration(this.prefix);
+        return this.startGeneration(this.prefix);
     }
 }
 
