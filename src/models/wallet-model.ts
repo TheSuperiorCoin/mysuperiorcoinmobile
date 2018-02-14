@@ -5,7 +5,10 @@ export class WalletModel {
     address:any;
     mnemonic:any;
     viewKey:any;
+    spendKey:any;
     datas:any;
+    transactions:any;
+
     constructor() {
   
     }
@@ -25,7 +28,9 @@ export class WalletModel {
       };
     }
     decodeSeed(v){
+        console.log(v);
         this.viewKey = v.view.sec;
+        this.spendKey = v.spend.sec;
     }
     generateRandomId(){
         let text:String = "";

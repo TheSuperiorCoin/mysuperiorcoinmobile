@@ -6,6 +6,9 @@ import { CnutilProvider } from '../cnutil/cnutil';
 import { VanityAddressProvider } from '../vanity-address/vanity-address';
 import { WalletModel } from '../../models/wallet-model';
 import { Storage } from '@ionic/storage';
+import { Observable } from 'rxjs/Rx';
+import { Events } from 'ionic-angular';
+
 
 
 @Injectable()
@@ -19,15 +22,27 @@ export class ApplicationProvider {
 
   wallets:Array<WalletModel> = new Array();
   openedWallet:WalletModel;
+  subscriptionRefresh = null;
+  subscriptionRefreshTrx = null;
 
   constructor(
     public http: HttpClient,
     public sMnemonic: MnemonicProvider,
     public sCnutil:CnutilProvider,
     public vanityAddress:VanityAddressProvider,
-    private storage: Storage
+    private storage: Storage,
+    public events: Events
   ) {
     this.initLocalStorage();
+    this.initEvents();
+  }
+  initEvents(){
+    this.events.subscribe('refresh:address', () => {
+      this.getAddressInfo();
+    });
+    this.events.subscribe('refresh:transactions', () => {
+      this.getTrxInfo();
+    });
   }
   eraseWallets(){
     this.wallets = new Array();
@@ -68,6 +83,21 @@ export class ApplicationProvider {
     });
     return config;
   } 
+
+  startEventsRefresh(){
+    if (this.subscriptionRefresh != null) {
+      this.subscriptionRefresh.unsubscribe();
+    }
+    if (this.subscriptionRefreshTrx != null) {
+      this.subscriptionRefreshTrx.unsubscribe();
+    }
+    this.subscriptionRefresh = Observable.interval(7000).subscribe(()=>{
+      this.events.publish('refresh:address');
+    });
+    this.subscriptionRefreshTrx = Observable.interval(10000).subscribe(()=>{
+      this.events.publish('refresh:transactions');
+    });
+  }
   login() {
     let headers = new Headers(
       {
@@ -76,24 +106,95 @@ export class ApplicationProvider {
       let options:any = new RequestOptions({ headers: headers });
       
     
+    this.openedWallet.decodeSeed(this.decode_seed(this.openedWallet));
     let data:any = {
-      address: this.address, 
-      view_key: this.viewKey,
+        address: this.openedWallet.address, 
+        view_key: this.openedWallet.viewKey,
       withCredentials: true,
       create_account: false
     };
     data = JSON.stringify(data);
+
+      
+
     return new Promise((resolve, reject) => {
       this.http.post(this.remotePath+'/login', data, options).toPromise().then((response) =>
       {
-        //let res = JSON.parse(response['_body']);
         let res = response;
-        console.log(res);
+        this.events.publish('refresh:address');
+        this.startEventsRefresh();
         resolve(res);
       }) 
       .catch((error) =>
       {
         console.log(error);
+        reject(error);
+      });
+    });
+  }
+
+  getAddressInfo(){
+    this.requestAddressInfo().then((result) => {    
+      this.openedWallet.datas = result;
+    }, (err) => {
+      console.log(err);
+    });
+  }
+  getTrxInfo(){
+    this.requestTrxInfo().then((result) => {    
+      this.openedWallet.transactions = result;
+    }, (err) => {
+      console.log(err);
+    });
+  }
+  requestTrxInfo() {
+    let headers = new Headers(
+      {
+        'Content-Type' : 'application/json'
+      });
+      let options:any = new RequestOptions({ headers: headers });
+      
+    let data:any = {
+      address: this.openedWallet.address, 
+      view_key: this.openedWallet.viewKey
+    };
+    
+    data = JSON.stringify(data);
+    return new Promise((resolve, reject) => {
+      this.http.post(this.remotePath+'/get_address_txs', data, options).toPromise().then((response) =>
+      {
+        let res = response;
+        
+        resolve(res);
+      }) 
+      .catch((error) =>
+      {
+        reject(error);
+      });
+    });
+  }
+  requestAddressInfo() {
+    let headers = new Headers(
+      {
+        'Content-Type' : 'application/json'
+      });
+      let options:any = new RequestOptions({ headers: headers });
+      
+    let data:any = {
+      address: this.openedWallet.address, 
+      view_key: this.openedWallet.viewKey
+    };
+    
+    data = JSON.stringify(data);
+    return new Promise((resolve, reject) => {
+      this.http.post(this.remotePath+'/get_address_info', data, options).toPromise().then((response) =>
+      {
+        let res = response;
+        
+        resolve(res);
+      }) 
+      .catch((error) =>
+      {
         reject(error);
       });
     });
@@ -132,7 +233,6 @@ export class ApplicationProvider {
   { 
       var seed;
       var keys;
-      console.log(w);
       switch (this.mnemonic_language) {
           case 'english':
               try {
@@ -150,7 +250,6 @@ export class ApplicationProvider {
               seed = this.sMnemonic.mn_decode(w.mnemonic, this.mnemonic_language);
               break; 
       }
-     
       keys = this.sCnutil.create_address(seed);
       
       return keys;

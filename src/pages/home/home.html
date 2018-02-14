@@ -7,6 +7,7 @@
       <ion-item *ngFor="let w of this.sApplication.wallets" >
         <h2>{{w.name}} </h2>
         <p>{{w.address}} </p>
+        <button ion-button clear item-end (click)="login(w)">Open</button>
         <button ion-button clear item-end (click)="getInfoAddress(w)">View</button>
       </ion-item>
   </ion-list>
@@ -14,13 +15,16 @@
   <div *ngIf="this.sApplication.openedWallet">
     <ion-list>
       <ion-item *ngIf="this.sApplication.openedWallet.address">
-        address : {{this.sApplication.openedWallet.address}} 
+        Address : {{this.sApplication.openedWallet.address}} 
       </ion-item>
       <ion-item *ngIf="this.sApplication.openedWallet.viewKey">
-        view key : {{this.sApplication.openedWallet.viewKey}}
+        View key : {{this.sApplication.openedWallet.viewKey}}
       </ion-item>
-      <ion-item *ngIf="this.sApplication.openedWallet.mNemonic">
-        mNemonic : {{this.sApplication.openedWallet.mNemonic}}
+      <ion-item *ngIf="this.sApplication.openedWallet.spendKey">
+        Spend key : {{this.sApplication.openedWallet.spendKey}}
+      </ion-item>
+      <ion-item *ngIf="this.sApplication.openedWallet.mnemonic">
+        mNemonic : {{this.sApplication.openedWallet.mnemonic}}
       </ion-item>
     
     <div *ngIf="this.sApplication.openedWallet.datas">

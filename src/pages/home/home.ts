@@ -34,7 +34,8 @@ export class HomePage {
     this.sApplication.viewKey = this.sApplication.keys.view.sec;
     
   }
-  login(){
+  login(w){
+    this.sApplication.openedWallet = w;
     this.sApplication.login().then((result) => { 
         
       /*let datas:any = result;
@@ -72,7 +73,7 @@ export class HomePage {
   }
   getInfoAddress(w){
     this.infos = null;
-    this.sApplication.openedWallet = w;
+    
     this.sApplication.addressInfo().then((result) => {
         
        
