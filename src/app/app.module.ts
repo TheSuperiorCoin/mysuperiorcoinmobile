@@ -24,6 +24,7 @@ import { AccountPage } from '../pages/account/account';
 import { ReceivePage } from '../pages/receive/receive';
 import { Clipboard } from '@ionic-native/clipboard';
 import { SocialSharing } from '@ionic-native/social-sharing';
+import { AccountDetailsPage } from '../pages/account-details/account-details';
 
 //import { BigIntegerProvider } from '../providers/big-integer/big-integer';
 @NgModule({
@@ -34,7 +35,8 @@ import { SocialSharing } from '@ionic-native/social-sharing';
     TransactionPage,
     SendPage,
     AccountPage,
-    ReceivePage
+    ReceivePage,
+    AccountDetailsPage
     
   ],
   imports: [
@@ -53,7 +55,8 @@ import { SocialSharing } from '@ionic-native/social-sharing';
     TransactionPage,
     SendPage,
     AccountPage,
-    ReceivePage
+    ReceivePage,
+    AccountDetailsPage
   ],
   providers: [
     StatusBar,

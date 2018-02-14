@@ -7,6 +7,7 @@ import { SocialSharing } from '@ionic-native/social-sharing';
 import { ModalController } from 'ionic-angular/components/modal/modal-controller';
 import { ActionSheetController } from 'ionic-angular/components/action-sheet/action-sheet-controller';
 import { AlertController } from 'ionic-angular/components/alert/alert-controller';
+import { AccountDetailsPage } from '../account-details/account-details';
 
 
 @Component({
@@ -68,9 +69,9 @@ export class HomePage {
       title: 'Actions',
       buttons: [
         {
-          text: 'Détails',
+          text: 'Wallet informations',
           handler: () => {
-            //this.openFormDetail();
+            this.openFormDetail();
           }
         },
         {
@@ -92,6 +93,11 @@ export class HomePage {
     });
  
     actionSheet.present();
+  }
+  openFormDetail() { 
+    let modal = this.modalCtrl.create(AccountDetailsPage);
+    modal.present(); 
+      
   }
   presentToast() {
     let toast = this.toastCtrl.create({
