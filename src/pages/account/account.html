@@ -2,20 +2,20 @@
   <div text-center padding>
       <img src="assets/imgs/Superior_logo_128.png"/>
   </div>
-  
+   
   <ion-list >
     <button color="primary"  text-center ion-item (click)="createWallet()" >
       <h2 padding><strong>Generate a new wallet</strong></h2>
     </button>
-    <button color="dark"  text-center ion-item >
+    <button color="dark"  text-center ion-item margin-top>
         <h2 ><strong>Import wallet</strong></h2>
       </button>
   </ion-list>
   <ion-list *ngIf="this.sApplication.wallets">
-      <ion-item *ngFor="let w of this.sApplication.wallets" >
+      <button ion-item *ngFor="let w of this.sApplication.wallets" (click)="login(w)" color="dark">
+          <ion-icon name="lock" item-start color="primary"></ion-icon>
         <h2>{{w.name}} </h2>
         <p>{{w.address}} </p>
-        <button ion-button clear item-end (click)="login(w)">Open</button>
-      </ion-item>
+      </button>
   </ion-list>
 </ion-content>

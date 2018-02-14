@@ -1,12 +1,22 @@
-
+<ion-header >
+  <ion-toolbar color="dark">
+    <ion-buttons start>
+      <button ion-button icon-only color="primary" (click)="presentActionSheet(t)">
+        <ion-icon name="menu"></ion-icon>
+      </button>
+    </ion-buttons>
+    <ion-title>{{this.sApplication.openedWallet.name}}</ion-title>
+    <ion-buttons end>
+      <button ion-button icon-only color="primary" (click)="this.sApplication.disconnect()">
+        <ion-icon name="lock"></ion-icon>
+      </button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
 <ion-header>
 
-    <ion-navbar>
-      <ion-title>Wallet</ion-title>
-    </ion-navbar>
-  
   </ion-header>
-<ion-content padding>
+<ion-content>
   <div *ngIf="this.sApplication.openedWallet">
     <ion-card *ngIf="this.sApplication.openedWallet.datas">
       <ion-card-header>
@@ -16,24 +26,7 @@
           <ion-card-title>
               {{this.sApplication.openedWallet.totalPending()}} SUP / {{this.sApplication.openedWallet.totalReceive()}} SUP
           </ion-card-title>
-            <p>
-              Refreshed: {{this.sApplication.openedWallet.datas.scanned_block_timestamp}}
-            </p>
           </ion-card-content>
-          <ion-row>
-              <ion-col>
-                  <button ion-button color="dark" small (click)="presentActionSheet(t)">
-                    <div>Actions</div>
-                  </button>
-                </ion-col>
-            <ion-col text-right>
-                <button ion-button  color="dark" small (click)="this.sApplication.disconnect()">
-                  <div>Logout</div>
-                </button>
-              </ion-col>
-            </ion-row>
-    </ion-card>
-    <ion-card *ngIf="this.sApplication.openedWallet.datas">
         <ion-card-header>
             Address
         </ion-card-header>

@@ -63,7 +63,7 @@ export class HomePage {
       ]
     });
     alert.present();
-  }
+  } 
   presentActionSheet() {
     let actionSheet = this.actionSheetCtrl.create({
       title: 'Actions',
@@ -72,6 +72,18 @@ export class HomePage {
           text: 'Wallet informations',
           handler: () => {
             this.openFormDetail();
+          }
+        },
+        {
+          text: 'Copy my address',
+          handler: () => {
+            this.copyToClipboard();
+          }
+        },
+        {
+          text: 'Share my address',
+          handler: () => {
+            this.share();
           }
         },
         {
