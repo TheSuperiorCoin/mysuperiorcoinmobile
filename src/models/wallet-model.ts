@@ -7,7 +7,7 @@ export class WalletModel {
     viewKey:any;
     spendKey:any;
     datas:any;
-    transactions:any;
+    transaction:any;
     balance:any;
     constructor() {
   
@@ -32,6 +32,15 @@ export class WalletModel {
     decodeSeed(v){
         this.viewKey = v.view.sec;
         this.spendKey = v.spend.sec;
+    }
+    totalPending(){
+        
+        if(this.datas){
+            let t:any = (this.datas.total_received - this.datas.locked_funds);
+            if(t == false) t = 0;
+            return (parseFloat(t)/100000000);
+        }
+        return 0;
     }
     totalReceive(){
         

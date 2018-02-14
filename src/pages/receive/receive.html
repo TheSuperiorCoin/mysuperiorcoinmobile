@@ -14,5 +14,17 @@
 
 
 <ion-content padding>
-
+    <ion-card>
+        <ion-item>
+          <button ion-button clear item-end (click)="copyToClipboard()">Copy</button>
+          <button ion-button clear item-end (click)="share()">Share</button>
+        </ion-item>      
+        <ion-card-content  text-center>
+          
+          <ngx-qrcode [qrc-value]="this.sApplication.openedWallet.address"></ngx-qrcode>
+          <ion-card-title>
+            {{this.sApplication.openedWallet.address}}
+          </ion-card-title>
+        </ion-card-content>
+      </ion-card>
 </ion-content>

@@ -26,6 +26,9 @@ import { Clipboard } from '@ionic-native/clipboard';
 import { SocialSharing } from '@ionic-native/social-sharing';
 import { AccountDetailsPage } from '../pages/account-details/account-details';
 
+import { NgxQRCodeModule } from 'ngx-qrcode2';
+import { BarcodeScanner } from '@ionic-native/barcode-scanner';
+
 //import { BigIntegerProvider } from '../providers/big-integer/big-integer';
 @NgModule({
   declarations: [
@@ -44,7 +47,8 @@ import { AccountDetailsPage } from '../pages/account-details/account-details';
     IonicModule.forRoot(MyApp),
     HttpClientModule,
     HttpModule,
-    IonicStorageModule.forRoot()
+    IonicStorageModule.forRoot(),
+    NgxQRCodeModule
 
   ],
   bootstrap: [IonicApp],
@@ -71,7 +75,8 @@ import { AccountDetailsPage } from '../pages/account-details/account-details';
     VanityAddressProvider,
     Base58Provider,
     Clipboard,
-    SocialSharing
+    SocialSharing,
+    BarcodeScanner
   ]
 })
 export class AppModule {}

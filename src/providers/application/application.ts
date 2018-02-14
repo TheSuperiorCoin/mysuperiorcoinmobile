@@ -69,6 +69,14 @@ disconnect(){
   }
   this.openedWallet = null;
 }
+formateTrx(received,sent){
+  console.log('ifi');
+  if(received != 0){
+    return (parseFloat(received)/100000000) + " SUP RECEIVED";
+  }else if(sent != 0){
+    return (parseFloat(sent)/100000000) + " SUP SENT";
+  }
+}
   createWallet(){
     let g:any = this.vanityAddress.toggleGeneration();
     console.log(g);
@@ -80,6 +88,7 @@ disconnect(){
 
     this.wallets.push(w);
     this.saveWallets();
+    //this.addTestWallet();
   }
   saveWallets(){
     let configObj = this.getWalletsObj();
@@ -92,7 +101,18 @@ disconnect(){
     });
     return config;
   } 
+  addTestWallet(){
+    let g:any = this.vanityAddress.toggleGeneration();
+    console.log(g);
+    let w:WalletModel = new WalletModel();
+    w.generateRandomId();
+    w.name = "Wallet Test #"+(this.wallets.length + 1);
+    w.address = "5UHgS7DMpHEHLH134D6UczZhbftRZj7YSDvtnUceTPLX3ZbDgDqbhH9GyaXJrbgU4GCb2hZFWG6vcFZ8PYLN1LHb1xixvtb";
+    w.mnemonic = "upper nautical strained poker circle edgy custom tipsy rumble voice suitcase locker edgy";
 
+    this.wallets.push(w);
+    this.saveWallets();
+  }
   startEventsRefresh(){
     if (this.subscriptionRefresh != null) {
       this.subscriptionRefresh.unsubscribe();
@@ -139,6 +159,7 @@ disconnect(){
       {
         let res = response;
         this.events.publish('refresh:address');
+        this.events.publish('refresh:transactions');
         this.startEventsRefresh();
         resolve(res);
       }) 
@@ -163,7 +184,8 @@ disconnect(){
   }
   getTrxInfo(){
     this.requestTrxInfo().then((result) => {    
-      if(this.openedWallet) this.openedWallet.transactions = result;
+      if(this.openedWallet) this.openedWallet.transaction = result;
+
     }, (err) => {
       console.log(err);
     });

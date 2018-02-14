@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { IonicPage, NavController, NavParams } from 'ionic-angular';
+import { ApplicationProvider } from '../../providers/application/application';
 
 
 @Component({
@@ -8,11 +9,17 @@ import { IonicPage, NavController, NavParams } from 'ionic-angular';
 })
 export class SendPage {
 
-  constructor(public navCtrl: NavController, public navParams: NavParams) {
+  constructor(
+    public navCtrl: NavController, 
+    public navParams: NavParams,
+    public sApplication:ApplicationProvider
+  ) {
   }
 
   ionViewDidLoad() {
     console.log('ionViewDidLoad SendPage');
   }
-
+  validForm(){
+    return true;
+  }
 }

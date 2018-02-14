@@ -14,9 +14,9 @@
       </ion-card-header>
       <ion-card-content>
           <ion-card-title>
-              {{this.sApplication.openedWallet.totalReceive()}} SUP /{{this.sApplication.openedWallet.totalLocked()}} SUP
-        </ion-card-title>
-          <p>
+              {{this.sApplication.openedWallet.totalPending()}} SUP / {{this.sApplication.openedWallet.totalReceive()}} SUP
+          </ion-card-title>
+            <p>
               Refreshed: {{this.sApplication.openedWallet.datas.scanned_block_timestamp}}
             </p>
           </ion-card-content>
@@ -85,7 +85,7 @@
               </ion-item>
               <ion-item>
                   <ion-icon name="add" item-start large></ion-icon>
-                  <h2>{{this.sApplication.openedWallet.datas.total_received}}</h2>
+                  <h2>{{this.sApplication.openedWallet.totalReceive()}}</h2>
                   <p>Total received</p>
               </ion-item>
               <ion-item>

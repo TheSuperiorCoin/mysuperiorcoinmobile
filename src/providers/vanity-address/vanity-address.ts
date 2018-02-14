@@ -48,6 +48,7 @@ startGeneration(prefix) {
     return this.generateAddress();
     //setTimeout(this.generateAddress(), 0);
 }
+
 generateAddress() {
   for (var i = 0; i < 10; ++i) {
       if (!this.running) return;
