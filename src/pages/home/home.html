@@ -1,20 +1,95 @@
 
 <ion-content padding>
-  
-  <button ion-button color="danger" (click)="createWallet()">Create wallet</button>
-  <button ion-button color="danger" (click)="this.sApplication.eraseWallets()">RAZ</button>
-  <ion-list *ngIf="this.sApplication.wallets">
-      <ion-item *ngFor="let w of this.sApplication.wallets" >
-        <h2>{{w.name}} </h2>
-        <p>{{w.address}} </p>
-        <button ion-button clear item-end (click)="login(w)">Open</button>
-        <button ion-button clear item-end (click)="getInfoAddress(w)">View</button>
-      </ion-item>
-  </ion-list>
-
   <div *ngIf="this.sApplication.openedWallet">
-    <ion-list>
-      <ion-item *ngIf="this.sApplication.openedWallet.address">
+    <ion-card *ngIf="this.sApplication.openedWallet.datas">
+      <ion-card-header>
+          Your Balance / Unlocked Balance
+      </ion-card-header>
+      <ion-card-content>
+          <ion-card-title>
+          {{this.sApplication.openedWallet.datas.locked_funds}} SUP /{{this.sApplication.openedWallet.datas.total_received}} SUP
+        </ion-card-title>
+          <p>
+              Refreshed: {{this.sApplication.openedWallet.datas.scanned_block_timestamp}}
+            </p>
+          </ion-card-content>
+          <ion-row>
+              <ion-col>
+                  <button ion-button color="dark" small (click)="presentActionSheet(t)">
+                    <div>Actions</div>
+                  </button>
+                </ion-col>
+            <ion-col text-right>
+                <button ion-button  color="dark" small (click)="this.sApplication.disconnect()">
+                  <div>Logout</div>
+                </button>
+              </ion-col>
+            </ion-row>
+    </ion-card>
+    <ion-card *ngIf="this.sApplication.openedWallet.datas">
+        <ion-card-header>
+            Address
+        </ion-card-header>
+        <ion-card-content>
+            {{this.sApplication.openedWallet.address}} 
+        </ion-card-content>
+        <ion-row>
+            <ion-col>
+              <button ion-button clear small (click)="copyToClipboard()">
+                <div>Copy</div>
+              </button>
+            </ion-col>
+            <ion-col text-right>
+              <button ion-button clear small (click)="share()">
+                <div>Share</div>
+              </button>
+            </ion-col>
+          </ion-row>
+      </ion-card>
+      <ion-card *ngIf="this.sApplication.openedWallet.datas">
+          <ion-card-header>
+              Informations
+          </ion-card-header>
+          <ion-card-content>
+              <ion-item>
+                  <ion-icon name="cube" item-start large></ion-icon>
+                  <h2>{{this.sApplication.openedWallet.datas.blockchain_height}}</h2>
+                  <p>Blockchain height</p>
+              </ion-item>
+              <ion-item>
+                  <ion-icon name="done-all" item-start large></ion-icon>
+                  <h2>{{this.sApplication.openedWallet.datas.scanned_block_height}} ({{this.sApplication.openedWallet.datas.scanned_block_timestamp}})</h2>
+                  <p>Scanned block height</p>
+              </ion-item>
+              <ion-item>
+                  <ion-icon name="flag" item-start large></ion-icon>
+                  <h2>{{this.sApplication.openedWallet.datas.start_height}}</h2>
+                  <p>Start height</p>
+              </ion-item>
+              <ion-item>
+                  <ion-icon name="flash" item-start large></ion-icon>
+                  <h2>{{this.sApplication.openedWallet.datas.scanned_height}}</h2>
+                  <p>Scanned height</p>
+              </ion-item>
+              <ion-item>
+                  <ion-icon name="albums" item-start large></ion-icon>
+                  <h2>{{this.sApplication.openedWallet.datas.spent_outputs}}</h2>
+                  <p>Spent outputs</p>
+              </ion-item>
+              <ion-item>
+                  <ion-icon name="add" item-start large></ion-icon>
+                  <h2>{{this.sApplication.openedWallet.datas.total_received}}</h2>
+                  <p>Total received</p>
+              </ion-item>
+              <ion-item>
+                  <ion-icon name="remove" item-start large></ion-icon>
+                  <h2>{{this.sApplication.openedWallet.datas.total_sent}}</h2>
+                  <p>Total sent</p>
+              </ion-item>
+            </ion-card-content>
+        </ion-card>
+      <!--
+        <ion-item *ngIf="this.sApplication.openedWallet.address">
         Address : {{this.sApplication.openedWallet.address}} 
       </ion-item>
       <ion-item *ngIf="this.sApplication.openedWallet.viewKey">
@@ -26,42 +101,7 @@
       <ion-item *ngIf="this.sApplication.openedWallet.mnemonic">
         mNemonic : {{this.sApplication.openedWallet.mnemonic}}
       </ion-item>
-    
-    <div *ngIf="this.sApplication.openedWallet.datas">
-        <ion-item >
-          blockchain_height : {{this.sApplication.openedWallet.datas.blockchain_height}}
-        </ion-item>
-        <ion-item >
-          locked_funds : {{this.sApplication.openedWallet.datas.locked_funds}}
-        </ion-item>
-        <ion-item >
-          new_address : {{this.sApplication.openedWallet.datas.new_address}}
-        </ion-item>
-        <ion-item >
-          scanned_block_height : {{this.sApplication.openedWallet.datas.scanned_block_height}}
-        </ion-item>
-        <ion-item >
-          scanned_block_timestamp : {{this.sApplication.openedWallet.datas.scanned_block_timestamp}}
-        </ion-item>
-        <ion-item >
-          scanned_height : {{this.sApplication.openedWallet.datas.scanned_height}}
-        </ion-item>
-        <ion-item >
-          spent_outputs : {{this.sApplication.openedWallet.datas.spent_outputs}}
-        </ion-item>
-        <ion-item >
-          start_height : {{this.sApplication.openedWallet.datas.start_height}}
-        </ion-item>
-        <ion-item >
-          status : {{this.sApplication.openedWallet.datas.status}}
-        </ion-item>
-        <ion-item >
-          total_received : {{this.sApplication.openedWallet.datas.total_received}}
-        </ion-item>
-        <ion-item >
-          total_sent : {{this.sApplication.openedWallet.datas.total_sent}}
-        </ion-item>
-        </div>
-      </ion-list>
+    -->
+
   </div>
 </ion-content>

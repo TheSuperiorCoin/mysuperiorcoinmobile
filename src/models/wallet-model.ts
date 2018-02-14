@@ -8,7 +8,7 @@ export class WalletModel {
     spendKey:any;
     datas:any;
     transactions:any;
-
+    balance:any;
     constructor() {
   
     }
@@ -18,17 +18,18 @@ export class WalletModel {
         this.name = datas.name;
         this.address = datas.address;
         this.mnemonic = datas.mnemonic;
+        this.balance = datas.balance;
     }
     _toObject(){
       return {
         'id':this.id,
         'name':this.name,
         'address':this.address,
-        'mnemonic':this.mnemonic
+        'mnemonic':this.mnemonic,
+        'balance':this.balance
       };
     }
     decodeSeed(v){
-        console.log(v);
         this.viewKey = v.view.sec;
         this.spendKey = v.spend.sec;
     }

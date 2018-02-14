@@ -3,8 +3,6 @@ import { BrowserModule } from '@angular/platform-browser';
 import { IonicApp, IonicModule, IonicErrorHandler } from 'ionic-angular';
 import { MyApp } from './app.component';
 
-import { AboutPage } from '../pages/about/about';
-import { ContactPage } from '../pages/contact/contact';
 import { HomePage } from '../pages/home/home';
 import { TabsPage } from '../pages/tabs/tabs';
 import { HttpModule, Http } from '@angular/http';
@@ -20,15 +18,24 @@ import { NaclProvider } from '../providers/nacl/nacl';
 import { VanityAddressProvider } from '../providers/vanity-address/vanity-address';
 import { Base58Provider } from '../providers/base58/base58';
 import { IonicStorageModule } from '@ionic/storage';
+import { TransactionPage } from '../pages/transaction/transaction';
+import { SendPage } from '../pages/send/send';
+import { AccountPage } from '../pages/account/account';
+import { ReceivePage } from '../pages/receive/receive';
+import { Clipboard } from '@ionic-native/clipboard';
+import { SocialSharing } from '@ionic-native/social-sharing';
 
 //import { BigIntegerProvider } from '../providers/big-integer/big-integer';
 @NgModule({
   declarations: [
     MyApp,
-    AboutPage,
-    ContactPage,
     HomePage,
-    TabsPage
+    TabsPage,
+    TransactionPage,
+    SendPage,
+    AccountPage,
+    ReceivePage
+    
   ],
   imports: [
     BrowserModule,
@@ -41,10 +48,12 @@ import { IonicStorageModule } from '@ionic/storage';
   bootstrap: [IonicApp],
   entryComponents: [
     MyApp,
-    AboutPage,
-    ContactPage,
     HomePage,
-    TabsPage
+    TabsPage,
+    TransactionPage,
+    SendPage,
+    AccountPage,
+    ReceivePage
   ],
   providers: [
     StatusBar,
@@ -58,7 +67,8 @@ import { IonicStorageModule } from '@ionic/storage';
     NaclProvider,
     VanityAddressProvider,
     Base58Provider,
-    //BigIntegerProvider,
+    Clipboard,
+    SocialSharing
   ]
 })
 export class AppModule {}

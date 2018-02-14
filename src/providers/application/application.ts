@@ -60,6 +60,15 @@ export class ApplicationProvider {
       
     });    
 }
+disconnect(){
+  if (this.subscriptionRefresh != null) {
+    this.subscriptionRefresh.unsubscribe();
+  }
+  if (this.subscriptionRefreshTrx != null) {
+    this.subscriptionRefreshTrx.unsubscribe();
+  }
+  this.openedWallet = null;
+}
   createWallet(){
     let g:any = this.vanityAddress.toggleGeneration();
     console.log(g);
@@ -98,6 +107,14 @@ export class ApplicationProvider {
       this.events.publish('refresh:transactions');
     });
   }
+  deleteWallet(){
+    let index = this.wallets.indexOf(this.openedWallet);
+    if(index > -1){ 
+      this.wallets.splice(index, 1);
+      this.disconnect();
+      this.saveWallets();
+    }
+  }
   login() {
     let headers = new Headers(
       {
@@ -134,15 +151,19 @@ export class ApplicationProvider {
   }
 
   getAddressInfo(){
-    this.requestAddressInfo().then((result) => {    
-      this.openedWallet.datas = result;
+    this.requestAddressInfo().then((result:any) => {    
+      if(this.openedWallet){
+        this.openedWallet.datas = result;
+        //this.openedWallet.balance = result.locked_funds;
+      } 
+      
     }, (err) => {
       console.log(err);
     });
   }
   getTrxInfo(){
     this.requestTrxInfo().then((result) => {    
-      this.openedWallet.transactions = result;
+      if(this.openedWallet) this.openedWallet.transactions = result;
     }, (err) => {
       console.log(err);
     });

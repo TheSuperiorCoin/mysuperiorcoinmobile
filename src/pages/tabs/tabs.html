@@ -1,6 +1,9 @@
-<ion-tabs color="dark">
-  <ion-tab [root]="tab1Root" tabTitle="Home" tabIcon="home"></ion-tab>
-  <ion-tab [root]="tab2Root" tabTitle="Transactions" tabIcon="list-box"></ion-tab>
-  <ion-tab [root]="tab3Root" tabTitle="Send" tabIcon="send"></ion-tab>
-  <ion-tab [root]="tab3Root" tabTitle="Receive" tabIcon="cloud-download"></ion-tab>
+<ion-tabs color="dark" *ngIf="this.sApplication.openedWallet">
+  <ion-tab [root]="tabHome" tabTitle="Wallet" tabIcon="briefcase"></ion-tab>
+  <ion-tab [root]="tabTrx" tabTitle="Transactions" tabIcon="list-box"></ion-tab>
+  <ion-tab [root]="tabSend" tabTitle="Send" tabIcon="send"></ion-tab>
+  <ion-tab [root]="tabReceive" tabTitle="Receive" tabIcon="cloud-download"></ion-tab>
+</ion-tabs>
+<ion-tabs color="dark" *ngIf="!this.sApplication.openedWallet">
+  <ion-tab [root]="tabAccount" tabTitle="Select an account" tabIcon="user"></ion-tab>
 </ion-tabs>
