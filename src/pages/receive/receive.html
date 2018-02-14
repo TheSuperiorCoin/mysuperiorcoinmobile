@@ -20,11 +20,20 @@
           <button ion-button clear item-end (click)="share()">Share</button>
         </ion-item>      
         <ion-card-content  text-center>
+          <h4>Wallet address</h4>
+          <p>
+            {{this.address}}
+          </p>
           
-          <ngx-qrcode [qrc-value]="this.sApplication.openedWallet.address"></ngx-qrcode>
-          <ion-card-title>
-            {{this.sApplication.openedWallet.address}}
-          </ion-card-title>
         </ion-card-content>
+      </ion-card>
+      <ion-card>
+        <ion-card-content  text-center>
+          <ngx-qrcode [qrc-value]="this.address"></ngx-qrcode>
+            <ion-item>
+                <ion-label stacked>Payment Id (optional)</ion-label>
+                <ion-input type="text" placeholder='e.g 83347d7d2c9e4a60'></ion-input>
+            </ion-item>
+          </ion-card-content>
       </ion-card>
 </ion-content>

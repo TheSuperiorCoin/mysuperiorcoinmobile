@@ -18,7 +18,6 @@ export class TransactionPage {
   }
 
   ionViewDidLoad() {
-    console.log('ionViewDidLoad TransactionPage');
   }
 
 }

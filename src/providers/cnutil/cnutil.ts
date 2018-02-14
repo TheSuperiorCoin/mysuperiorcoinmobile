@@ -574,46 +574,6 @@ export class CnutilProvider {
       return this.bintohex(res);
   };
 
-  /*this.derive_public_key (derivation, out_index, pub) {
-      if (derivation.length !== 64 || pub.length !== 64) {
-          throw "Invalid input length!";
-      }
-      let derivation_m = Module._malloc(this.KEY_SIZE);
-      let derivation_b = this.hextobin(derivation);
-      Module.HEAPU8.set(derivation_b, derivation_m);
-      let base_m = Module._malloc(this.KEY_SIZE);
-      let base_b = this.hextobin(pub);
-      Module.HEAPU8.set(base_b, base_m);
-      let point1_m = Module._malloc(STRUCT_SIZES.GE_P3);
-      let point2_m = Module._malloc(STRUCT_SIZES.GE_P3);
-      let point3_m = Module._malloc(STRUCT_SIZES.GE_CACHED);
-      let point4_m = Module._malloc(STRUCT_SIZES.GE_P1P1);
-      let point5_m = Module._malloc(STRUCT_SIZES.GE_P2);
-      let derived_key_m = Module._malloc(this.KEY_SIZE);
-      if (Module.ccall("ge_frombytes_lettime", "bool", ["number", "number"], [point1_m, base_m]) !== 0) {
-          throw "ge_frombytes_lettime returned non-zero error code";
-      }
-      let scalar_m = Module._malloc(STRUCT_SIZES.EC_SCALAR);
-      let scalar_b = this.hextobin(this.derivation_to_scalar(this.bintohex(Module.HEAPU8.subarray(derivation_m, derivation_m + STRUCT_SIZES.EC_POINT)), out_index));
-      Module.HEAPU8.set(scalar_b, scalar_m);
-      Module.ccall("ge_scalarmult_base", "void", ["number", "number"], [point2_m, scalar_m]);
-      Module.ccall("ge_p3_to_cached", "void", ["number", "number"], [point3_m, point2_m]);
-      Module.ccall("ge_add", "void", ["number", "number", "number"], [point4_m, point1_m, point3_m]);
-      Module.ccall("ge_p1p1_to_p2", "void", ["number", "number"], [point5_m, point4_m]);
-      Module.ccall("ge_tobytes", "void", ["number", "number"], [derived_key_m, point5_m]);
-      let res = Module.HEAPU8.subarray(derived_key_m, derived_key_m + this.KEY_SIZE);
-      Module._free(derivation_m);
-      Module._free(base_m);
-      Module._free(scalar_m);
-      Module._free(point1_m);
-      Module._free(point2_m);
-      Module._free(point3_m);
-      Module._free(point4_m);
-      Module._free(point5_m);
-      Module._free(derived_key_m);
-      return this.bintohex(res);
-  };*/
-
   derive_public_key (derivation, out_index, pub) {
       if (derivation.length !== 64 || pub.length !== 64) {
           throw "Invalid input length!";

@@ -70,7 +70,6 @@ disconnect(){
   this.openedWallet = null;
 }
 formateTrx(received,sent){
-  console.log('ifi');
   if(received != 0){
     return (parseFloat(received)/100000000) + " SUP RECEIVED";
   }else if(sent != 0){
@@ -175,6 +174,7 @@ formateTrx(received,sent){
     this.requestAddressInfo().then((result:any) => {    
       if(this.openedWallet){
         this.openedWallet.datas = result;
+        
         //this.openedWallet.balance = result.locked_funds;
       } 
       
@@ -294,7 +294,7 @@ formateTrx(received,sent){
               break; 
       }
       keys = this.sCnutil.create_address(seed);
-      
+      console.log(keys);
       return keys;
   };
 }

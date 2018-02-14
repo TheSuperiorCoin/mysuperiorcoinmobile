@@ -5,21 +5,33 @@ import { BarcodeScanner } from '@ionic-native/barcode-scanner';
 import { Clipboard } from '@ionic-native/clipboard';
 import { SocialSharing } from '@ionic-native/social-sharing';
 import { ToastController } from 'ionic-angular/components/toast/toast-controller';
+import { CnutilProvider } from '../../providers/cnutil/cnutil';
 
 @Component({
   selector: 'page-receive',
   templateUrl: 'receive.html',
 })
 export class ReceivePage {
-
+  address:any;
   constructor(
     public navCtrl: NavController, 
     public navParams: NavParams,
     public sApplication:ApplicationProvider,
     private clipboard: Clipboard,
     private socialSharing: SocialSharing,
-    private toastCtrl: ToastController
+    private toastCtrl: ToastController,
+    public Cnutil:CnutilProvider
   ) {
+    if(this.sApplication.openedWallet){
+      this.address = this.sApplication.openedWallet.address;
+    }
+    
+  }
+  generateIntegratedAddress(){
+    let p = this.Cnutil.rand_8();
+    let v = this.Cnutil.get_account_integrated_address(this.sApplication.openedWallet.address,p);
+    console.log(p);
+    console.log(v);
   }
   copyToClipboard(){
     this.clipboard.copy(this.sApplication.openedWallet.address);
