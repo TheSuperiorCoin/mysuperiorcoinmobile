@@ -29,8 +29,11 @@
     <form (ngSubmit)="submitForm()" #sendForm="ngForm">
     <ion-card>
         <ion-item>
-          <ion-label stacked>Receiver Address</ion-label>
-          <ion-input type="text"></ion-input>
+          <button ion-button clear item-end (click)="scanCode()">Barcode Scanner</button>
+        </ion-item>  
+        <ion-item>
+          <ion-label stacked >Receiver Address</ion-label>
+          <ion-input type="text" [(ngModel)]="this.receiverAddress" name="receiverAddress"></ion-input>
         </ion-item>
         <ion-item>
           <ion-label stacked>Amount</ion-label>
@@ -38,7 +41,7 @@
         </ion-item>
         <ion-item>
           <ion-label stacked>Payment ID (optional)</ion-label>
-          <ion-input type="text" placeholder='e.g. 59af9132941ec6e9f6ba3c4867e1cd92f2bd5fbce4325fc7b19bcdb55d640de5'></ion-input>
+          <ion-input type="text" placeholder='e.g. f816938c9437ac9f'></ion-input>
         </ion-item>
         <ion-item>
           <ion-label>Privacy Level</ion-label>
@@ -59,7 +62,7 @@
             </ion-select>
           </ion-item>
           <div padding text-center>
-              <button ion-button type="submit" block [disabled]="!sendForm.form.valid">Save</button>
+              <button ion-button type="submit" block [disabled]="!sendForm.form.valid">Generate transaction</button>
           </div>
       </ion-card>
     </form>

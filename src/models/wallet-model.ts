@@ -9,6 +9,8 @@ export class WalletModel {
     datas:any;
     transaction:any;
     balance:any;
+    paymentId:any;
+    integratedAddress:any;
     constructor() {
   
     }

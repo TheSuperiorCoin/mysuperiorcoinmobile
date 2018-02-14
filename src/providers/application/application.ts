@@ -31,7 +31,8 @@ export class ApplicationProvider {
     public sCnutil:CnutilProvider,
     public vanityAddress:VanityAddressProvider,
     private storage: Storage,
-    public events: Events
+    public events: Events,
+    public Cnutil:CnutilProvider
   ) {
     this.initLocalStorage();
     this.initEvents();
@@ -47,6 +48,23 @@ export class ApplicationProvider {
   eraseWallets(){
     this.wallets = new Array();
     this.saveWallets();
+  }
+  generatePaymentId(){
+    if(this.openedWallet){
+
+      this.openedWallet.paymentId = this.Cnutil.rand_8();
+      this.generateIntegratedAddress();
+      return true;
+    }else {
+      return false;
+    }
+  }
+  generateIntegratedAddress(){
+    if(this.openedWallet && this.openedWallet.paymentId){
+      let v = this.Cnutil.get_account_integrated_address(this.openedWallet.address,this.openedWallet.paymentId);
+      this.openedWallet.integratedAddress = v;
+    }
+    
   }
   initLocalStorage(){
     this.storage.get('superiorwallet_wallets').then((val) => {

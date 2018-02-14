@@ -13,6 +13,7 @@ import { CnutilProvider } from '../../providers/cnutil/cnutil';
 })
 export class ReceivePage {
   address:any;
+  paymentId:any;
   constructor(
     public navCtrl: NavController, 
     public navParams: NavParams,
@@ -24,14 +25,15 @@ export class ReceivePage {
   ) {
     if(this.sApplication.openedWallet){
       this.address = this.sApplication.openedWallet.address;
+      this.generatePaymentId();
     }
     
   }
-  generateIntegratedAddress(){
-    let p = this.Cnutil.rand_8();
-    let v = this.Cnutil.get_account_integrated_address(this.sApplication.openedWallet.address,p);
-    console.log(p);
-    console.log(v);
+  
+  generatePaymentId(){
+    
+    this.sApplication.generatePaymentId();
+    console.log(this.sApplication.openedWallet.paymentId);
   }
   copyToClipboard(){
     this.clipboard.copy(this.sApplication.openedWallet.address);
