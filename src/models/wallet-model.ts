@@ -33,6 +33,24 @@ export class WalletModel {
         this.viewKey = v.view.sec;
         this.spendKey = v.spend.sec;
     }
+    totalReceive(){
+        
+        if(this.datas){
+            let t:any = this.datas.total_received;
+            if(t == false) t = 0;
+            return (parseFloat(t)/100000000);
+        }
+        return 0;
+    }
+    totalLocked(){
+        
+        if(this.datas){
+            let t:any = this.datas.locked_funds;
+            if(t == false) t = 0;
+            return (parseFloat(t)/100000000);
+        }
+        return 0;
+    }
     generateRandomId(){
         let text:String = "";
         var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";

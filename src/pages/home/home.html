@@ -14,7 +14,7 @@
       </ion-card-header>
       <ion-card-content>
           <ion-card-title>
-          {{this.sApplication.openedWallet.datas.locked_funds}} SUP /{{this.sApplication.openedWallet.datas.total_received}} SUP
+              {{this.sApplication.openedWallet.totalReceive()}} SUP /{{this.sApplication.openedWallet.totalLocked()}} SUP
         </ion-card-title>
           <p>
               Refreshed: {{this.sApplication.openedWallet.datas.scanned_block_timestamp}}
