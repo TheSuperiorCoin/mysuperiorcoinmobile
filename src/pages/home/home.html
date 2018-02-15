@@ -24,7 +24,7 @@
       </ion-card-header>
       <ion-card-content>
           <ion-card-title>
-              {{this.sApplication.openedWallet.totalPending()}} SUP / {{this.sApplication.openedWallet.totalReceive()}} SUP
+              {{this.sApplication.openedWallet.balance}} SUP / {{this.sApplication.openedWallet.balanceUnlocked}} SUP
           </ion-card-title>
           </ion-card-content>
           <ion-item>
@@ -73,16 +73,19 @@
                   <h2>{{this.sApplication.openedWallet.datas.start_height}}</h2>
                   <p>Start height</p>
               </ion-item>
+              <!--
               <ion-item>
                   <ion-icon name="flash" item-start large></ion-icon>
                   <h2>{{this.sApplication.openedWallet.datas.scanned_height}}</h2>
                   <p>Scanned height</p>
               </ion-item>
+              
               <ion-item>
                   <ion-icon name="albums" item-start large></ion-icon>
                   <h2>{{this.sApplication.openedWallet.datas.spent_outputs}}</h2>
                   <p>Spent outputs</p>
               </ion-item>
+            
               <ion-item>
                   <ion-icon name="add" item-start large></ion-icon>
                   <h2>{{this.sApplication.openedWallet.totalReceive()}}</h2>
@@ -90,9 +93,10 @@
               </ion-item>
               <ion-item>
                   <ion-icon name="remove" item-start large></ion-icon>
-                  <h2>{{this.sApplication.openedWallet.datas.total_sent}}</h2>
+                  <h2>{{this.sApplication.openedWallet.totalSent()}}</h2>
                   <p>Total sent</p>
               </ion-item>
+              -->
             </ion-card-content>
         </ion-card>
       <!--

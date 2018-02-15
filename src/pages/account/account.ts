@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { IonicPage, NavController, NavParams } from 'ionic-angular';
 import { ApplicationProvider } from '../../providers/application/application';
+import { NewPage } from '../new/new';
+import { ModalController } from 'ionic-angular/components/modal/modal-controller';
 
 
 @Component({
@@ -12,7 +14,8 @@ export class AccountPage {
   constructor(
     public navCtrl: NavController, 
     public navParams: NavParams,
-    public sApplication:ApplicationProvider
+    public sApplication:ApplicationProvider,
+    public modalCtrl: ModalController,
   ) {
   }
   login(w){
@@ -24,8 +27,10 @@ export class AccountPage {
       console.log(err);
     });
   }
-  createWallet(){
-    this.sApplication.createWallet();
+  openNewModal(){
+    let modal = this.modalCtrl.create(NewPage);
+    modal.present(); 
   }
+ 
 
 }

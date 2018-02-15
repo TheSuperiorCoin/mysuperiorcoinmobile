@@ -8,11 +8,15 @@
 
 
 <ion-content>
-    <ion-list *ngIf="this.sApplication.openedWallet.transaction">
-        <ion-item *ngFor="let t of this.sApplication.openedWallet.transaction.transactions" >
+    <ion-list *ngIf="this.sApplication.openedWallet.transactions">
+        <button ion-item *ngFor="let t of this.sApplication.openedWallet.transactions" (click)="openModalTrx(t)" >
+            
+            <ion-avatar item-start>
+                <ion-icon name="cloud-download" item-start color="secondary" *ngIf="t.isReceived()"></ion-icon>
+                <ion-icon name="cloud-upload" item-start color="danger" *ngIf="!t.isReceived()"></ion-icon>
+            </ion-avatar>
             <h2>{{this.sApplication.formateTrx(t.total_received, t.total_sent)}} </h2>
             <p>{{t.hash}}</p>
-        
-          </ion-item>
+          </button>
     </ion-list>
 </ion-content>

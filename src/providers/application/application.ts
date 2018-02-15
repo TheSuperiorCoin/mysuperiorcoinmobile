@@ -59,6 +59,19 @@ export class ApplicationProvider {
       return false;
     }
   }
+  importWallet(privateKey){
+    privateKey = privateKey.trim();
+    let v:any = this.decode_private_key(privateKey);
+    let a:any = v.public_addr;
+    let w:WalletModel = new WalletModel();
+    w.generateRandomId();
+    w.name = "Wallet #"+(this.wallets.length + 1);
+    w.address = a;
+    w.mnemonic = privateKey;
+
+    this.wallets.push(w);
+    this.saveWallets();
+  }
   generateIntegratedAddress(){
     if(this.openedWallet && this.openedWallet.paymentId){
       let v = this.Cnutil.get_account_integrated_address(this.openedWallet.address,this.openedWallet.paymentId);
@@ -88,10 +101,11 @@ disconnect(){
   this.openedWallet = null;
 }
 formateTrx(received,sent){
-  if(received != 0){
+  if(sent != 0){
+    let t:any = sent - received;
+    return (parseFloat(t)/100000000) + " SUP SENT";
+  }else {
     return (parseFloat(received)/100000000) + " SUP RECEIVED";
-  }else if(sent != 0){
-    return (parseFloat(sent)/100000000) + " SUP SENT";
   }
 }
   createWallet(){
@@ -124,8 +138,8 @@ formateTrx(received,sent){
     let w:WalletModel = new WalletModel();
     w.generateRandomId();
     w.name = "Wallet Test #"+(this.wallets.length + 1);
-    w.address = "5UHgS7DMpHEHLH134D6UczZhbftRZj7YSDvtnUceTPLX3ZbDgDqbhH9GyaXJrbgU4GCb2hZFWG6vcFZ8PYLN1LHb1xixvtb";
-    w.mnemonic = "upper nautical strained poker circle edgy custom tipsy rumble voice suitcase locker edgy";
+    w.address = "";
+    w.mnemonic = "";
 
     this.wallets.push(w);
     this.saveWallets();
@@ -137,10 +151,10 @@ formateTrx(received,sent){
     if (this.subscriptionRefreshTrx != null) {
       this.subscriptionRefreshTrx.unsubscribe();
     }
-    this.subscriptionRefresh = Observable.interval(7000).subscribe(()=>{
+    this.subscriptionRefresh = Observable.interval(5000).subscribe(()=>{
       this.events.publish('refresh:address');
     });
-    this.subscriptionRefreshTrx = Observable.interval(10000).subscribe(()=>{
+    this.subscriptionRefreshTrx = Observable.interval(5000).subscribe(()=>{
       this.events.publish('refresh:transactions');
     });
   }
@@ -191,9 +205,7 @@ formateTrx(received,sent){
   getAddressInfo(){
     this.requestAddressInfo().then((result:any) => {    
       if(this.openedWallet){
-        this.openedWallet.datas = result;
-        
-        //this.openedWallet.balance = result.locked_funds;
+        this.openedWallet.setInfosDatas(result);
       } 
       
     }, (err) => {
@@ -202,7 +214,9 @@ formateTrx(received,sent){
   }
   getTrxInfo(){
     this.requestTrxInfo().then((result) => {    
-      if(this.openedWallet) this.openedWallet.transaction = result;
+      if(this.openedWallet){
+        this.openedWallet.setTransaction(result);
+      } 
 
     }, (err) => {
       console.log(err);
@@ -289,7 +303,30 @@ formateTrx(received,sent){
       });
     });
   }
-
+  decode_private_key(privateKey){
+      var seed;
+      var keys;
+      switch (this.mnemonic_language) {
+          case 'english':
+              try {
+                  seed = this.sMnemonic.mn_decode(privateKey, null);
+              } catch (e) {
+                  // Try decoding as an electrum seed, on failure throw the original exception
+                  try {
+                      seed = this.sMnemonic.mn_decode(privateKey, "electrum");
+                  } catch (ee) {
+                      throw e;
+                  }
+              }
+              break;
+          default:
+              seed = this.sMnemonic.mn_decode(privateKey, this.mnemonic_language);
+              break; 
+      }
+      keys = this.sCnutil.create_address(seed);
+      console.log(keys);
+      return keys;
+  }
   decode_seed(w)
   { 
       var seed;
@@ -312,7 +349,6 @@ formateTrx(received,sent){
               break; 
       }
       keys = this.sCnutil.create_address(seed);
-      console.log(keys);
       return keys;
   };
 }
