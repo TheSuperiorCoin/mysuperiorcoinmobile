@@ -86,5 +86,6 @@
     <plugin name="cordova-plugin-x-socialsharing" spec="^5.2.1" />
     <plugin name="cordova-clipboard" spec="^1.1.1" />
     <plugin name="phonegap-plugin-barcodescanner" spec="^7.0.2" />
+    <plugin name="cordova-plugin-advanced-http" spec="^1.10.0" />
     <engine name="android" spec="7.0.0" />
 </widget>

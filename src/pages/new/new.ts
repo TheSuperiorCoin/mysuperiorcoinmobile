@@ -28,5 +28,6 @@ export class NewPage {
   }
   importWallet(){
     this.sApplication.importWallet(this.privateKey);
+    this.dismiss();
   }
 }

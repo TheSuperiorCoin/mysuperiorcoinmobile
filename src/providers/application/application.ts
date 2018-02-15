@@ -167,7 +167,6 @@ getUnspentOuts(trx){
   }
   createWallet(){
     let g:any = this.vanityAddress.toggleGeneration();
-    console.log(g);
     let w:WalletModel = new WalletModel();
     w.generateRandomId();
     w.name = "Wallet #"+(this.wallets.length + 1);
@@ -191,7 +190,6 @@ getUnspentOuts(trx){
   } 
   addTestWallet(){
     let g:any = this.vanityAddress.toggleGeneration();
-    console.log(g);
     let w:WalletModel = new WalletModel();
     w.generateRandomId();
     w.name = "Wallet Test #"+(this.wallets.length + 1);
@@ -349,7 +347,6 @@ getUnspentOuts(trx){
       this.http.post(this.remotePath+'/get_address_info', data, options).toPromise().then((response) =>
       {
         let res = response;
-        console.log(JSON.stringify(res));
         
         resolve(res);
       }) 
@@ -381,7 +378,6 @@ getUnspentOuts(trx){
               break; 
       }
       keys = this.sCnutil.create_address(seed);
-      console.log(keys);
       return keys;
   }
   decode_seed(w)

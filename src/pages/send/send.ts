@@ -25,10 +25,9 @@ export class SendPage {
   }
 
   ionViewDidLoad() {
-    console.log('ionViewDidLoad SendPage');
   }
   generateTransaction(){
-    let trx:any = {
+    /*let trx:any = {
       receiverAddress:this.receiverAddress,
       paymentId:this.paymentId,
       amountToSend:this.amountToSend,
@@ -45,7 +44,7 @@ export class SendPage {
     }, (err) => {
       
       console.log(err);
-    });
+    });*/
   }
   scanCode(){
     this.barcodeScanner.scan().then((barcodeData) => {
@@ -53,7 +52,6 @@ export class SendPage {
       if (barcodeData.cancelled) {
         return false;
       }
-      console.log(barcodeData.text);
       let address:any;
       let str:any = barcodeData.text;
       str = str.split(':');

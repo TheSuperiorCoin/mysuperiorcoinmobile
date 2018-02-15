@@ -68,7 +68,6 @@ export class BigIntegerProvider {
   constructor(
     public http: HttpClient
   ) {
-    console.log('Hello ApplicationProvider Provider');
   }
 
   
@@ -921,16 +920,13 @@ export class BigIntegerProvider {
       if (n._s === 0) {
           throw new Error("Divide by zero");
       }
-      console.log('LALALsssss2');
       if (this._s === 0) {
           return [this.ZERO, this.ZERO];
       }
-      console.log('LALALfffff 2 --- '+n._d.length);
       if (n._d.length === 1) {
    
           return this.divRemSmall(n._s * n._d[0]);
       }
-      console.log('LALAL 2');
       // Test for easy cases -- |n1| <= |n2|
       switch (this.compareAbs(n)) {
       case 0: // n1 == n2
@@ -1008,16 +1004,13 @@ export class BigIntegerProvider {
       if (n < 1 || n >= this.BigInteger_base) {
           throw new Error("Argument out of range");
       }
-      console.log('ICI');
       if (this._s === 0) {
           return [this.ZERO, this.ZERO];
       }
-      console.log('ICI 2');
 
       if (n === 1 || n === -1) {
           return [(sign === 1) ? this.abs() : this.BigInteger(this._d, sign, this.CONSTRUCT), this.ZERO];
       }
-      console.log('ICI 3');
 
       // 2 <= n < this.BigInteger_base
   
@@ -1034,7 +1027,6 @@ export class BigIntegerProvider {
           
           return [q, r];
       }
-      console.log('ICI 4');
 
       let digits = this._d.slice();
       let quot = new Array(digits.length);

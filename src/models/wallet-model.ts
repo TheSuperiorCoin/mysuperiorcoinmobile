@@ -58,7 +58,6 @@ export class WalletModel {
             let o:TransactionModel = new TransactionModel();
             o.init(element);
             trxTmp.push(o);
-            console.log(o);
         });
         trxTmp = trxTmp.reverse();
         this.transactions = trxTmp;
