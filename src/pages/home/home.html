@@ -27,12 +27,19 @@
               {{this.sApplication.openedWallet.totalPending()}} SUP / {{this.sApplication.openedWallet.totalReceive()}} SUP
           </ion-card-title>
           </ion-card-content>
-        <ion-card-header>
-            Address
-        </ion-card-header>
-        <ion-card-content>
-            {{this.sApplication.openedWallet.address}} 
-        </ion-card-content>
+          <ion-item>
+              <ion-avatar item-start>
+                  <button ion-item (click)="openQrcodeModal('address')">
+                      <ngx-qrcode [qrc-value]="this.sApplication.openedWallet.address" ></ngx-qrcode>
+                  </button>
+              </ion-avatar>
+            <h2>My wallet address</h2>
+          </ion-item>
+          <ion-card-content text-center>
+            <p>
+              {{this.sApplication.openedWallet.address}} 
+            </p>
+          </ion-card-content>
         <ion-row>
             <ion-col>
               <button ion-button clear small (click)="copyToClipboard()">

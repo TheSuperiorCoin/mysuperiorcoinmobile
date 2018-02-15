@@ -8,6 +8,7 @@ import { ModalController } from 'ionic-angular/components/modal/modal-controller
 import { ActionSheetController } from 'ionic-angular/components/action-sheet/action-sheet-controller';
 import { AlertController } from 'ionic-angular/components/alert/alert-controller';
 import { AccountDetailsPage } from '../account-details/account-details';
+import { QrcodePage } from '../qrcode/qrcode';
 
 
 @Component({
@@ -105,6 +106,11 @@ export class HomePage {
     });
  
     actionSheet.present();
+  }
+  openQrcodeModal(type) { 
+    let modal = this.modalCtrl.create(QrcodePage, {t : type});
+    modal.present(); 
+      
   }
   openFormDetail() { 
     let modal = this.modalCtrl.create(AccountDetailsPage);

@@ -38,11 +38,11 @@
         </ion-item>
         <ion-item>
           <ion-label stacked>Amount</ion-label>
-          <ion-input type="text" placeholder='e.g 0.5'></ion-input>
+          <ion-input type="text" placeholder='e.g 0.5' [(ngModel)]="this.amountToSend" name="amountToSend"></ion-input>
         </ion-item>
         <ion-item>
           <ion-label stacked>Payment ID (optional)</ion-label>
-          <ion-input type="text" placeholder='e.g. f816938c9437ac9f'></ion-input>
+          <ion-input type="text" placeholder='e.g. f816938c9437ac9f' [(ngModel)]="this.paymentId" name="paymentId"></ion-input>
         </ion-item>
         <ion-item>
           <ion-label>Privacy Level</ion-label>

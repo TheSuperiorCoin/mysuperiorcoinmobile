@@ -6,6 +6,8 @@ import { Clipboard } from '@ionic-native/clipboard';
 import { SocialSharing } from '@ionic-native/social-sharing';
 import { ToastController } from 'ionic-angular/components/toast/toast-controller';
 import { CnutilProvider } from '../../providers/cnutil/cnutil';
+import { QrcodePage } from '../qrcode/qrcode';
+import { ModalController } from 'ionic-angular/components/modal/modal-controller';
 
 @Component({
   selector: 'page-receive',
@@ -21,11 +23,13 @@ export class ReceivePage {
     private clipboard: Clipboard,
     private socialSharing: SocialSharing,
     private toastCtrl: ToastController,
-    public Cnutil:CnutilProvider
+    public Cnutil:CnutilProvider,
+    public modalCtrl: ModalController,
+
   ) {
     if(this.sApplication.openedWallet){
       this.address = this.sApplication.openedWallet.address;
-      this.generatePaymentId();
+      this.sApplication.generatePaymentId();
     }
     
   }
@@ -33,14 +37,36 @@ export class ReceivePage {
   generatePaymentId(){
     
     this.sApplication.generatePaymentId();
-    console.log(this.sApplication.openedWallet.paymentId);
   }
-  copyToClipboard(){
-    this.clipboard.copy(this.sApplication.openedWallet.address);
+  openQrcodeModal(type) { 
+    let modal = this.modalCtrl.create(QrcodePage, {t : type});
+    modal.present(); 
+      
+  }
+  copyToClipboard(type){
+    let infos:any;
+    switch(type){
+      case 'address':
+      infos = this.sApplication.openedWallet.address;
+      break;
+      case 'integrated':
+      infos = this.sApplication.openedWallet.integratedAddress;
+      break;
+    }
+    this.clipboard.copy(infos);
     this.presentToast();
   }
-  share(){
-    this.socialSharing.share(this.sApplication.openedWallet.address, "Receive from SuperioCoin Mobile Wallet").then(() => {
+  share(type){
+    let infos:any;
+    switch(type){
+      case 'address':
+      infos = this.sApplication.openedWallet.address;
+      break;
+      case 'integrated':
+      infos = this.sApplication.openedWallet.integratedAddress;
+      break;
+    }
+    this.socialSharing.share(infos, "Receive from SuperioCoin Mobile Wallet").then(() => {
       // Success!
     }).catch(() => {
       // Error!

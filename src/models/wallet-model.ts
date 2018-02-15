@@ -11,6 +11,7 @@ export class WalletModel {
     balance:any;
     paymentId:any;
     integratedAddress:any;
+    trxAmount:any;
     constructor() {
   
     }

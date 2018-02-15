@@ -28,6 +28,7 @@ import { AccountDetailsPage } from '../pages/account-details/account-details';
 
 import { NgxQRCodeModule } from 'ngx-qrcode2';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner';
+import { QrcodePage } from '../pages/qrcode/qrcode';
 
 //import { BigIntegerProvider } from '../providers/big-integer/big-integer';
 @NgModule({
@@ -39,7 +40,8 @@ import { BarcodeScanner } from '@ionic-native/barcode-scanner';
     SendPage,
     AccountPage,
     ReceivePage,
-    AccountDetailsPage
+    AccountDetailsPage,
+    QrcodePage
     
   ],
   imports: [
@@ -60,7 +62,8 @@ import { BarcodeScanner } from '@ionic-native/barcode-scanner';
     SendPage,
     AccountPage,
     ReceivePage,
-    AccountDetailsPage
+    AccountDetailsPage,
+    QrcodePage
   ],
   providers: [
     StatusBar,
