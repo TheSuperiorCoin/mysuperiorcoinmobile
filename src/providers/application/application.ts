@@ -19,6 +19,7 @@ export class ApplicationProvider {
   viewKey:string;
   mNemonic:string;
   keys:any;
+  prefixQRCode:any = "Superior:";
 
   wallets:Array<WalletModel> = new Array();
   openedWallet:WalletModel;

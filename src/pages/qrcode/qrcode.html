@@ -28,6 +28,9 @@
           <button ion-button clear item-end (click)="copyToClipboard()">Copy</button>
           <button ion-button clear item-end (click)="share()">Share</button>
       </ion-item>  
-
+      <ion-item *ngIf="this.type == 'addressForReceive'">
+        <button ion-button clear item-start (click)="copyToClipboard()">Copy</button>
+        <button ion-button clear item-end (click)="share()">Share</button>
+    </ion-item> 
   </ion-card>
 </ion-content>

@@ -43,7 +43,7 @@ export class ReceivePage {
     modal.present(); 
       
   }
-  copyToClipboard(type){
+  getInfos(type){
     let infos:any;
     switch(type){
       case 'address':
@@ -52,20 +52,32 @@ export class ReceivePage {
       case 'integrated':
       infos = this.sApplication.openedWallet.integratedAddress;
       break;
+      case 'addressForReceive':
+        infos = this.sApplication.prefixQRCode+this.sApplication.openedWallet.address;
+        if(this.sApplication.openedWallet.trxAmount || this.sApplication.openedWallet.paymentId){
+          infos += '?';
+          let arrParam:Array<any> = new Array();
+          if(this.sApplication.openedWallet.trxAmount){
+            arrParam.push('tx_amount='+this.sApplication.openedWallet.trxAmount);
+          }
+          if(this.sApplication.openedWallet.paymentId){
+            arrParam.push('tx_payment_id='+this.sApplication.openedWallet.paymentId);
+          }
+          if(arrParam.length != 0){
+            infos += arrParam.join('&');
+          }
+        }
+      break;
     }
+    return infos;
+  }
+  copyToClipboard(type){
+    let infos:any = this.getInfos(type);
     this.clipboard.copy(infos);
     this.presentToast();
   }
   share(type){
-    let infos:any;
-    switch(type){
-      case 'address':
-      infos = this.sApplication.openedWallet.address;
-      break;
-      case 'integrated':
-      infos = this.sApplication.openedWallet.integratedAddress;
-      break;
-    }
+    let infos:any = this.getInfos(type);
     this.socialSharing.share(infos, "Receive from SuperioCoin Mobile Wallet").then(() => {
       // Success!
     }).catch(() => {
