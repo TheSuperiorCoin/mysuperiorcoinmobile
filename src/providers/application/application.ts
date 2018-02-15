@@ -108,6 +108,63 @@ formateTrx(received,sent){
     return (parseFloat(received)/100000000) + " SUP RECEIVED";
   }
 }
+getUnspentOuts(trx){
+  let headers = new Headers(
+    {
+      'Content-Type' : 'application/json'
+    });
+    let options:any = new RequestOptions({ headers: headers });
+    
+  let data:any = {
+    address: this.openedWallet.address, 
+    view_key: this.openedWallet.viewKey,
+    amount:trx.amountToSend,
+    mixin:trx.mixin,
+    dust_threshold:trx.dust_threshold,
+    use_dust:false
+  };
+  
+  data = JSON.stringify(data);
+  return new Promise((resolve, reject) => {
+    this.http.post(this.remotePath+'/get_unspent_outs', data, options).toPromise().then((response) =>
+    {
+      let res = response;
+      resolve(res);
+    }) 
+    .catch((error) =>
+    {
+      reject(error);
+    });
+  });
+}
+  getRandomOuts(trx){
+    let headers = new Headers(
+      {
+        'Content-Type' : 'application/json'
+      });
+      let options:any = new RequestOptions({ headers: headers });
+      
+    let data:any = {
+      amounts: this.openedWallet.address, 
+      view_key: this.openedWallet.viewKey,
+      amount:trx.amountToSend,
+      mixin:trx.mixin,
+      use_dust:false
+    };
+    
+    data = JSON.stringify(data);
+    return new Promise((resolve, reject) => {
+      this.http.post(this.remotePath+'/get_random_outs', data, options).toPromise().then((response) =>
+      {
+        let res = response;
+        resolve(res);
+      }) 
+      .catch((error) =>
+      {
+        reject(error);
+      });
+    });
+  }
   createWallet(){
     let g:any = this.vanityAddress.toggleGeneration();
     console.log(g);

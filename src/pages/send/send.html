@@ -25,7 +25,7 @@
               </ion-card-content>
         </ion-card>
     </div>
-    <form (ngSubmit)="submitForm()" #sendForm="ngForm">
+    <form (ngSubmit)="generateTransaction()" #sendForm="ngForm">
     <ion-card>
         <ion-card-header>
             New transation
@@ -46,7 +46,7 @@
         </ion-item>
         <ion-item>
           <ion-label>Privacy Level</ion-label>
-          <ion-select>
+          <ion-select [(ngModel)]="this.mixin" name="mixin">
             <ion-option value="4" selected>Low (ring size 5)</ion-option>
             <ion-option value="6">Medium (ring size 7)</ion-option>
             <ion-option value="10">High (ring size 11)</ion-option>

@@ -12,6 +12,9 @@ export class SendPage {
   receiverAddress:any;
   paymentId:any;
   amountToSend:any;
+  mixin:any = 4;
+
+
   constructor(
     public navCtrl: NavController, 
     public navParams: NavParams,
@@ -24,8 +27,25 @@ export class SendPage {
   ionViewDidLoad() {
     console.log('ionViewDidLoad SendPage');
   }
-  submitForm(){
-    
+  generateTransaction(){
+    let trx:any = {
+      receiverAddress:this.receiverAddress,
+      paymentId:this.paymentId,
+      amountToSend:this.amountToSend,
+      mixin:this.mixin,
+      dust_threshold: 1000000000
+    };
+    this.sApplication.getUnspentOuts(trx).then((resultUnspentOuts) => { 
+      this.sApplication.getRandomOuts(resultUnspentOuts).then((resultRandomOuts) => { 
+        console.log(resultRandomOuts);
+      }, (err) => {
+        
+        console.log(err);
+      });
+    }, (err) => {
+      
+      console.log(err);
+    });
   }
   scanCode(){
     this.barcodeScanner.scan().then((barcodeData) => {
