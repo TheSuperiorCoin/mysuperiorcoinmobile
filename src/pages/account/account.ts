@@ -3,6 +3,7 @@ import { IonicPage, NavController, NavParams } from 'ionic-angular';
 import { ApplicationProvider } from '../../providers/application/application';
 import { NewPage } from '../new/new';
 import { ModalController } from 'ionic-angular/components/modal/modal-controller';
+import { ToastController } from 'ionic-angular/components/toast/toast-controller';
 
 
 @Component({
@@ -16,6 +17,7 @@ export class AccountPage {
     public navParams: NavParams,
     public sApplication:ApplicationProvider,
     public modalCtrl: ModalController,
+    private toastCtrl: ToastController
   ) {
   }
   login(w){
@@ -23,8 +25,8 @@ export class AccountPage {
     this.sApplication.login().then((result) => { 
 
     }, (err) => {
-      
-      console.log(err);
+      this.sApplication.openedWallet = null;
+      this.presentToast("Daemon is not runing");
     });
   }
   openNewModal(){
@@ -32,5 +34,15 @@ export class AccountPage {
     modal.present(); 
   }
  
-
+  presentToast(message) {
+    let toast = this.toastCtrl.create({
+      message: message,
+      duration: 3000,
+      position: 'bottom'
+    });
+  
+    toast.onDidDismiss(() => {});
+  
+    toast.present();
+  }
 }

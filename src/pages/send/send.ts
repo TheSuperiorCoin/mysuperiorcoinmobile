@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { IonicPage, NavController, NavParams } from 'ionic-angular';
 import { ApplicationProvider } from '../../providers/application/application';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner';
+import { ToastController } from 'ionic-angular/components/toast/toast-controller';
 
 
 @Component({
@@ -20,6 +21,7 @@ export class SendPage {
     public navParams: NavParams,
     public sApplication:ApplicationProvider,
     private barcodeScanner: BarcodeScanner,
+    private toastCtrl: ToastController
 
   ) {
   }
@@ -27,6 +29,7 @@ export class SendPage {
   ionViewDidLoad() {
   }
   generateTransaction(){
+    this.presentToast('Sending transaction not avaible yet');
     /*let trx:any = {
       receiverAddress:this.receiverAddress,
       paymentId:this.paymentId,
@@ -81,5 +84,16 @@ export class SendPage {
   }
   validForm(){
     return true;
+  }
+  presentToast(message) {
+    let toast = this.toastCtrl.create({
+      message: message,
+      duration: 3000,
+      position: 'bottom'
+    });
+  
+    toast.onDidDismiss(() => {});
+  
+    toast.present();
   }
 }
