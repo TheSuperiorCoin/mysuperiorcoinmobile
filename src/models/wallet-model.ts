@@ -48,7 +48,18 @@ export class WalletModel {
         this.balance = (b/100000000).toFixed(8);
     }
     calculatePendingBalance(){
-        let b:any = this.datas.total_received - this.datas.total_sent;
+        let b:any = 0;
+        if(this.transactions){
+            this.transactions.forEach(element => {
+                if(element.unlock_time == 0){
+                    b += element.total_received;
+                    b -= element.total_sent;
+                }
+                
+            });
+        }
+        
+        //let b:any = this.datas.total_received - this.datas.total_sent;
         this.balanceUnlocked = (b/100000000).toFixed(8);
     }
     setTransaction(result){

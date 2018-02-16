@@ -32,13 +32,13 @@
         </ion-card-header>
         <ion-item>
           <ion-label stacked >Receiver Address</ion-label>
-          <ion-input type="text" [(ngModel)]="this.receiverAddress" name="receiverAddress"
+          <ion-input type="text" [(ngModel)]="this.receiverAddress" name="receiverAddress" required
            placeholder="e.g 5SRBegqy1LUWGoWsf7LP5MbwcfmUY3P6cen2RgDqMcV47ComcSa71LGQhjB8FcskaC6ncdSJH3oqaLxwuQvpHhVn82zHVm3">
           </ion-input>
         </ion-item>
         <ion-item>
           <ion-label stacked>Amount</ion-label>
-          <ion-input type="text" placeholder='e.g 0.5' [(ngModel)]="this.amountToSend" name="amountToSend"></ion-input>
+          <ion-input type="text" placeholder='e.g 0.5' [(ngModel)]="this.amountToSend" name="amountToSend" required></ion-input>
         </ion-item>
         <ion-item>
           <ion-label stacked>Payment ID (optional)</ion-label>

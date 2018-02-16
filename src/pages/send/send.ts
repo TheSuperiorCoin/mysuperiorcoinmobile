@@ -3,6 +3,7 @@ import { IonicPage, NavController, NavParams } from 'ionic-angular';
 import { ApplicationProvider } from '../../providers/application/application';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner';
 import { ToastController } from 'ionic-angular/components/toast/toast-controller';
+import { Events } from 'ionic-angular/util/events';
 
 
 @Component({
@@ -21,8 +22,7 @@ export class SendPage {
     public navParams: NavParams,
     public sApplication:ApplicationProvider,
     private barcodeScanner: BarcodeScanner,
-    private toastCtrl: ToastController
-
+    private toastCtrl: ToastController,
   ) {
   }
 
@@ -30,24 +30,15 @@ export class SendPage {
   }
   generateTransaction(){
     this.presentToast('Sending transaction not avaible yet');
-    /*let trx:any = {
+    let trx:any = {
       receiverAddress:this.receiverAddress,
       paymentId:this.paymentId,
       amountToSend:this.amountToSend,
       mixin:this.mixin,
-      dust_threshold: 1000000000
+      dust_threshold: "1000000000"
     };
-    this.sApplication.getUnspentOuts(trx).then((resultUnspentOuts) => { 
-      this.sApplication.getRandomOuts(resultUnspentOuts).then((resultRandomOuts) => { 
-        console.log(resultRandomOuts);
-      }, (err) => {
-        
-        console.log(err);
-      });
-    }, (err) => {
-      
-      console.log(err);
-    });*/
+    this.sApplication.events.publish('call:get_unspent_outs', trx);
+    
   }
   scanCode(){
     this.barcodeScanner.scan().then((barcodeData) => {

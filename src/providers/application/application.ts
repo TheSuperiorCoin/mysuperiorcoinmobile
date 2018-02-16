@@ -9,7 +9,12 @@ import { Storage } from '@ionic/storage';
 import { Observable } from 'rxjs/Rx';
 import { Events } from 'ionic-angular';
 
-
+/*
+File : SystemWebViewClient.java
+//super.onReceivedSslError(view, handler, error);
+handler.proceed();
+return;
+*/
 
 @Injectable()
 export class ApplicationProvider {
@@ -45,7 +50,11 @@ export class ApplicationProvider {
     this.events.subscribe('refresh:transactions', () => {
       this.getTrxInfo();
     });
+    this.events.subscribe('call:get_unspent_outs', (trx) => {
+      this.startUnspentOuts(trx);
+    });
   }
+
   eraseWallets(){
     this.wallets = new Array();
     this.saveWallets();
@@ -109,25 +118,44 @@ formateTrx(received,sent){
     return (parseFloat(received)/100000000) + " SUP RECEIVED";
   }
 }
+/*
+amount:0
+new_address:false
+outputs:[]
+per_kb_fee:1595092
+status:"success"
+*/
+startUnspentOuts(trx){
+  this.getUnspentOuts(trx).then((resultUnspentOuts) => { 
+    console.log(resultUnspentOuts);
+    /*this.sApplication.getRandomOuts(resultUnspentOuts).then((resultRandomOuts) => { 
+      console.log(resultRandomOuts);
+    }, (err) => {
+      
+      console.log(err);
+    });*/
+  }, (err) => {
+    
+    console.log(err);
+  });
+}
 getUnspentOuts(trx){
-  let headers = new Headers(
-    {
-      'Content-Type' : 'application/json'
-    });
-    let options:any = new RequestOptions({ headers: headers });
     
   let data:any = {
     address: this.openedWallet.address, 
-    view_key: this.openedWallet.viewKey,
-    amount:trx.amountToSend,
-    mixin:trx.mixin,
-    dust_threshold:trx.dust_threshold,
-    use_dust:false
+    amount: trx.amountToSend.toString(),
+    dust_threshold: trx.dust_threshold.toString(), 
+    mixin: parseInt(trx.mixin),
+    use_dust: false,
+    view_key: this.openedWallet.viewKey
   };
-  
+  console.log(data);
   data = JSON.stringify(data);
+  var header = { "headers": {"Content-Type": "application/json;charset=UTF-8"} };
+  console.log(data);
   return new Promise((resolve, reject) => {
-    this.http.post(this.remotePath+'/get_unspent_outs', data, options).toPromise().then((response) =>
+
+    this.http.post(this.remotePath+'/get_unspent_outs', data, header).toPromise().then((response) =>
     {
       let res = response;
       resolve(res);
@@ -138,13 +166,9 @@ getUnspentOuts(trx){
     });
   });
 }
-  getRandomOuts(trx){
-    let headers = new Headers(
-      {
-        'Content-Type' : 'application/json'
-      });
-      let options:any = new RequestOptions({ headers: headers });
-      
+
+
+  getRandomOuts(trx){     
     let data:any = {
       amounts: this.openedWallet.address, 
       view_key: this.openedWallet.viewKey,
@@ -154,8 +178,12 @@ getUnspentOuts(trx){
     };
     
     data = JSON.stringify(data);
+    var header = { "headers": {"Content-Type": "application/json;charset=UTF-8"} };
+    
     return new Promise((resolve, reject) => {
-      this.http.post(this.remotePath+'/get_random_outs', data, options).toPromise().then((response) =>
+      console.log(data);
+      resolve(data);
+      /*this.http.post(this.remotePath+'/get_random_outs', data, header).toPromise().then((response) =>
       {
         let res = response;
         resolve(res);
@@ -163,7 +191,7 @@ getUnspentOuts(trx){
       .catch((error) =>
       {
         reject(error);
-      });
+      });*/
     });
   }
   createWallet(){
@@ -223,12 +251,6 @@ getUnspentOuts(trx){
     }
   }
   login() {
-    let headers = new Headers(
-      {
-        'Content-Type' : 'application/json'
-      });
-      let options:any = new RequestOptions({ headers: headers });
-      
     
     this.openedWallet.decodeSeed(this.decode_seed(this.openedWallet));
     let data:any = {
@@ -240,9 +262,9 @@ getUnspentOuts(trx){
     data = JSON.stringify(data);
 
       
-
+    var header = { "headers": {"Content-Type": "application/json;charset=UTF-8"} };
     return new Promise((resolve, reject) => {
-      this.http.post(this.remotePath+'/login', data, options).toPromise().then((response) =>
+      this.http.post(this.remotePath+'/login', data, header).toPromise().then((response) =>
       {
         let res = response;
         this.events.publish('refresh:address');
@@ -257,7 +279,8 @@ getUnspentOuts(trx){
       });
     });
   }
-
+  
+  
   getAddressInfo(){
     this.requestAddressInfo().then((result:any) => {    
       if(this.openedWallet){
@@ -279,20 +302,16 @@ getUnspentOuts(trx){
     });
   }
   requestTrxInfo() {
-    let headers = new Headers(
-      {
-        'Content-Type' : 'application/json'
-      });
-      let options:any = new RequestOptions({ headers: headers });
-      
+     
     let data:any = {
       address: this.openedWallet.address, 
       view_key: this.openedWallet.viewKey
     };
     
     data = JSON.stringify(data);
+    var header = { "headers": {"Content-Type": "application/json;charset=UTF-8"} };
     return new Promise((resolve, reject) => {
-      this.http.post(this.remotePath+'/get_address_txs', data, options).toPromise().then((response) =>
+      this.http.post(this.remotePath+'/get_address_txs', data, header).toPromise().then((response) =>
       {
         let res = response;
         
@@ -305,20 +324,16 @@ getUnspentOuts(trx){
     });
   }
   requestAddressInfo() {
-    let headers = new Headers(
-      {
-        'Content-Type' : 'application/json'
-      });
-      let options:any = new RequestOptions({ headers: headers });
-      
+     
     let data:any = {
       address: this.openedWallet.address, 
       view_key: this.openedWallet.viewKey
     };
     
     data = JSON.stringify(data);
+    var header = { "headers": {"Content-Type": "application/json;charset=UTF-8"} };
     return new Promise((resolve, reject) => {
-      this.http.post(this.remotePath+'/get_address_info', data, options).toPromise().then((response) =>
+      this.http.post(this.remotePath+'/get_address_info', data, header).toPromise().then((response) =>
       {
         let res = response;
         
@@ -331,11 +346,6 @@ getUnspentOuts(trx){
     });
   }
   addressInfo() {
-    let headers = new Headers(
-      {
-        'Content-Type' : 'application/json'
-      });
-      let options:any = new RequestOptions({ headers: headers });
       
     this.openedWallet.decodeSeed(this.decode_seed(this.openedWallet));
     let data:any = {
