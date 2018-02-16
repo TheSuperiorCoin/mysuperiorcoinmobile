@@ -354,8 +354,10 @@ getUnspentOuts(trx){
     };
     
     data = JSON.stringify(data);
+    var header = { "headers": {"Content-Type": "application/json;charset=UTF-8"} };
+
     return new Promise((resolve, reject) => {
-      this.http.post(this.remotePath+'/get_address_info', data, options).toPromise().then((response) =>
+      this.http.post(this.remotePath+'/get_address_info', data, header).toPromise().then((response) =>
       {
         let res = response;
         
