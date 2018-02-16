@@ -19,6 +19,7 @@ return;
 @Injectable()
 export class ApplicationProvider {
   remotePath:string = "https://mysuperiorcoin.com:1984";
+  pathBlockchainExplorer:string = "http://superior-coin.com:8081/api/";
   mnemonic_language:string = 'english';
   address:string;
   viewKey:string;
@@ -30,7 +31,7 @@ export class ApplicationProvider {
   openedWallet:WalletModel;
   subscriptionRefresh = null;
   subscriptionRefreshTrx = null;
-
+  subscriptionRefreshTransaction = null;
   constructor(
     public http: HttpClient,
     public sMnemonic: MnemonicProvider,
@@ -52,6 +53,9 @@ export class ApplicationProvider {
     });
     this.events.subscribe('call:get_unspent_outs', (trx) => {
       this.startUnspentOuts(trx);
+    });
+    this.events.subscribe('refresh:transaction', () => {
+      this.getTransactionInfos();
     });
   }
 
@@ -109,6 +113,11 @@ disconnect(){
     this.subscriptionRefreshTrx.unsubscribe();
   }
   this.openedWallet = null;
+}
+stopTransactionRefresh(){
+  if (this.subscriptionRefreshTransaction != null) {
+    this.subscriptionRefreshTransaction.unsubscribe();
+  }
 }
 formateTrx(received,sent){
   if(sent != 0){
@@ -242,6 +251,12 @@ getUnspentOuts(trx){
       this.events.publish('refresh:transactions');
     });
   }
+  startTransactionRefresh(){
+    this.events.publish('refresh:transaction');
+    this.subscriptionRefreshTransaction = Observable.interval(5000).subscribe(()=>{
+      this.events.publish('refresh:transaction');
+    });
+  }
   deleteWallet(){
     let index = this.wallets.indexOf(this.openedWallet);
     if(index > -1){ 
@@ -299,6 +314,31 @@ getUnspentOuts(trx){
 
     }, (err) => {
       console.log(err);
+    });
+  }
+  getTransactionInfos(){
+    this.requestTransactionInfo().then((result) => {    
+      if(this.openedWallet){
+        this.openedWallet.setLastTransactionInfosFromExplorer(result);
+      } 
+
+    }, (err) => {
+      console.log(err);
+    });
+  }
+  requestTransactionInfo() {
+  
+    return new Promise((resolve, reject) => {
+      this.http.get(this.pathBlockchainExplorer+'transaction/'+this.openedWallet.lastTransaction.hash).toPromise().then((response) =>
+      {
+        let res = response;
+        
+        resolve(res);
+      }) 
+      .catch((error) =>
+      {
+        reject(error);
+      });
     });
   }
   requestTrxInfo() {

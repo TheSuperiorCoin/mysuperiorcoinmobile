@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { IonicPage, NavController, NavParams } from 'ionic-angular';
 import { ViewController } from 'ionic-angular/navigation/view-controller';
+import { ApplicationProvider } from '../../providers/application/application';
 
 
 @Component({
@@ -12,14 +13,18 @@ export class TransactionInfoPage {
   constructor(
     public navCtrl: NavController, 
     public navParams: NavParams,
-    public viewCtrl: ViewController   
+    public viewCtrl: ViewController,
+    public sApplication:ApplicationProvider   
 
   ) {
-    this.transaction = navParams.get('transaction');
+    this.sApplication.openedWallet.lastTransaction = navParams.get('transaction');
+    this.sApplication.stopTransactionRefresh();
+    this.sApplication.startTransactionRefresh();
   }
 
 
   dismiss() {
+    this.sApplication.stopTransactionRefresh();
     this.viewCtrl.dismiss();
   }
 }

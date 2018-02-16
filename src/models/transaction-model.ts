@@ -12,7 +12,9 @@ export class TransactionModel {
     total_sent:any;
     tx_pub_key:any;
     unlock_time:any;
-    
+    blockchainInfos:any;
+
+    confirmations:any;
     constructor() {
   
     }
@@ -30,6 +32,11 @@ export class TransactionModel {
         this.total_sent = datas.total_sent;
         this.tx_pub_key = datas.tx_pub_key;
         this.unlock_time = datas.unlock_time;
+    }
+    setInfosFromExplorer(result){
+        this.confirmations = result.data.confirmations;
+        this.blockchainInfos = JSON.stringify(result);
+        console.log();
     }
     _toObject(){
       return {

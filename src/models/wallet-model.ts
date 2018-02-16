@@ -16,6 +16,7 @@ export class WalletModel {
     integratedAddress:any;
     trxAmount:any;
     transactions:Array<TransactionModel>;
+    lastTransaction:TransactionModel;
     constructor() {
   
     }
@@ -34,6 +35,12 @@ export class WalletModel {
         'address':this.address,
         'mnemonic':this.mnemonic
       };
+    }
+    setLastTransactionInfosFromExplorer(result){
+        if(this.lastTransaction){
+            this.lastTransaction.setInfosFromExplorer(result);
+        }
+       
     }
     setInfosDatas(result){
         this.datas = result;
