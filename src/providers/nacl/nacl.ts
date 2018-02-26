@@ -409,13 +409,24 @@ export class NaclProvider {
     
     //res = s*P
     ge_scalarmult(P, s) {
+      console.log("kiki");
       let p = [this.gf(null), this.gf(null), this.gf(null), this.gf(null)],
       upk = [this.gf(null), this.gf(null), this.gf(null), this.gf(null)],
       res = new Uint8Array(32);
+      console.log("kiki");
+
       this.ge_neg(P);
+      console.log("kiki");
+
       if (this.unpackneg(upk, P) !== 0) throw "non-0 error on point decode";
+      console.log("kiki");
+
+
       this.scalarmult(p, upk, s);
+      console.log("kiki");
+
       this.pack(res, p);
+      console.log("kiki");
       return res;
     }
     

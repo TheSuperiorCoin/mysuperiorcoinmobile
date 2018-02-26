@@ -77,7 +77,7 @@ export class ApplicationProvider {
     privateKey = privateKey.trim();
     let v:any = this.decode_private_key(privateKey);
     let a:any = v.public_addr;
-    let w:WalletModel = new WalletModel();
+    let w:WalletModel = new WalletModel(this.Cnutil);
     w.generateRandomId();
     w.name = "Wallet #"+(this.wallets.length + 1);
     w.address = a;
@@ -96,7 +96,7 @@ export class ApplicationProvider {
   initLocalStorage(){
     this.storage.get('superiorwallet_wallets').then((val) => {
       val.forEach(element => {
-        let o:WalletModel = new WalletModel();
+        let o:WalletModel = new WalletModel(this.Cnutil);
         o.init(element);
         this.wallets.push(o);
       });
@@ -205,7 +205,7 @@ getUnspentOuts(trx){
   }
   createWallet(){
     let g:any = this.vanityAddress.toggleGeneration();
-    let w:WalletModel = new WalletModel();
+    let w:WalletModel = new WalletModel(this.Cnutil);
     w.generateRandomId();
     w.name = "Wallet #"+(this.wallets.length + 1);
     w.address = g.found['address'];
@@ -228,7 +228,7 @@ getUnspentOuts(trx){
   } 
   addTestWallet(){
     let g:any = this.vanityAddress.toggleGeneration();
-    let w:WalletModel = new WalletModel();
+    let w:WalletModel = new WalletModel(this.Cnutil);
     w.generateRandomId();
     w.name = "Wallet Test #"+(this.wallets.length + 1);
     w.address = "";

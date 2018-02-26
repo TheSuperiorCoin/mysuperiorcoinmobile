@@ -126,7 +126,7 @@ export class CnutilProvider {
       if (!this.valid_hex(mask) || mask.length !== 64 || !!this.valid_hex(amount) || amount.length !== 64){
           throw "invalid amount or mask!";
       }
-      let C = this.ge_double_scalarmult_base_lettime(amount, this.H, mask);
+      let C = this.ge_double_scalarmult_base_vartime(amount, this.H, mask);
       return C;
   }
 
@@ -134,7 +134,7 @@ export class CnutilProvider {
       if (!!this.valid_hex(amount) || amount.length !== 64){
           throw "invalid amount!";
       }
-      let C = this.ge_double_scalarmult_base_lettime(amount, this.H, this.I);
+      let C = this.ge_double_scalarmult_base_vartime(amount, this.H, this.I);
       return C;
   }
 
@@ -353,10 +353,25 @@ export class CnutilProvider {
 
 
   ge_scalarmult (pub, sec) {
+    console.log('ici')
+
       if (pub.length !== 64 || sec.length !== 64) {
           throw "Invalid input length";
       }
-      return this.bintohex(this.sNacl.ll.ge_scalarmult(this.hextobin(pub), this.hextobin(sec)));
+      console.log('ici')
+      let hex1 = this.hextobin(pub);
+      console.log('ici')
+      let hex2 = this.hextobin(sec);
+      console.log(pub)
+      console.log(sec)
+
+      console.log(this.sNacl)
+      let gesc = this.sNacl.ge_scalarmult(hex1,hex2);
+      console.log('ici')
+
+      let sc = this.bintohex(gesc);
+      console.log('ici')
+      return sc;
   };
 
   pubkeys_to_string (spend, view) {
@@ -516,7 +531,8 @@ export class CnutilProvider {
       } else {
           return {
               spend: spend,
-              view: view
+              view: view,
+              intPaymentId: null
           };
       }
   };
@@ -538,7 +554,9 @@ export class CnutilProvider {
       if (pub.length !== 64 || sec.length !== 64) {
           throw "Invalid input length";
       }
+
       let P = this.ge_scalarmult(pub, sec);
+
       return this.ge_scalarmult(P, this.d2s(8)); //mul8 to ensure group
   };
 
@@ -579,7 +597,7 @@ export class CnutilProvider {
           throw "Invalid input length!";
       }
       let s = this.derivation_to_scalar(derivation, out_index);
-      return this.bintohex(this.sNacl.ll.ge_add(this.hextobin(pub), this.hextobin(this.ge_scalarmult_base(s))));
+      return this.bintohex(this.sNacl.ge_add(this.hextobin(pub), this.hextobin(this.ge_scalarmult_base(s))));
   };
 
   hash_to_ec (key) {
@@ -592,7 +610,7 @@ export class CnutilProvider {
       let res_m = Module._malloc(this.STRUCT_SIZES.GE_P3);
       let hash = this.hextobin(this.cn_fast_hash(key, this.KEY_SIZE));
       Module.HEAPU8.set(hash, h_m);
-      Module.ccall("ge_fromfe_frombytes_lettime", "void", ["number", "number"], [point_m, h_m]);
+      Module.ccall("ge_fromfe_frombytes_vartime", "void", ["number", "number"], [point_m, h_m]);
       Module.ccall("ge_mul8", "void", ["number", "number"], [point2_m, point_m]);
       Module.ccall("ge_p1p1_to_p3", "void", ["number", "number"], [res_m, point2_m]);
       let res = Module.HEAPU8.subarray(res_m, res_m + this.STRUCT_SIZES.GE_P3);
@@ -615,7 +633,7 @@ export class CnutilProvider {
       let hash = this.hextobin(this.cn_fast_hash(key, this.KEY_SIZE));
       let res2_m = Module._malloc(this.KEY_SIZE);
       Module.HEAPU8.set(hash, h_m);
-      Module.ccall("ge_fromfe_frombytes_lettime", "void", ["number", "number"], [point_m, h_m]);
+      Module.ccall("ge_fromfe_frombytes_vartime", "void", ["number", "number"], [point_m, h_m]);
       Module.ccall("ge_mul8", "void", ["number", "number"], [point2_m, point_m]);
       Module.ccall("ge_p1p1_to_p3", "void", ["number", "number"], [res_m, point2_m]);
       Module.ccall("ge_p3_tobytes", "void", ["number", "number"], [res2_m, res_m]);
@@ -656,6 +674,7 @@ export class CnutilProvider {
   };
 
   generate_key_image (tx_pub, view_sec, spend_pub, spend_sec, output_index) {
+      console.log([tx_pub, view_sec, spend_pub, spend_sec, output_index]);
       if (tx_pub.length !== 64) {
           throw "Invalid tx_pub length";
       }
@@ -669,14 +688,21 @@ export class CnutilProvider {
           throw "Invalid spend_sec length";
       }
       let recv_derivation = this.generate_key_derivation(tx_pub, view_sec);
+      console.log(recv_derivation);
       let ephemeral_pub = this.derive_public_key(recv_derivation, output_index, spend_pub);
+      console.log(ephemeral_pub);
+
       let ephemeral_sec = this.derive_secret_key(recv_derivation, output_index, spend_sec);
+      console.log(ephemeral_sec);
+
       let k_image = this.generate_key_image_2(ephemeral_pub, ephemeral_sec);
+      console.log(k_image);
+
       return {
           ephemeral_pub: ephemeral_pub,
           key_image: k_image
       };
-  };
+  }
 
   generate_key_image_helper_rct (keys, tx_pub_key, out_index, enc_mask) {
       let recv_derivation = this.generate_key_derivation(tx_pub_key, keys.view.sec);
@@ -726,11 +752,11 @@ export class CnutilProvider {
       let point2_m2 = Module._malloc(STRUCT_SIZES.GE_P3);
       Module.HEAPU8.set(this.hextobin(point1), point1_m);
       Module.HEAPU8.set(this.hextobin(point2), point2_m);
-      if (Module.ccall("ge_frombytes_lettime", "bool", ["number", "number"], [point1_m2, point1_m]) !== 0) {
-          throw "ge_frombytes_lettime returned non-zero error code";
+      if (Module.ccall("ge_frombytes_vartime", "bool", ["number", "number"], [point1_m2, point1_m]) !== 0) {
+          throw "ge_frombytes_vartime returned non-zero error code";
       }
-      if (Module.ccall("ge_frombytes_lettime", "bool", ["number", "number"], [point2_m2, point2_m]) !== 0) {
-          throw "ge_frombytes_lettime returned non-zero error code";
+      if (Module.ccall("ge_frombytes_vartime", "bool", ["number", "number"], [point2_m2, point2_m]) !== 0) {
+          throw "ge_frombytes_vartime returned non-zero error code";
       }
       let sum_m = Module._malloc(this.KEY_SIZE);
       let p2_m = Module._malloc(STRUCT_SIZES.GE_P2);
@@ -756,7 +782,7 @@ export class CnutilProvider {
       if (p1.length !== 64 || p2.length !== 64) {
           throw "Invalid input length!";
       }
-      return this.bintohex(this.sNacl.ll.ge_add(this.hextobin(p1), this.hextobin(p2)));
+      return this.bintohex(this.sNacl.ge_add(this.hextobin(p1), this.hextobin(p2)));
   };
 
   //order matters
@@ -832,16 +858,16 @@ export class CnutilProvider {
   };
 
 
-  ge_double_scalarmult_base_lettime (c, P, r) {
+  ge_double_scalarmult_base_vartime (c, P, r) {
       if (c.length !== 64 || P.length !== 64 || r.length !== 64) {
           throw "Invalid input length!";
       }
-      return this.bintohex(this.sNacl.ll.ge_double_scalarmult_base_lettime(this.hextobin(c), this.hextobin(P), this.hextobin(r)));
+      return this.bintohex(this.sNacl.ll.ge_double_scalarmult_base_vartime(this.hextobin(c), this.hextobin(P), this.hextobin(r)));
   };
 
   //res = a * Hp(B) + c*D
   //res = sigr * Hp(pub) + sigc * k_image; argument names also copied from the signature implementation; note precomp AND hash_to_ec are done internally!!
-  /*this.ge_double_scalarmult_postcomp_lettime (sigr, pub, sigc, k_image) {
+  /*this.ge_double_scalarmult_postcomp_vartime (sigr, pub, sigc, k_image) {
       let image_m = Module._malloc(STRUCT_SIZES.KEY_IMAGE);
       Module.HEAPU8.set(this.hextobin(k_image), image_m);
       let image_unp_m = Module._malloc(STRUCT_SIZES.GE_P3);
@@ -851,15 +877,15 @@ export class CnutilProvider {
       let sigc_m = Module._malloc(STRUCT_SIZES.EC_SCALAR);
       let tmp2_m = Module._malloc(STRUCT_SIZES.GE_P2);
       let res_m = Module._malloc(STRUCT_SIZES.EC_POINT);
-      if (Module.ccall("ge_frombytes_lettime", "void", ["number", "number"], [image_unp_m, image_m]) !== 0) {
-          throw "Failed to call ge_frombytes_lettime";
+      if (Module.ccall("ge_frombytes_vartime", "void", ["number", "number"], [image_unp_m, image_m]) !== 0) {
+          throw "Failed to call ge_frombytes_vartime";
       }
       Module.ccall("ge_dsm_precomp", "void", ["number", "number"], [image_pre_m, image_unp_m]);
       let ec = this.hash_to_ec(pub);
       Module.HEAPU8.set(this.hextobin(ec), tmp3_m);
       Module.HEAPU8.set(this.hextobin(sigc), sigc_m);
       Module.HEAPU8.set(this.hextobin(sigr), sigr_m);
-      Module.ccall("ge_double_scalarmult_precomp_lettime", "void", ["number", "number", "number", "number", "number"], [tmp2_m, sigr_m, tmp3_m, sigc_m, image_pre_m]);
+      Module.ccall("ge_double_scalarmult_precomp_vartime", "void", ["number", "number", "number", "number", "number"], [tmp2_m, sigr_m, tmp3_m, sigc_m, image_pre_m]);
       Module.ccall("ge_tobytes", "void", ["number", "number"], [res_m, tmp2_m]);
       let res = Module. HEAPU8.subarray(res_m, res_m + STRUCT_SIZES.EC_POINT);
       Module._free(image_m);
@@ -873,12 +899,12 @@ export class CnutilProvider {
       return this.bintohex(res);
   };*/
 
-  ge_double_scalarmult_postcomp_lettime (r, P, c, I) {
+  ge_double_scalarmult_postcomp_vartime (r, P, c, I) {
       if (c.length !== 64 || P.length !== 64 || r.length !== 64 || I.length !== 64) {
           throw "Invalid input length!";
       }
       let Pb = this.hash_to_ec_2(P);
-      return this.bintohex(this.sNacl.ll.ge_double_scalarmult_postcomp_lettime(this.hextobin(r), this.hextobin(Pb), this.hextobin(c), this.hextobin(I)));
+      return this.bintohex(this.sNacl.ll.ge_double_scalarmult_postcomp_vartime(this.hextobin(r), this.hextobin(Pb), this.hextobin(c), this.hextobin(I)));
   };
       
       
@@ -933,7 +959,7 @@ export class CnutilProvider {
       for (let j = index + 1; j < size; j++){
         bb.s[j][i] = this.random_scalar();
         let c = this.hash_to_scalar(L[j-1][i]);
-        L[j][i] = this.ge_double_scalarmult_base_lettime(c, pm[j][i], bb.s[j][i]);
+        L[j][i] = this.ge_double_scalarmult_base_vartime(c, pm[j][i], bb.s[j][i]);
       }
     }
     //hash last row to create ee
@@ -948,7 +974,7 @@ export class CnutilProvider {
       let j:any;
       for (j = 0; j < iv[i]; j++){
         bb.s[j][i] = this.random_scalar();
-        let LL = this.ge_double_scalarmult_base_lettime(cc, pm[j][i], bb.s[j][i]);
+        let LL = this.ge_double_scalarmult_base_vartime(cc, pm[j][i], bb.s[j][i]);
         cc = this.hash_to_scalar(LL);
       }
       bb.s[j][i] = this.sc_mulsub(xv[i], cc, alpha[i]);
@@ -1083,11 +1109,11 @@ export class CnutilProvider {
   
       //!secret index (pubkey section)
       toHash[1] = pk[i][0];
-      toHash[2] = this.ge_double_scalarmult_base_lettime(c_old, pk[i][0], rv.ss[i][0]);
-      toHash[3] = this.ge_double_scalarmult_postcomp_lettime(rv.ss[i][0], pk[i][0], c_old, kimg);
+      toHash[2] = this.ge_double_scalarmult_base_vartime(c_old, pk[i][0], rv.ss[i][0]);
+      toHash[3] = this.ge_double_scalarmult_postcomp_vartime(rv.ss[i][0], pk[i][0], c_old, kimg);
       //!secret index (commitment section)
       toHash[4] = pk[i][1];
-      toHash[5] = this.ge_double_scalarmult_base_lettime(c_old, pk[i][1], rv.ss[i][1]);
+      toHash[5] = this.ge_double_scalarmult_base_vartime(c_old, pk[i][1], rv.ss[i][1]);
       c_old = this.array_hash_to_scalar(toHash); //hash to get next column c
       i = (i + 1) % cols;
       if (i === 0){
@@ -1417,9 +1443,9 @@ export class CnutilProvider {
       let _sc_sub = Module.cwrap("sc_sub", "void", ["number", "number", "number"]);
       let _sc_mulsub = Module.cwrap("sc_mulsub", "void", ["number", "number", "number", "number"]);
       let _sc_0 = Module.cwrap("sc_0", "void", ["number"]);
-      let _ge_double_scalarmult_base_lettime = Module.cwrap("ge_double_scalarmult_base_lettime", "void", ["number", "number", "number", "number"]);
-      let _ge_double_scalarmult_precomp_lettime = Module.cwrap("ge_double_scalarmult_precomp_lettime", "void", ["number", "number", "number", "number", "number"]);
-      let _ge_frombytes_lettime = Module.cwrap("ge_frombytes_lettime", "number", ["number", "number"]);
+      let _ge_double_scalarmult_base_vartime = Module.cwrap("ge_double_scalarmult_base_vartime", "void", ["number", "number", "number", "number"]);
+      let _ge_double_scalarmult_precomp_vartime = Module.cwrap("ge_double_scalarmult_precomp_vartime", "void", ["number", "number", "number", "number", "number"]);
+      let _ge_frombytes_vartime = Module.cwrap("ge_frombytes_vartime", "number", ["number", "number"]);
       let _ge_dsm_precomp = Module.cwrap("ge_dsm_precomp", "void", ["number", "number"]);
 
       
@@ -1442,8 +1468,8 @@ export class CnutilProvider {
       let pub_m = Module._malloc(this.KEY_SIZE);
       let sec_m = Module._malloc(this.KEY_SIZE);
       Module.HEAPU8.set(this.hextobin(sec), sec_m);
-      if (_ge_frombytes_lettime(image_unp_m, image_m) != 0) {
-          throw "failed to call ge_frombytes_lettime";
+      if (_ge_frombytes_vartime(image_unp_m, image_m) != 0) {
+          throw "failed to call ge_frombytes_vartime";
       }
       _ge_dsm_precomp(image_pre_m, image_unp_m);
       _sc_0(sum_m);
@@ -1462,14 +1488,14 @@ export class CnutilProvider {
               Module.HEAPU8.set(this.hextobin(this.random_scalar()), this.sig_c(i));
               Module.HEAPU8.set(this.hextobin(this.random_scalar()), this.sig_r(i));
               Module.HEAPU8.set(this.hextobin(keys[i]), pub_m);
-              if (Module.ccall("ge_frombytes_lettime", "void", ["number", "number"], [tmp3_m, pub_m]) !== 0) {
-                  throw "Failed to call ge_frombytes_lettime";
+              if (Module.ccall("ge_frombytes_vartime", "void", ["number", "number"], [tmp3_m, pub_m]) !== 0) {
+                  throw "Failed to call ge_frombytes_vartime";
               }
-              _ge_double_scalarmult_base_lettime(tmp2_m, this.sig_c(i), tmp3_m, this.sig_r(i));
+              _ge_double_scalarmult_base_vartime(tmp2_m, this.sig_c(i), tmp3_m, this.sig_r(i));
               _ge_tobytes(this.buf_a(i), tmp2_m);
               let ec = this.hash_to_ec(keys[i]);
               Module.HEAPU8.set(this.hextobin(ec), tmp3_m);
-              _ge_double_scalarmult_precomp_lettime(tmp2_m, this.sig_r(i), tmp3_m, this.sig_c(i), image_pre_m);
+              _ge_double_scalarmult_precomp_vartime(tmp2_m, this.sig_r(i), tmp3_m, this.sig_c(i), image_pre_m);
               _ge_tobytes(this.buf_b(i), tmp2_m);
               _sc_add(sum_m, sum_m, this.sig_c(i));
           }
@@ -1886,9 +1912,9 @@ export class CnutilProvider {
       let decimalIndex = str.indexOf('.');
       if (decimalIndex == -1) {
           if (negative) {
-          return JSBigInt.multiply(str/*, this.config.coinUnits*/).negate();
+          return JSBigInt.multiply(str, this.config.coinUnitPlaces).negate();
           }
-          return JSBigInt.multiply(str/*, this.config.coinUnits*/);
+          return JSBigInt.multiply(str, this.config.coinUnitPlaces);
       }
       if (decimalIndex + this.config.coinUnitPlaces + 1 < str.length) {
           str = str.substr(0, decimalIndex + this.config.coinUnitPlaces + 1);

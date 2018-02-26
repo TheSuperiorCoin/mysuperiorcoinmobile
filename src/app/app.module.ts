@@ -31,6 +31,7 @@ import { BarcodeScanner } from '@ionic-native/barcode-scanner';
 import { QrcodePage } from '../pages/qrcode/qrcode';
 import { NewPage } from '../pages/new/new';
 import { TransactionInfoPage } from '../pages/transaction-info/transaction-info';
+import { SendCoinProvider } from '../providers/send-coin/send-coin';
 
 //import { BigIntegerProvider } from '../providers/big-integer/big-integer';
 @NgModule({
@@ -84,7 +85,8 @@ import { TransactionInfoPage } from '../pages/transaction-info/transaction-info'
     Base58Provider,
     Clipboard,
     SocialSharing,
-    BarcodeScanner
+    BarcodeScanner,
+    SendCoinProvider
   ]
 })
 export class AppModule {}

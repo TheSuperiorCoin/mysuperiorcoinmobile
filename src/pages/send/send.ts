@@ -4,6 +4,7 @@ import { ApplicationProvider } from '../../providers/application/application';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner';
 import { ToastController } from 'ionic-angular/components/toast/toast-controller';
 import { Events } from 'ionic-angular/util/events';
+import { SendCoinProvider } from '../../providers/send-coin/send-coin';
 
 
 @Component({
@@ -11,9 +12,9 @@ import { Events } from 'ionic-angular/util/events';
   templateUrl: 'send.html',
 })
 export class SendPage {
-  receiverAddress:any;
-  paymentId:any;
-  amountToSend:any;
+  receiverAddress:any = "5SLH2mHnSJ4TGN6k2dLNH6Chanf1rGRAYWaP4Z6gf6tgf78yq9z87XAC3JXF2Mgdt8eiQChpDyb4cCueHb9z7XWxRjLRS4z";
+  paymentId:any = "f816938c9437ac9f";
+  amountToSend:any = "1";
   mixin:any = 4;
 
 
@@ -23,6 +24,7 @@ export class SendPage {
     public sApplication:ApplicationProvider,
     private barcodeScanner: BarcodeScanner,
     private toastCtrl: ToastController,
+    public sSendCoin:SendCoinProvider
   ) {
   }
 
@@ -30,15 +32,19 @@ export class SendPage {
   }
   generateTransaction(){
     this.presentToast('Sending transaction not avaible yet');
-    let trx:any = {
+    /*let trx:any = {
       receiverAddress:this.receiverAddress,
       paymentId:this.paymentId,
       amountToSend:this.amountToSend,
       mixin:this.mixin,
       dust_threshold: "1000000000"
     };
-    this.sApplication.events.publish('call:get_unspent_outs', trx);
-    
+    this.sApplication.events.publish('call:get_unspent_outs', trx);*/
+    let targets = [{
+      address:this.receiverAddress,
+      amount:this.amountToSend
+    }]
+    this.sSendCoin.sendCoins(targets, this.mixin, this.paymentId);
   }
   scanCode(){
     this.barcodeScanner.scan().then((barcodeData) => {

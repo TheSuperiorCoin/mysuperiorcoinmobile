@@ -1,4 +1,5 @@
 import { TransactionModel } from "./transaction-model";
+import { CnutilProvider } from "../providers/cnutil/cnutil";
 
 export class WalletModel {
 
@@ -17,7 +18,11 @@ export class WalletModel {
     trxAmount:any;
     transactions:Array<TransactionModel>;
     lastTransaction:TransactionModel;
-    constructor() {
+    key_images:any = [];
+    spend_keys:any;
+    view_keys:any;
+
+    constructor(public cnUtil:CnutilProvider) {
   
     }
   
@@ -35,6 +40,12 @@ export class WalletModel {
         'address':this.address,
         'mnemonic':this.mnemonic
       };
+    }
+    getAddress() {
+        return this.address;
+    }
+    getViewKey() {
+        return this.viewKey;
     }
     setLastTransactionInfosFromExplorer(result){
         if(this.lastTransaction){
@@ -82,6 +93,10 @@ export class WalletModel {
         this.calculateBalance();
     }
     decodeSeed(v){
+        console.log(v);
+        this.spend_keys = v.spend;
+        this.view_keys = v.view;
+
         this.viewKey = v.view.sec;
         this.spendKey = v.spend.sec;
     }
@@ -120,6 +135,30 @@ export class WalletModel {
             return (parseFloat(t)/100000000);
         }
         return 0;
+    }
+    cachedKeyImage (tx_pub_key, out_index) {
+       
+        var cache_index = tx_pub_key + ':' + this.address + ':' + out_index;
+        console.log(this.key_images);
+        if (this.key_images[cache_index]) {
+            return this.key_images[cache_index];
+        }
+        this.key_images[cache_index] = this.cnUtil.generate_key_image(
+            tx_pub_key,
+            this.getViewKey(),
+            this.spend_keys.pub,
+            this.spend_keys.sec,
+            out_index
+        ).key_image;
+        console.log(this.key_images);
+
+        return this.key_images[cache_index];
+    }
+    getPublicKeys(){
+        return {view:this.view_keys.pub,spend:this.spend_keys.pub};
+    }
+    getSecretKeys(){
+        return {view:this.view_keys.sec,spend:this.spend_keys.sec};
     }
     generateRandomId(){
         let text:String = "";
