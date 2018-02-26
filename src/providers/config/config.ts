@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
-
+declare var JSBigInt;
 @Injectable()
 export class ConfigProvider {
   apiUrl = "https://mysuperiorcoin.com:1984/";
@@ -29,6 +29,7 @@ export class ConfigProvider {
   maxBlockNumber = 500000000;
   avgBlockTime = 120;
   debugMode = false;
+  coinUnits:any = new JSBigInt("100000000");
     
   constructor(public http: HttpClient) {
     

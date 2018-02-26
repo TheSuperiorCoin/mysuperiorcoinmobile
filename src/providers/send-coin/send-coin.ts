@@ -232,7 +232,7 @@ $scope, $http, $q,
                     this.pid_encrypt = true; //encrypt if using an integrated address
                 }
             }
-            console.log(this.totalAmountWithoutFee.compare(0));
+            console.log(this.totalAmountWithoutFee);
             if (this.totalAmountWithoutFee.compare(0) <= 0) {
                 this.submitting = false;
                 this.error = "The amount you've entered is too low";
@@ -261,21 +261,27 @@ $scope, $http, $q,
             
                 this.http.post(this.sApplication.remotePath+'/get_unspent_outs', getUnspentOutsRequest, header).toPromise().then((request:any) =>
                 {
-                    var data = request;
-                    
-                    let out = data.outputs || [];
-                    this.unspentOuts = this.checkUnspentOuts(out);
+                    console.log(request);
+                    let data = request;
+                    console.log(request.amount);
+                   
+                    console.log(data.outputs[0]);
+                    data.outputs.forEach(element => {
+                        console.log(element);
+                    });
+                    let out:Array<any> = data.outputs;
+                    console.log(out);
+                    this.unspentOuts = this.checkUnspentOuts(data.outputs);
+                    console.log(this.unspentOuts);
+                    console.log(out);
                     this.unused_outs = this.unspentOuts.slice(0);
-                    console.log(this.unused_outs)
-                    //this.unused_outs = [];
+                    this.unused_outs = [];
                     this.using_outs_amount = new JSBigInt(0);
                     if (data.per_kb_fee)
                     {
                       this.feePerKB = new JSBigInt(data.per_kb_fee);
                       this.neededFee = this.feePerKB.multiply(13).multiply(this.fee_multiplayer);
                     }
-                    console.log('lala');
-                    console.log("transfer");
                     this.transfer().then(this.transferSuccess, this.transferFailure);
                 }) 
                 .catch((error) =>
@@ -309,16 +315,16 @@ $scope, $http, $q,
             return str;
         }
   get_txt_records(target,i){
+      
     return new Promise((resolve, reject) => {
         var amount;
-        console.log(target)
         try {
             amount = this.cnUtil.parseMoney(target.amount);
         } catch (e) {
             resolve("Failed to parse amount (#" + i + ")");
             return;
         }
-        console.log(amount)
+        console.log(amount);
         if (target.address.indexOf('.') === -1) {
             
             try {
@@ -423,9 +429,10 @@ pop_random_value(list) {
 }
 
 select_outputs(target_amount) {
-    console.log(this.using_outs_amount)
-    console.log(this.unused_outs)
+    
     console.log("Selecting outputs to use. Current total: " + this.cnUtil.formatMoney(this.using_outs_amount) + " target: " + this.cnUtil.formatMoney(target_amount));
+    console.log(this.using_outs_amount.compare(target_amount));
+    console.log(this.unused_outs);
     while (this.using_outs_amount.compare(target_amount) < 0 && this.unused_outs.length > 0) {
         var out = this.pop_random_value(this.unused_outs);
         if (!this.rct && out.this.rct) {continue;} //skip this.rct outs if not creating this.rct tx
@@ -433,17 +440,24 @@ select_outputs(target_amount) {
         this.using_outs_amount = this.using_outs_amount.add(out.amount);
         console.log("Using output: " + this.cnUtil.formatMoney(out.amount) + " - " + JSON.stringify(out));
     }
+    console.log(this.using_outs_amount)
+    console.log(this.unused_outs)
 }
 dsts:any;
 transfer() {
     return new Promise((resolve, reject) => {
         this.dsts = this.realDsts.slice(0);
-
+        
         var totalAmount = this.totalAmountWithoutFee.add(this.neededFee)/*.add(chargeAmount)*/;
+        console.log('--------------------');
+        console.log(this.totalAmountWithoutFee);
+        console.log(this.neededFee);
+        console.log(totalAmount);
         console.log("Balance required: " + this.cnUtil.formatMoneySymbol(totalAmount));
-
+        console.log(this.unused_outs.length);
+        console.log(this.rct);
         this.select_outputs(totalAmount);
-
+        
         //compute fee as closely as possible before hand
         if (this.unused_outs.length > 1 && this.rct)
         {
@@ -451,6 +465,8 @@ transfer() {
             totalAmount = this.totalAmountWithoutFee.add(newNeededFee);
             console.log(totalAmount)
             //add outputs 1 at a time till we either have them all or can meet the fee
+            
+            console.log(this.using_outs_amount);
             while (this.using_outs_amount.compare(totalAmount) < 0 && this.unused_outs.length > 0)
             {
                 var out = this.pop_random_value(this.unused_outs);
@@ -467,6 +483,7 @@ transfer() {
         console.log(totalAmount)
         if (this.using_outs_amount.compare(totalAmount) < 0)
         {
+            this.submitting = false;
             reject("Not enough spendable outputs / balance too low (have "
                 + this.cnUtil.formatMoneyFull(this.using_outs_amount) + " but need "
                 + this.cnUtil.formatMoneyFull(totalAmount)
@@ -613,6 +630,7 @@ createTx(mix_outs)
             //resolve(raw_tx_and_hash);
         }
 checkUnspentOuts(outputs) {
+    console.log(outputs[0]);
 for (var i = 0; i < outputs.length; i++) {
   for (var j = 0; outputs[i] && j < outputs[i].spend_key_images.length; j++) {
       let key_img = this.sApplication.openedWallet.cachedKeyImage(outputs[i].tx_pub_key, outputs[i].index);

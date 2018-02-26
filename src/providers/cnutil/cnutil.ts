@@ -353,24 +353,16 @@ export class CnutilProvider {
 
 
   ge_scalarmult (pub, sec) {
-    console.log('ici')
 
       if (pub.length !== 64 || sec.length !== 64) {
           throw "Invalid input length";
       }
-      console.log('ici')
       let hex1 = this.hextobin(pub);
-      console.log('ici')
       let hex2 = this.hextobin(sec);
-      console.log(pub)
-      console.log(sec)
 
-      console.log(this.sNacl)
       let gesc = this.sNacl.ge_scalarmult(hex1,hex2);
-      console.log('ici')
 
       let sc = this.bintohex(gesc);
-      console.log('ici')
       return sc;
   };
 
@@ -1904,6 +1896,7 @@ export class CnutilProvider {
   };
 
   parseMoney (str) {
+      
       if (!str) return JSBigInt.ZERO;
       let negative = str[0] === '-';
       if (negative) {
@@ -1912,9 +1905,10 @@ export class CnutilProvider {
       let decimalIndex = str.indexOf('.');
       if (decimalIndex == -1) {
           if (negative) {
-          return JSBigInt.multiply(str, this.config.coinUnitPlaces).negate();
+          return JSBigInt.multiply(str, this.config.coinUnits).negate();
           }
-          return JSBigInt.multiply(str, this.config.coinUnitPlaces);
+          console.log(this.config.coinUnits);
+          return JSBigInt.multiply(str, this.config.coinUnits);
       }
       if (decimalIndex + this.config.coinUnitPlaces + 1 < str.length) {
           str = str.substr(0, decimalIndex + this.config.coinUnitPlaces + 1);
@@ -1923,6 +1917,7 @@ export class CnutilProvider {
           return JSBigInt(str.substr(0, decimalIndex),null).exp10(this.config.coinUnitPlaces)
               .add(JSBigInt(str.substr(decimalIndex + 1),null).exp10(decimalIndex + this.config.coinUnitPlaces - str.length + 1)).negate;
       }
+      
       return JSBigInt(str.substr(0, decimalIndex),null).exp10(this.config.coinUnitPlaces)
           .add(JSBigInt(str.substr(decimalIndex + 1),null).exp10(decimalIndex + this.config.coinUnitPlaces - str.length + 1));
   };
