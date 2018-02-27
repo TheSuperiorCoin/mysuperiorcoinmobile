@@ -12,9 +12,9 @@ import { SendCoinProvider } from '../../providers/send-coin/send-coin';
   templateUrl: 'send.html',
 })
 export class SendPage {
-  receiverAddress:any = "5SLH2mHnSJ4TGN6k2dLNH6Chanf1rGRAYWaP4Z6gf6tgf78yq9z87XAC3JXF2Mgdt8eiQChpDyb4cCueHb9z7XWxRjLRS4z";
-  paymentId:any = "f816938c9437ac9f";
-  amountToSend:any = "1";
+  receiverAddress:any = "";
+  paymentId:any = "";
+  amountToSend:any = "";
   mixin:any = 4;
 
 

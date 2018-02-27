@@ -87,8 +87,6 @@ export class WalletModel {
         }else {
             this.balanceUnlocked = 0;
         }
-        console.log(this.balanceUnlocked);
-        console.log(this.balance);
 
     }
     calculatePendingBalance(){
