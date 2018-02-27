@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { ConfigProvider } from '../config/config';
 import { CnutilProvider } from '../cnutil/cnutil';
 import { ApplicationProvider } from '../application/application';
+import { AlertController } from 'ionic-angular/components/alert/alert-controller';
 
 declare var JSBigInt;
 
@@ -42,14 +43,15 @@ export class SendCoinProvider {
     public http: HttpClient,
     public sConfig:ConfigProvider,
     public cnUtil:CnutilProvider,
-    public sApplication:ApplicationProvider
+    public sApplication:ApplicationProvider,
+    private alertCtrl: AlertController
+
   /*
 $scope, $http, $q,
                                                      , ModalService,
                                                      ApiCalls
   */
   ) {
-    console.log('Hello SendCoinProvider Provider');
   }
 
     
@@ -93,7 +95,30 @@ $scope, $http, $q,
                              payment_id, mixin, priority, txBlobKBytes) {
 
         return new Promise((resolve, reject) => {
-        if (this.transferConfirmDialog !== undefined) {
+            let alert = this.alertCtrl.create({
+                title: 'Confirm',
+                message: 'Do you want to send this transaction ?',
+                buttons: [
+                  {
+                    text: 'No',
+                    role: 'cancel',
+                    handler: () => {
+                        this.transferConfirmDialog = undefined;
+                        reject("Transfer canceled by user");
+                    }
+                  },
+                  {
+                    text: 'Yes',
+                    handler: () => {
+                        this.transferConfirmDialog = undefined;
+                        resolve();
+                    }
+                  }
+                ]
+              });
+              alert.present();
+            
+        /*if (this.transferConfirmDialog !== undefined) {
             reject("transferConfirmDialog is already being shown!");
             return;
         }
@@ -118,7 +143,7 @@ $scope, $http, $q,
                 this.transferConfirmDialog = undefined;
                 reject("Transfer canceled by user");
             }
-        };
+        };*/
     });
     }
 
@@ -261,28 +286,25 @@ $scope, $http, $q,
             
                 this.http.post(this.sApplication.remotePath+'/get_unspent_outs', getUnspentOutsRequest, header).toPromise().then((request:any) =>
                 {
-                    console.log(request);
                     let data = request;
-                    console.log(request.amount);
-                   
-                    console.log(data.outputs[0]);
-                    data.outputs.forEach(element => {
-                        console.log(element);
-                    });
                     let out:Array<any> = data.outputs;
-                    console.log(out);
                     this.unspentOuts = this.checkUnspentOuts(data.outputs);
-                    console.log(this.unspentOuts);
-                    console.log(out);
                     this.unused_outs = this.unspentOuts.slice(0);
-                    this.unused_outs = [];
+                    this.using_outs = [];
                     this.using_outs_amount = new JSBigInt(0);
                     if (data.per_kb_fee)
                     {
                       this.feePerKB = new JSBigInt(data.per_kb_fee);
                       this.neededFee = this.feePerKB.multiply(13).multiply(this.fee_multiplayer);
                     }
-                    this.transfer().then(this.transferSuccess, this.transferFailure);
+                    console.log('ici');
+                    this.transfer().then((result:any) => {    
+                        this.transferSuccess(result);
+                      }, (err) => {
+                        this.transferFailure(err);
+                      });
+             
+                    //resolve();
                 }) 
                 .catch((error) =>
                 {
@@ -294,6 +316,7 @@ $scope, $http, $q,
                     } else {
                         this.error = "Something went wrong with getting your available balance for spending";
                     }
+                    //reject();
                 });
               });
 
@@ -431,17 +454,13 @@ pop_random_value(list) {
 select_outputs(target_amount) {
     
     console.log("Selecting outputs to use. Current total: " + this.cnUtil.formatMoney(this.using_outs_amount) + " target: " + this.cnUtil.formatMoney(target_amount));
-    console.log(this.using_outs_amount.compare(target_amount));
-    console.log(this.unused_outs);
     while (this.using_outs_amount.compare(target_amount) < 0 && this.unused_outs.length > 0) {
         var out = this.pop_random_value(this.unused_outs);
         if (!this.rct && out.this.rct) {continue;} //skip this.rct outs if not creating this.rct tx
-        this.unused_outs.push(out);
+        this.using_outs.push(out);
         this.using_outs_amount = this.using_outs_amount.add(out.amount);
         console.log("Using output: " + this.cnUtil.formatMoney(out.amount) + " - " + JSON.stringify(out));
     }
-    console.log(this.using_outs_amount)
-    console.log(this.unused_outs)
 }
 dsts:any;
 transfer() {
@@ -449,38 +468,28 @@ transfer() {
         this.dsts = this.realDsts.slice(0);
         
         var totalAmount = this.totalAmountWithoutFee.add(this.neededFee)/*.add(chargeAmount)*/;
-        console.log('--------------------');
-        console.log(this.totalAmountWithoutFee);
-        console.log(this.neededFee);
-        console.log(totalAmount);
         console.log("Balance required: " + this.cnUtil.formatMoneySymbol(totalAmount));
-        console.log(this.unused_outs.length);
-        console.log(this.rct);
         this.select_outputs(totalAmount);
         
         //compute fee as closely as possible before hand
-        if (this.unused_outs.length > 1 && this.rct)
+        if (this.using_outs.length > 1 && this.rct)
         {
-            var newNeededFee = JSBigInt(Math.ceil(this.cnUtil.estimateRctSize(this.unused_outs.length, this.mixin, 2) / 1024)).multiply(this.feePerKB).multiply(this.fee_multiplayer);
+            var newNeededFee = JSBigInt(Math.ceil(this.cnUtil.estimateRctSize(this.using_outs.length, this.mixin, 2) / 1024)).multiply(this.feePerKB).multiply(this.fee_multiplayer);
             totalAmount = this.totalAmountWithoutFee.add(newNeededFee);
-            console.log(totalAmount)
             //add outputs 1 at a time till we either have them all or can meet the fee
-            
-            console.log(this.using_outs_amount);
             while (this.using_outs_amount.compare(totalAmount) < 0 && this.unused_outs.length > 0)
             {
                 var out = this.pop_random_value(this.unused_outs);
-                this.unused_outs.push(out);
+                this.using_outs.push(out);
                 this.using_outs_amount = this.using_outs_amount.add(out.amount);
                 console.log("Using output: " + this.cnUtil.formatMoney(out.amount) + " - " + JSON.stringify(out));
-                newNeededFee = JSBigInt(Math.ceil(this.cnUtil.estimateRctSize(this.unused_outs.length, this.mixin, 2) / 1024)).multiply(this.feePerKB).multiply(this.fee_multiplayer);
+                newNeededFee = JSBigInt(Math.ceil(this.cnUtil.estimateRctSize(this.using_outs.length, this.mixin, 2) / 1024)).multiply(this.feePerKB).multiply(this.fee_multiplayer);
                 totalAmount = this.totalAmountWithoutFee.add(newNeededFee);
             }
-            console.log("New fee: " + this.cnUtil.formatMoneySymbol(newNeededFee) + " for " + this.unused_outs.length + " inputs");
+            console.log("New fee: " + this.cnUtil.formatMoneySymbol(newNeededFee) + " for " + this.using_outs.length + " inputs");
             this.neededFee = newNeededFee;
         }
-        console.log(this.using_outs_amount);
-        console.log(totalAmount)
+
         if (this.using_outs_amount.compare(totalAmount) < 0)
         {
             this.submitting = false;
@@ -537,40 +546,30 @@ transfer() {
 
         if (this.mixin > 0)
         {
-            console.log('lolololol')
             var amounts = [];
-            console.log(this.unused_outs)
-
-            for (var l = 0; l < this.unused_outs.length; l++)
+            for (var l = 0; l < this.using_outs.length; l++)
             {
-                console.log('lolololol')
-
-                amounts.push(/*this.unused_outs[l].rct ? "0" : */this.unused_outs[l].amount.toString());
-                console.log('lolololol')
-
+                amounts.push(this.using_outs[l].rct ? "0" : this.using_outs[l].amount.toString());
                 //amounts.push("0");
             }
-            console.log('12345')
-
             var request = {
                 amounts: amounts,
                 count: this.mixin + 1 // Add one to mixin so we can skip real output key if necessary
             };
                 let data = JSON.stringify(request);
                 var header = { "headers": {"Content-Type": "application/json;charset=UTF-8"} };
+                console.log(data);
                 this.http.post(this.sApplication.remotePath+'/get_random_outs', data, header).toPromise().then((response:any) =>
                 {
-                    var data = response.data;
-                    this.createTx(data.amount_outs);
-                    resolve();
+                    let elmt:any = this.createTx(response.amount_outs);
+                    resolve(elmt);
                 }) 
                 .catch((error) =>
                 {
+                    console.log(error);
                     reject('Failed to get unspent outs');
                 });
         } else if (this.mixin < 0 || isNaN(this.mixin)) {
-            console.log('12345')
-
             reject("Invalid mixin");
             return;
         } else { // mixin === 0
@@ -582,7 +581,6 @@ transfer() {
 payment_id:any;
 createTx(mix_outs)
         {
-            console.log('12345')
 
             var signed;
             try {
@@ -599,23 +597,23 @@ createTx(mix_outs)
                 console.log('Decomposed destinations:');
 
                 this.cnUtil.printDsts(splittedDsts);
-                console.log('12345')
+  
 
                 signed = this.cnUtil.create_transaction(
                     this.sApplication.openedWallet.getPublicKeys(),
                     this.sApplication.openedWallet.getSecretKeys(),
-                    splittedDsts, this.unused_outs,
+                    splittedDsts, this.using_outs,
                     mix_outs, this.mixin, this.neededFee,
                     this.payment_id, this.pid_encrypt,
                     realDestViewKey, 0, this.rct);
 
             } catch (e) {
-                console.log('12345')
+                console.log(e)
 
                 //reject("Failed to create transaction: " + e);
                 return;
             }
-            console.log("signed tx: ", JSON.stringify(signed));
+            //console.log("signed tx: ", JSON.stringify(signed));
             //move some stuff here to normalize this.rct vs non
             var raw_tx_and_hash = {raw:null,hash:null,prvkey:null};
             if (signed.version === 1) {
@@ -628,13 +626,20 @@ createTx(mix_outs)
             console.log("this.raw_tx and hash:");
             console.log(raw_tx_and_hash);
             //resolve(raw_tx_and_hash);
+            return raw_tx_and_hash;
         }
 checkUnspentOuts(outputs) {
-    console.log(outputs[0]);
+    console.log(outputs);
 for (var i = 0; i < outputs.length; i++) {
+    
   for (var j = 0; outputs[i] && j < outputs[i].spend_key_images.length; j++) {
+    
       let key_img = this.sApplication.openedWallet.cachedKeyImage(outputs[i].tx_pub_key, outputs[i].index);
+      console.log(outputs[i].tx_pub_key);
+      console.log(outputs[i].index);
       console.log(key_img);
+      console.log(outputs[i].spend_key_images[j]);
+
       if (key_img === outputs[i].spend_key_images[j]) {
           console.log("Output was spent with key image: " + key_img + " amount: " + this.cnUtil.formatMoneyFull(outputs[i].amount));
           // Remove output from list
@@ -642,14 +647,14 @@ for (var i = 0; i < outputs.length; i++) {
           if (outputs[i]) {
               j = outputs[i].spend_key_images.length;
           }
-          i--;
+          i--; 
       } else {
 
           console.log("Output used as mixin (" + key_img + "/" + outputs[i].spend_key_images[j] + ")");
       }
   }
 }
-console.log('lala');
+console.log("Unspent outs: " + JSON.stringify(outputs));
 return outputs;
 }
 parseOpenAliasRecord(record) {
@@ -710,61 +715,58 @@ transferSuccess(tx_h) {
       tx: this.raw_tx
   };
 
-
+  console.log(request);
   this.confirmTransfer(this.realDsts[0].address, this.realDsts[0].amount,
-                  tx_hash, this.neededFee, tx_prvkey, this.payment_id,
-                  this.mixin, this.priority, txBlobKBytes).then(function() {
-
-      //alert('Confirmed ');
-    let data:any = {
-        address: this.sApplication.openedWallet.address,
-        view_key: this.sApplication.openedWallet.view_key,
-        tx: this.raw_tx
-    };
-    data = JSON.stringify(data);
-    var header = { "headers": {"Content-Type": "application/json;charset=UTF-8"} };
-    this.http.post(this.sApplication.remotePath+'/submit_raw_tx', data, header).toPromise().then((response:any) =>
-    {
-        var data = response.data;
-
-        if (data.status === "error")
+    tx_hash, this.neededFee, tx_prvkey, this.payment_id,
+    this.mixin, this.priority, txBlobKBytes).then((result:any) => {    
+    
+        let data:any = {
+            address: this.sApplication.openedWallet.address,
+            view_key: this.sApplication.openedWallet.viewKey,
+            tx: this.raw_tx
+        };
+        data = JSON.stringify(data);
+        var header = { "headers": {"Content-Type": "application/json;charset=UTF-8"} };
+        this.http.post(this.sApplication.remotePath+'/submit_raw_tx', data, header).toPromise().then((response:any) =>
         {
+            var data = response.data;
+    
+            if (data.status === "error")
+            {
+                this.status = "";
+                this.submitting = false;
+                this.error = "Something unexpected occurred when submitting your transaction: " + data.error;
+                return;
+            }
+    
+            //console.log("Successfully submitted tx");
+            this.targets = [{}];
+            this.sent_tx = {
+                address: this.realDsts[0].address,
+                domain: this.realDsts[0].domain,
+                amount: this.realDsts[0].amount,
+                payment_id: this.payment_id,
+                tx_id: tx_hash,
+                tx_prvkey: tx_prvkey,
+                tx_fee: this.neededFee/*.add(getTxCharge(neededFee))*/,
+                explorerLink: /*explorerUrl + */"tx/" + tx_hash
+            };
+    
+            this.success_page = true;
             this.status = "";
             this.submitting = false;
-            this.error = "Something unexpected occurred when submitting your transaction: " + data.error;
-            return;
-        }
+        }) 
+        .catch((error) =>
+        {
+            this.status = "";
+                  this.submitting = false;
+                  this.error = "Something unexpected occurred when submitting your transaction: ";
+            //reject(error);
+        });  
 
-        //console.log("Successfully submitted tx");
-        this.targets = [{}];
-        this.sent_tx = {
-            address: this.realDsts[0].address,
-            domain: this.realDsts[0].domain,
-            amount: this.realDsts[0].amount,
-            payment_id: this.payment_id,
-            tx_id: tx_hash,
-            tx_prvkey: tx_prvkey,
-            tx_fee: this.neededFee/*.add(getTxCharge(neededFee))*/,
-            explorerLink: /*explorerUrl + */"tx/" + tx_hash
-        };
-
-        this.success_page = true;
-        this.status = "";
-        this.submitting = false;
-    }) 
-    .catch((error) =>
-    {
-        this.status = "";
-              this.submitting = false;
-              this.error = "Something unexpected occurred when submitting your transaction: ";
-        //reject(error);
-    });  
-  }, function(reason) {
-      //alert('Failed: ' + reason);
-      this.transferFailure("Transfer canceled");
+  }, (err) => {
+    this.transferFailure("Transfer canceled");
   });
-
-
 }
 
 

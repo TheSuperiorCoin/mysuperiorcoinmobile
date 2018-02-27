@@ -1,6 +1,8 @@
 import { TransactionModel } from "./transaction-model";
 import { CnutilProvider } from "../providers/cnutil/cnutil";
 
+declare var JSBigInt;
+
 export class WalletModel {
 
     id:any;
@@ -21,6 +23,10 @@ export class WalletModel {
     key_images:any = [];
     spend_keys:any;
     view_keys:any;
+
+    total_sent:any = null;
+    total_received_unlocked:any = null;
+    total_received:any = null;
 
     constructor(public cnUtil:CnutilProvider) {
   
@@ -55,18 +61,39 @@ export class WalletModel {
     }
     setInfosDatas(result){
         this.datas = result;
+        this.total_sent = this.datas.total_sent;
+        this.total_received = this.datas.total_received;
+
         this.calculatePendingBalance();
     }
     calculateBalance(){
-        let b:any = 0;
+        /*let b:any = 0;
         this.transactions.forEach(element => {
             b += element.total_received;
             b -= element.total_sent;
         });
-        this.balance = (b/100000000).toFixed(8);
+        this.balance = (b/100000000).toFixed(8);*/
+        this.refreshBalance();
+    }
+    refreshBalance(){
+        if(this.total_sent && this.total_received){
+            this.balance =  (new JSBigInt(this.total_received).subtract(this.total_sent)/100000000).toFixed(8);
+        }else {
+            this.balance = 0;
+        }
+        
+        if(this.total_sent && this.total_received_unlocked){
+            this.balanceUnlocked = (new JSBigInt(this.total_received_unlocked).subtract(this.total_sent)/100000000).toFixed(8);
+        }else {
+            this.balanceUnlocked = 0;
+        }
+        console.log(this.balanceUnlocked);
+        console.log(this.balance);
+
     }
     calculatePendingBalance(){
-        let b:any = 0;
+        this.refreshBalance();
+        /*let b:any = 0;
         if(this.transactions){
             this.transactions.forEach(element => {
                 if(element.unlock_time == 0){
@@ -75,13 +102,16 @@ export class WalletModel {
                 }
                 
             });
-        }
+        }*/
         
         //let b:any = this.datas.total_received - this.datas.total_sent;
-        this.balanceUnlocked = (b/100000000).toFixed(8);
+        //this.balanceUnlocked = (b/100000000).toFixed(8);
+
     }
     setTransaction(result){
+        
         this.datasTransaction = result;
+        this.total_received_unlocked = this.datasTransaction.total_received_unlocked;
         let trxTmp:Array<TransactionModel> = new Array();
         result.transactions.forEach(element => {
             let o:TransactionModel = new TransactionModel();

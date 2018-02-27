@@ -409,7 +409,6 @@ export class NaclProvider {
     
     //res = s*P
     ge_scalarmult(P, s) {
-      console.log("kiki");
       let p = [this.gf(null), this.gf(null), this.gf(null), this.gf(null)],
       upk = [this.gf(null), this.gf(null), this.gf(null), this.gf(null)],
       res = new Uint8Array(32);

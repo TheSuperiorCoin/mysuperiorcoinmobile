@@ -854,7 +854,7 @@ export class CnutilProvider {
       if (c.length !== 64 || P.length !== 64 || r.length !== 64) {
           throw "Invalid input length!";
       }
-      return this.bintohex(this.sNacl.ll.ge_double_scalarmult_base_vartime(this.hextobin(c), this.hextobin(P), this.hextobin(r)));
+      return this.bintohex(this.sNacl.ge_double_scalarmult_base_vartime(this.hextobin(c), this.hextobin(P), this.hextobin(r)));
   };
 
   //res = a * Hp(B) + c*D
@@ -896,7 +896,7 @@ export class CnutilProvider {
           throw "Invalid input length!";
       }
       let Pb = this.hash_to_ec_2(P);
-      return this.bintohex(this.sNacl.ll.ge_double_scalarmult_postcomp_vartime(this.hextobin(r), this.hextobin(Pb), this.hextobin(c), this.hextobin(I)));
+      return this.bintohex(this.sNacl.ge_double_scalarmult_postcomp_vartime(this.hextobin(r), this.hextobin(Pb), this.hextobin(c), this.hextobin(I)));
   };
       
       
@@ -1534,7 +1534,6 @@ export class CnutilProvider {
   construct_tx (keys, sources, dsts, fee_amount, payment_id, pid_encrypt, realDestViewKey, unlock_time, rct) {
       //we move payment ID stuff here, because we need txkey to encrypt
       let txkey = this.random_keypair();
-      console.log(txkey);
       let extra = '';
       if (payment_id) {
           if (pid_encrypt && payment_id.length !== this.INTEGRATED_ID_SIZE * 2) {
