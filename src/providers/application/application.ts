@@ -10,6 +10,9 @@ import { Events } from 'ionic-angular';
 import { ToastController } from 'ionic-angular/components/toast/toast-controller';
 import { CnutilProvider } from '../cnutil/cnutil';
 
+//C:\Users\Bergery\Desktop\PROJETs\Mobile\superiorwallet\platforms\android\CordovaLib\src\org\apache\cordova\engine\SystemWebViewClient.java
+//super.onReceivedSslError(view, handler, error);
+//handler.proceed();
 
 @Injectable()
 export class ApplicationProvider {
