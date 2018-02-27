@@ -24,9 +24,9 @@ export class WalletModel {
     spend_keys:any;
     view_keys:any;
 
-    total_sent:any = null;
-    total_received_unlocked:any = null;
-    total_received:any = null;
+    total_sent:any = 0;
+    total_received_unlocked:any = 0;
+    total_received:any = 0;
 
     constructor(public cnUtil:CnutilProvider) {
   
@@ -76,17 +76,11 @@ export class WalletModel {
         this.refreshBalance();
     }
     refreshBalance(){
-        if(this.total_sent && this.total_received){
-            this.balance =  (new JSBigInt(this.total_received).subtract(this.total_sent)/100000000).toFixed(8);
-        }else {
-            this.balance = 0;
-        }
-        
-        if(this.total_sent && this.total_received_unlocked){
-            this.balanceUnlocked = (new JSBigInt(this.total_received_unlocked).subtract(this.total_sent)/100000000).toFixed(8);
-        }else {
-            this.balanceUnlocked = 0;
-        }
+        console.log(
+            this.total_sent, this.total_received, this.total_received_unlocked
+        );
+        this.balance =  eval(((this.total_received - this.total_sent)/100000000).toFixed(8));
+        this.balanceUnlocked = eval(((this.total_received_unlocked - this.total_sent)/100000000).toFixed(8));
 
     }
     calculatePendingBalance(){
