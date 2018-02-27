@@ -31,7 +31,6 @@ export class SendPage {
   ionViewDidLoad() {
   }
   generateTransaction(){
-    this.presentToast('Sending transaction not avaible yet');
     /*let trx:any = {
       receiverAddress:this.receiverAddress,
       paymentId:this.paymentId,

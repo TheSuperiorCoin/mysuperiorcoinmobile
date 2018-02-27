@@ -4,6 +4,7 @@ import { ConfigProvider } from '../config/config';
 import { CnutilProvider } from '../cnutil/cnutil';
 import { ApplicationProvider } from '../application/application';
 import { AlertController } from 'ionic-angular/components/alert/alert-controller';
+import { LoadingController } from 'ionic-angular/components/loading/loading-controller';
 
 declare var JSBigInt;
 
@@ -39,12 +40,14 @@ export class SendCoinProvider {
   unspentOuts;
   pid_encrypt = false; //don't encrypt payment ID unless we find an integrated one
   mixin;
+  loading:any = null;
   constructor(
     public http: HttpClient,
     public sConfig:ConfigProvider,
     public cnUtil:CnutilProvider,
     public sApplication:ApplicationProvider,
-    private alertCtrl: AlertController
+    private alertCtrl: AlertController,
+    public loadingCtrl: LoadingController
 
   /*
 $scope, $http, $q,
@@ -53,7 +56,36 @@ $scope, $http, $q,
   */
   ) {
   }
+  presentLoadingDefault(message) {
+    if(this.loading) {
+        this.loading.setContent(message);
+    }else {
+        this.loading = this.loadingCtrl.create({
+            content: message
+        });
+        this.loading.present();
+    }
+    
+  
+    
 
+  }
+  dismissLoadingDefault(message) {
+    if(this.loading) {
+        this.loading.setContent(message);
+    }else {
+        this.loading = this.loadingCtrl.create({
+            content: message
+        });
+        this.loading.present();
+    }
+  
+    setTimeout(() => {
+        this.loading.dismiss();
+        this.loading = null;
+      }, 3000);
+
+  }
     
     isInt(value:any) {
         return !isNaN(value) &&
@@ -93,7 +125,10 @@ $scope, $http, $q,
 
     confirmTransfer(address, amount, tx_hash, fee, tx_prv_key,
                              payment_id, mixin, priority, txBlobKBytes) {
-
+                                if(this.loading) {
+                                    this.loading.dismiss();
+                                    this.loading = null;
+                                }
         return new Promise((resolve, reject) => {
             let alert = this.alertCtrl.create({
                 title: 'Confirm',
@@ -104,6 +139,7 @@ $scope, $http, $q,
                     role: 'cancel',
                     handler: () => {
                         this.transferConfirmDialog = undefined;
+                        this.submitting = false;
                         reject("Transfer canceled by user");
                     }
                   },
@@ -177,6 +213,7 @@ $scope, $http, $q,
     
     sendCoins(targets, mixin, payment_id) {
         if (this.submitting) return;
+        this.presentLoadingDefault("Starting sending process");
         this.status = "";
         this.payment_id = payment_id;
         this.error = "";
@@ -210,8 +247,6 @@ $scope, $http, $q,
 
         this.get_txt_records(target,i).then((destinations:any) => {  
             destinations = [destinations];  
-            console.log('-----------');
-            console.log(destinations);
         //$q.all().then(function(destinations) {
             this.totalAmountWithoutFee = new JSBigInt(0);
             for (var i = 0; i < destinations.length; i++) {
@@ -219,14 +254,11 @@ $scope, $http, $q,
               this.totalAmountWithoutFee = this.totalAmountWithoutFee.add(destinations[i].amount);
             }
             this.realDsts = destinations;
-            console.log("Parsed destinations: " + JSON.stringify(this.realDsts));
-            console.log("Total before fee: " + this.cnUtil.formatMoney(this.totalAmountWithoutFee));
             if (this.realDsts.length === 0) {
                 this.submitting = false;
                 this.error = "You need to enter a valid destination";
                 return;
             }
-            console.log(payment_id);
             if (payment_id)
             {
                 if (payment_id.length <= 64 && /^[0-9a-fA-F]+$/.test(payment_id))
@@ -247,10 +279,10 @@ $scope, $http, $q,
             }
             if (this.realDsts.length === 1) {//multiple destinations aren't supported by MyMonero, but don't include integrated ID anyway (possibly should error in the future)
                 var decode_result = this.cnUtil.decode_address(this.realDsts[0].address);
-                console.log(decode_result);
                 if (decode_result.intPaymentId && payment_id) {
                     this.submitting = false;
                     this.error = "Payment ID field must be blank when using an Integrated Address";
+                    this.dismissLoadingDefault(this.error);
                     return;
                 } else if (decode_result.intPaymentId) {
                     payment_id = decode_result.intPaymentId;
@@ -261,16 +293,13 @@ $scope, $http, $q,
             if (this.totalAmountWithoutFee.compare(0) <= 0) {
                 this.submitting = false;
                 this.error = "The amount you've entered is too low";
+                this.dismissLoadingDefault(this.error);
                 return;
             }
             console.log('icdi');
 
             this.status = "Generating transaction...";
-            console.log("Destinations: ");
-            // Log destinations to console
-            for (var j = 0; j < this.realDsts.length; j++) {
-                console.log(this.realDsts[j].address + ": " + this.cnUtil.formatMoneyFull(this.realDsts[j].amount));
-            }
+            this.presentLoadingDefault(this.status);
             var getUnspentOutsRequest:any = {
                 address: this.sApplication.openedWallet.getAddress(),
                 view_key: this.sApplication.openedWallet.getViewKey(),
@@ -438,11 +467,12 @@ $scope, $http, $q,
     return Math.floor(Math.random() * list.length);
 }
 transferFailure(reason) {
-    console.log("Transfer failed: " + reason);
-  //this.status = "";
-  //this.submitting = false;
-  //this.error = reason;
+console.log("Transfer failed: " + reason);
+  this.status = "";
+  this.submitting = false;
+  this.error = reason;
   console.log("Transfer failed: " + reason);
+  this.dismissLoadingDefault("Transfer failed: " + reason);
 }
 pop_random_value(list) {
     var idx = this.random_index(list);
@@ -452,8 +482,9 @@ pop_random_value(list) {
 }
 
 select_outputs(target_amount) {
-    
-    console.log("Selecting outputs to use. Current total: " + this.cnUtil.formatMoney(this.using_outs_amount) + " target: " + this.cnUtil.formatMoney(target_amount));
+    let mess:any = "Selecting outputs to use. Current total: " + this.cnUtil.formatMoney(this.using_outs_amount) + " target: " + this.cnUtil.formatMoney(target_amount);
+    console.log(mess);
+
     while (this.using_outs_amount.compare(target_amount) < 0 && this.unused_outs.length > 0) {
         var out = this.pop_random_value(this.unused_outs);
         if (!this.rct && out.this.rct) {continue;} //skip this.rct outs if not creating this.rct tx
@@ -468,7 +499,10 @@ transfer() {
         this.dsts = this.realDsts.slice(0);
         
         var totalAmount = this.totalAmountWithoutFee.add(this.neededFee)/*.add(chargeAmount)*/;
-        console.log("Balance required: " + this.cnUtil.formatMoneySymbol(totalAmount));
+        let mess:any = "Balance required: " + this.cnUtil.formatMoneySymbol(totalAmount);
+        console.log(mess);
+        this.presentLoadingDefault(mess);
+
         this.select_outputs(totalAmount);
         
         //compute fee as closely as possible before hand
@@ -696,7 +730,8 @@ transferSuccess(tx_h) {
   if (txBlobBytes % 1024) {
       numKB++;
   }
-  console.log(txBlobBytes + " bytes <= " + numKB + " KB (current fee: " + this.cnUtil.formatMoneyFull(prevFee) + ")");
+  let mess:any = txBlobBytes + " bytes <= " + numKB + " KB (current fee: " + this.cnUtil.formatMoneyFull(prevFee) + ")";
+  console.log(mess);
   this.neededFee = this.feePerKB.multiply(numKB).multiply(this.fee_multiplayer);
   // if we need a higher fee
   if (this.neededFee.compare(prevFee) > 0) {
@@ -707,6 +742,7 @@ transferSuccess(tx_h) {
 
   // generated with correct per-kb fee
   console.log("Successful tx generation, submitting tx");
+  this.presentLoadingDefault("Successful tx generation, submitting tx");
   console.log("Tx hash: " + tx_hash);
   this.status = "Submitting...";
   var request = {
@@ -715,7 +751,6 @@ transferSuccess(tx_h) {
       tx: this.raw_tx
   };
 
-  console.log(request);
   this.confirmTransfer(this.realDsts[0].address, this.realDsts[0].amount,
     tx_hash, this.neededFee, tx_prvkey, this.payment_id,
     this.mixin, this.priority, txBlobKBytes).then((result:any) => {    
@@ -736,6 +771,8 @@ transferSuccess(tx_h) {
                 this.status = "";
                 this.submitting = false;
                 this.error = "Something unexpected occurred when submitting your transaction: " + data.error;
+                this.dismissLoadingDefault(this.error);
+
                 return;
             }
     
@@ -748,10 +785,11 @@ transferSuccess(tx_h) {
                 payment_id: this.payment_id,
                 tx_id: tx_hash,
                 tx_prvkey: tx_prvkey,
-                tx_fee: this.neededFee/*.add(getTxCharge(neededFee))*/,
-                explorerLink: /*explorerUrl + */"tx/" + tx_hash
+                tx_fee: this.neededFee,//.add(getTxCharge(neededFee)),
+                explorerLink: "tx/" + tx_hash
             };
-    
+            this.dismissLoadingDefault("Tansfer ok !");
+
             this.success_page = true;
             this.status = "";
             this.submitting = false;
@@ -763,7 +801,6 @@ transferSuccess(tx_h) {
                   this.error = "Something unexpected occurred when submitting your transaction: ";
             //reject(error);
         });  
-
   }, (err) => {
     this.transferFailure("Transfer canceled");
   });
