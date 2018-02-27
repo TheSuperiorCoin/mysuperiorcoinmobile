@@ -2,19 +2,14 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Http, Headers, RequestOptions } from '@angular/http';
 import { MnemonicProvider } from '../mnemonic/mnemonic';
-import { CnutilProvider } from '../cnutil/cnutil';
 import { VanityAddressProvider } from '../vanity-address/vanity-address';
 import { WalletModel } from '../../models/wallet-model';
 import { Storage } from '@ionic/storage';
 import { Observable } from 'rxjs/Rx';
 import { Events } from 'ionic-angular';
+import { ToastController } from 'ionic-angular/components/toast/toast-controller';
+import { CnutilProvider } from '../cnutil/cnutil';
 
-/*
-File : SystemWebViewClient.java
-//super.onReceivedSslError(view, handler, error);
-handler.proceed();
-return;
-*/
 
 @Injectable()
 export class ApplicationProvider {
@@ -39,7 +34,7 @@ export class ApplicationProvider {
     public vanityAddress:VanityAddressProvider,
     private storage: Storage,
     public events: Events,
-    public Cnutil:CnutilProvider
+    private toastCtrl: ToastController
   ) {
     this.initLocalStorage();
     this.initEvents();
@@ -57,8 +52,21 @@ export class ApplicationProvider {
     this.events.subscribe('refresh:transaction', () => {
       this.getTransactionInfos();
     });
+    this.events.subscribe('refresh:wallettrx', (no_blocks) => {
+      this.refreshWallet(no_blocks);
+    });
   }
-
+  presentToast(message) {
+    let toast = this.toastCtrl.create({
+      message: message,
+      duration: 3000,
+      position: 'bottom'
+    });
+  
+    toast.onDidDismiss(() => {});
+  
+    toast.present();
+  }
   eraseWallets(){
     this.wallets = new Array();
     this.saveWallets();
@@ -66,7 +74,7 @@ export class ApplicationProvider {
   generatePaymentId(){
     if(this.openedWallet){
 
-      this.openedWallet.paymentId = this.Cnutil.rand_8();
+      this.openedWallet.paymentId = this.sCnutil.rand_8();
       this.generateIntegratedAddress();
       return true;
     }else {
@@ -77,7 +85,7 @@ export class ApplicationProvider {
     privateKey = privateKey.trim();
     let v:any = this.decode_private_key(privateKey);
     let a:any = v.public_addr;
-    let w:WalletModel = new WalletModel(this.Cnutil);
+    let w:WalletModel = new WalletModel(this.sCnutil);
     w.generateRandomId();
     w.name = "Wallet #"+(this.wallets.length + 1);
     w.address = a;
@@ -88,7 +96,7 @@ export class ApplicationProvider {
   }
   generateIntegratedAddress(){
     if(this.openedWallet && this.openedWallet.paymentId){
-      let v = this.Cnutil.get_account_integrated_address(this.openedWallet.address,this.openedWallet.paymentId);
+      let v = this.sCnutil.get_account_integrated_address(this.openedWallet.address,this.openedWallet.paymentId);
       this.openedWallet.integratedAddress = v;
     }
     
@@ -96,7 +104,7 @@ export class ApplicationProvider {
   initLocalStorage(){
     this.storage.get('superiorwallet_wallets').then((val) => {
       val.forEach(element => {
-        let o:WalletModel = new WalletModel(this.Cnutil);
+        let o:WalletModel = new WalletModel(this.sCnutil);
         o.init(element);
         this.wallets.push(o);
       });
@@ -205,7 +213,7 @@ getUnspentOuts(trx){
   }
   createWallet(){
     let g:any = this.vanityAddress.toggleGeneration();
-    let w:WalletModel = new WalletModel(this.Cnutil);
+    let w:WalletModel = new WalletModel(this.sCnutil);
     w.generateRandomId();
     w.name = "Wallet #"+(this.wallets.length + 1);
     w.address = g.found['address'];
@@ -228,7 +236,7 @@ getUnspentOuts(trx){
   } 
   addTestWallet(){
     let g:any = this.vanityAddress.toggleGeneration();
-    let w:WalletModel = new WalletModel(this.Cnutil);
+    let w:WalletModel = new WalletModel(this.sCnutil);
     w.generateRandomId();
     w.name = "Wallet Test #"+(this.wallets.length + 1);
     w.address = "";
@@ -294,7 +302,13 @@ getUnspentOuts(trx){
       });
     });
   }
-  
+  refreshWallet(no_blocks){
+    this.refreshWalletInfos(no_blocks).then((result:any) => {    
+      this.presentToast(result.status);
+    }, (err) => {
+      console.log(err);
+    });
+  }
   
   getAddressInfo(){
     this.requestAddressInfo().then((result:any) => {    
@@ -352,6 +366,30 @@ getUnspentOuts(trx){
     var header = { "headers": {"Content-Type": "application/json;charset=UTF-8"} };
     return new Promise((resolve, reject) => {
       this.http.post(this.remotePath+'/get_address_txs', data, header).toPromise().then((response) =>
+      {
+        let res = response;
+        
+        resolve(res);
+      }) 
+      .catch((error) =>
+      {
+        reject(error);
+      });
+    });
+  }
+  refreshWalletInfos(no_blocks) {
+     
+    let data:any = {
+      address: this.openedWallet.address, 
+      view_key: this.openedWallet.viewKey,
+      no_blocks_to_import: no_blocks.toString()
+    };
+    
+    data = JSON.stringify(data);
+    
+    var header = { "headers": {"Content-Type": "application/json;charset=UTF-8"} };
+    return new Promise((resolve, reject) => {
+      this.http.post(this.remotePath+'/import_recent_wallet_request', data, header).toPromise().then((response) =>
       {
         let res = response;
         

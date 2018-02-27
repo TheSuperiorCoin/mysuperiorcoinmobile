@@ -94,5 +94,25 @@
                   </ion-col>
                 </ion-row>
             </ion-card>
+            <form (ngSubmit)="refreshWallet()" #sendForm="ngForm">
+              <ion-card>
+                  <ion-card-header>
+                    Import transactions from last n blocks (free)
+                  </ion-card-header>
+                  <ion-item>
+                    <ion-label>n blocks</ion-label>
+                    <ion-select [(ngModel)]="this.no_blocks" name="no_blocks">
+                      <ion-option value="1000" selected>n = 1000 (since roughly 1 day ago)</ion-option>
+                      <ion-option value="5500">n = 5500 (since roughly 7 days ago)</ion-option>
+                      <ion-option value="11000">n = 11000 (since roughly 15 days ago)</ion-option>
+                      <ion-option value="22000">n = 22000 (since roughly 30 days ago)</ion-option>
+                    </ion-select>
+                  </ion-item>
+                 
+                    <div padding text-center>
+                        <button ion-button type="submit" block [disabled]="!sendForm.form.valid">Import recent transactions</button>
+                    </div>
+                </ion-card>
+              </form>
     </div>
 </ion-content>

@@ -12,7 +12,7 @@ import { ToastController } from 'ionic-angular/components/toast/toast-controller
   templateUrl: 'account-details.html',
 })
 export class AccountDetailsPage {
-
+  no_blocks:any = 1000;
   constructor(
     public navCtrl: NavController, 
     public navParams: NavParams,
@@ -46,6 +46,9 @@ export class AccountDetailsPage {
     }
     this.clipboard.copy(infos);
     this.presentToast();
+  }
+  refreshWallet(){
+    this.sApplication.events.publish('refresh:wallettrx', this.no_blocks);
   }
   share(type){
     let infos:any="";
