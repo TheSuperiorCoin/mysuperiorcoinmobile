@@ -8,20 +8,17 @@
 
 
 <ion-content >
-  <ion-card>
-      <ion-item>
-        <h2>New payment</h2>
-      </ion-item>    
-      <ion-item>
+  <ion-card>  
+      <ion-item color="dark">
           <button ion-button clear item-end (click)="generatePaymentId()">Generate</button>
           <ion-label stacked>Payment Id</ion-label>
           <ion-input type="text" [(ngModel)]="this.sApplication.openedWallet.paymentId" name="paymentId" placeholder="e.g 5d1c98f7d42d3a95"></ion-input>
         </ion-item>
-      <ion-item>
+      <ion-item color="dark">
           <ion-label stacked>Amount</ion-label>
           <ion-input type="text" [(ngModel)]="this.sApplication.openedWallet.trxAmount" name="trxAmount" placeholder="e.g 0.5"></ion-input>
       </ion-item>
-      <ion-item>
+      <ion-item color="dark">
           <div padding text-center>
               <button ion-button (click)="openQrcodeModal('addressForReceive')">Generate payment</button>
           </div>
