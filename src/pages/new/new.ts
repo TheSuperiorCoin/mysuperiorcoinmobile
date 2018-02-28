@@ -10,6 +10,7 @@ import { ViewController } from 'ionic-angular/navigation/view-controller';
 })
 export class NewPage {
   privateKey:any;
+  walletName:any;
 
   constructor(
     public navCtrl: NavController, 
@@ -23,11 +24,11 @@ export class NewPage {
     this.viewCtrl.dismiss();
   }
   createWallet(){
-    this.sApplication.createWallet();
+    this.sApplication.createWallet(this.walletName);
     this.dismiss();
   }
   importWallet(){
-    this.sApplication.importWallet(this.privateKey);
+    this.sApplication.importWallet(this.walletName, this.privateKey);
     this.dismiss();
   }
 }

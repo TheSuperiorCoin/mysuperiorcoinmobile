@@ -25,7 +25,7 @@ export class AccountPage {
     this.sApplication.login().then((result) => { 
 
     }, (err) => {
-      this.sApplication.openedWallet = null;
+      //this.sApplication.openedWallet = null;
       this.presentToast("Daemon is not runing");
     });
   }

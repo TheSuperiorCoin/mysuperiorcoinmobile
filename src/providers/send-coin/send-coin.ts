@@ -226,6 +226,8 @@ $scope, $http, $q,
         {
             this.submitting = false;
             this.error = "Priority is not an integer number";
+            this.dismissLoadingDefault(this.error);
+
             return;
         }
 
@@ -233,6 +235,8 @@ $scope, $http, $q,
         {
             this.submitting = false;
             this.error = "Priority is not between 1 and 4";
+            this.dismissLoadingDefault(this.error);
+
             return;
         }
 
@@ -257,6 +261,8 @@ $scope, $http, $q,
             if (this.realDsts.length === 0) {
                 this.submitting = false;
                 this.error = "You need to enter a valid destination";
+                this.dismissLoadingDefault(this.error);
+
                 return;
             }
             if (payment_id)
@@ -273,6 +279,8 @@ $scope, $http, $q,
                 {
                     this.submitting = false;
                     this.error = "The payment ID you've entered is not valid";
+                    this.dismissLoadingDefault(this.error);
+
                     return;
                 }
 
@@ -344,6 +352,8 @@ $scope, $http, $q,
                         console.warn(error.Error);
                     } else {
                         this.error = "Something went wrong with getting your available balance for spending";
+                        this.dismissLoadingDefault(this.error);
+
                     }
                     //reject();
                 });
@@ -353,6 +363,7 @@ $scope, $http, $q,
         this.submitting = false;
             this.error = err;
             console.log("Error decoding targets: " + err);
+            this.dismissLoadingDefault(err);
     });
 }
         
@@ -799,6 +810,7 @@ transferSuccess(tx_h) {
             this.status = "";
                   this.submitting = false;
                   this.error = "Something unexpected occurred when submitting your transaction: ";
+                  this.dismissLoadingDefault(this.error);
             //reject(error);
         });  
   }, (err) => {

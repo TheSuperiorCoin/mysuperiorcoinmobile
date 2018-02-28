@@ -40,7 +40,7 @@ export class VanityAddressProvider {
 startGeneration(prefix) {
     this.found = {};
     this.num_searched = 0;
-    this.seed = this.cnUtil.rand_32();
+    this.seed = this.cnUtil.rand_16();
 
     this.bestMatch = 0;
     this.last_generated = 0;
@@ -50,13 +50,16 @@ startGeneration(prefix) {
 }
 
 generateAddress() {
+    console.log(this.seed);
   for (var i = 0; i < 10; ++i) {
       if (!this.running) return;
       var address = this.cnUtil.create_addr_prefix(this.seed);
       ++this.num_searched;
+      console.log(address+' -'+this.prefix);
       var sc = this.score(address, this.prefix);
       
       if (sc === this.prefix.length) {
+          console.log(sc+' === '+this.prefix.length);
           this.found = {
               mnemonic: this.mnemonic.mn_encode(this.seed,null),
               address: this.cnUtil.create_address(this.seed).public_addr
@@ -65,7 +68,7 @@ generateAddress() {
           this.running = false;
           break;
       } else {
-        
+        console.log(sc+' >= '+this.bestMatch);
           if (sc >= this.bestMatch) {
             this.bestMatch = sc;
               this.found = {
@@ -84,11 +87,11 @@ generateAddress() {
   }
 
   if (this.num_searched - this.last_generated > 10000) {
-      this.seed = this.cnUtil.rand_32();
+      this.seed = this.cnUtil.rand_16();
       this.last_generated = this.num_searched;
   }
 
-  this.num_searched = this.num_searched;
+  //this.num_searched = this.num_searched;
   //this.$apply();
   //setTimeout(this.generateAddress(), 0);
   this.running = false;

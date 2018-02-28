@@ -20,7 +20,7 @@ export class ConfigProvider {
   addressPrefixTestnet = 70;
   integratedAddressPrefixTestnet = 57;
   feePerKB = 2000000000;//20^10 - for testnet its not used; as fee is dynamic.
-  dustThreshold = 1000000000;//10^10 used for choosing outputs/change - we decompose all the way down if the receiver wants now regardless of threshold
+  dustThreshold = 100000000;//10^10 used for choosing outputs/change - we decompose all the way down if the receiver wants now regardless of threshold
   txChargeRatio = 0.5;
   defaultMixin = 4; // minimum mixin for hardfork v5
   txChargeAddress = '';

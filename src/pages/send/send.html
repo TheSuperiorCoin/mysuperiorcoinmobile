@@ -1,7 +1,7 @@
 <ion-header>
 
   <ion-navbar color="dark">
-    <ion-title>Send</ion-title>
+    <ion-title>New transaction</ion-title>
     <ion-buttons end>
         <button ion-button icon-only color="primary" (click)="scanCode()">
           <ion-icon name="barcode"></ion-icon>
@@ -26,25 +26,22 @@
         </ion-card>
     </div>
     <form (ngSubmit)="generateTransaction()" #sendForm="ngForm">
-    <ion-card>
-        <ion-card-header>
-            New transation
-        </ion-card-header>
-        <ion-item>
+        <ion-item color="dark">
           <ion-label stacked >Receiver Address</ion-label>
           <ion-input type="text" [(ngModel)]="this.receiverAddress" name="receiverAddress" required
            placeholder="e.g 5SRBegqy1LUWGoWsf7LP5MbwcfmUY3P6cen2RgDqMcV47ComcSa71LGQhjB8FcskaC6ncdSJH3oqaLxwuQvpHhVn82zHVm3">
           </ion-input>
         </ion-item>
-        <ion-item>
+        <ion-item color="dark">
           <ion-label stacked>Amount</ion-label>
           <ion-input type="text" placeholder='e.g 0.5' [(ngModel)]="this.amountToSend" name="amountToSend" required></ion-input>
         </ion-item>
-        <ion-item>
+        <ion-item color="dark">
+          <button ion-button type="button" clear item-end (click)="generatePaymentId()">Generate</button>
           <ion-label stacked>Payment ID (optional)</ion-label>
           <ion-input type="text" placeholder='e.g. f816938c9437ac9f' [(ngModel)]="this.paymentId" name="paymentId"></ion-input>
         </ion-item>
-        <ion-item>
+        <ion-item color="dark">
           <ion-label>Privacy Level</ion-label>
           <ion-select [(ngModel)]="this.mixin" name="mixin">
             <ion-option value="4" selected>Low (ring size 5)</ion-option>
@@ -53,7 +50,7 @@
             <ion-option value="20">Paranoid (ring size 21)</ion-option>
           </ion-select>
         </ion-item>
-        <ion-item>
+        <ion-item color="dark">
             <ion-label>Priority Level</ion-label>
             <ion-select>
               <ion-option value="1">Low (the cheapest)</ion-option>
@@ -62,9 +59,9 @@
               <ion-option value="4">Paranoid (absolute priority)</ion-option>
             </ion-select>
           </ion-item>
-          <div padding text-center>
-              <button ion-button type="submit" block [disabled]="!sendForm.form.valid">Generate transaction</button>
+          <div text-center>
+              <button ion-button type="submit"  [disabled]="!sendForm.form.valid">Generate transaction</button>
           </div>
-      </ion-card>
+    
     </form>
 </ion-content>

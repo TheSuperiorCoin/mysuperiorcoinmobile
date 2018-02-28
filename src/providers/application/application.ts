@@ -84,13 +84,16 @@ export class ApplicationProvider {
       return false;
     }
   }
-  importWallet(privateKey){
+  importWallet(walletName, privateKey){
     privateKey = privateKey.trim();
     let v:any = this.decode_private_key(privateKey);
     let a:any = v.public_addr;
     let w:WalletModel = new WalletModel(this.sCnutil);
     w.generateRandomId();
-    w.name = "Wallet #"+(this.wallets.length + 1);
+    if(walletName == null){
+      walletName =  "Wallet #" + this.sCnutil.rand_8().toUpperCase();
+    }
+    w.name = walletName;
     w.address = a;
     w.mnemonic = privateKey;
 
@@ -214,13 +217,17 @@ getUnspentOuts(trx){
       });*/
     });
   }
-  createWallet(){
-    let g:any = this.vanityAddress.toggleGeneration();
+  createWallet(walletName){
+    let seed:any = this.sCnutil.rand_32();
+    //let g:any = this.vanityAddress.toggleGeneration();
     let w:WalletModel = new WalletModel(this.sCnutil);
     w.generateRandomId();
-    w.name = "Wallet #"+(this.wallets.length + 1);
-    w.address = g.found['address'];
-    w.mnemonic = g.found['mnemonic'];
+    if(walletName == null){
+      walletName =  "Wallet #" + this.sCnutil.rand_8().toUpperCase();
+    }
+    w.name = walletName;
+    w.setKeys(this.sCnutil.create_address(seed));
+    w.mnemonic = this.sMnemonic.mn_encode(seed, null);
 
     this.wallets.push(w);
     this.saveWallets();

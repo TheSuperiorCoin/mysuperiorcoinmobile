@@ -13,20 +13,26 @@
   </ion-header>
 
 <ion-content padding>
-    <ion-list >
-        <button color="primary"  text-center ion-item (click)="createWallet()" >
-          <h2 padding><strong>Generate a new Wallet</strong></h2>
-        </button>
-    </ion-list>
-    <ion-list>
+    <ion-card>
         <ion-item>
-            <ion-label stacked>Your Private Login Key</ion-label>
+            <ion-label stacked>Wallet name</ion-label>
+            <ion-textarea [(ngModel)]="this.walletName" name="walletName" placeholder="Your wallet name"></ion-textarea>
+          </ion-item>
+    <ion-item>
+        <button color="primary"  text-center ion-item (click)="createWallet()" >
+          Generate a new Wallet
+        </button>
+      </ion-item>
+      <ion-item text-center><p>OR</p></ion-item>
+    
+        <ion-item>
+            <ion-label stacked>Import from your Private Login Key</ion-label>
             <ion-textarea [(ngModel)]="this.privateKey" name="privateKey" placeholder="Your Private Login Key"></ion-textarea>
           </ion-item>
           <ion-item>
               <button color="dark"  text-center ion-item margin-top (click)="importWallet()">
-                <h2 ><strong>Import wallet</strong></h2>
+                Import wallet
               </button>
           </ion-item>
-      </ion-list>
+      </ion-card>
 </ion-content>

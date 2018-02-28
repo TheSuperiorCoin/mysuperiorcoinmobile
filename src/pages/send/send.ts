@@ -5,6 +5,7 @@ import { BarcodeScanner } from '@ionic-native/barcode-scanner';
 import { ToastController } from 'ionic-angular/components/toast/toast-controller';
 import { Events } from 'ionic-angular/util/events';
 import { SendCoinProvider } from '../../providers/send-coin/send-coin';
+import { CnutilProvider } from '../../providers/cnutil/cnutil';
 
 
 @Component({
@@ -24,11 +25,15 @@ export class SendPage {
     public sApplication:ApplicationProvider,
     private barcodeScanner: BarcodeScanner,
     private toastCtrl: ToastController,
-    public sSendCoin:SendCoinProvider
+    public sSendCoin:SendCoinProvider,
+    public sCnutil:CnutilProvider
   ) {
   }
 
   ionViewDidLoad() {
+  }
+  generatePaymentId(){
+    this.paymentId =  this.sCnutil.rand_8();
   }
   generateTransaction(){
     /*let trx:any = {

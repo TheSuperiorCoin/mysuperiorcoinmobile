@@ -31,7 +31,9 @@ export class WalletModel {
     constructor(public cnUtil:CnutilProvider) {
   
     }
-  
+    setKeys(keys){
+        this.address = keys.public_addr;
+    }
     init(datas){
         this.id = datas.id;
         this.name = datas.name;
