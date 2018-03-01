@@ -147,6 +147,7 @@ $scope, $http, $q,
                     text: 'Yes',
                     handler: () => {
                         this.transferConfirmDialog = undefined;
+                        this.presentLoadingDefault('Transaction confirmed');
                         resolve();
                     }
                   }

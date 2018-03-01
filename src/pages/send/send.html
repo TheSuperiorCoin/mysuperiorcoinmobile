@@ -1,7 +1,7 @@
 <ion-header>
 
   <ion-navbar color="dark">
-    <ion-title>New transaction</ion-title>
+    <ion-title>New transaction - {{this.sApplication.openedWallet.balanceUnlocked}} XMR</ion-title>
     <ion-buttons end>
         <button ion-button icon-only color="primary" (click)="scanCode()">
           <ion-icon name="barcode"></ion-icon>
@@ -13,18 +13,6 @@
 
 
 <ion-content >
-    <div *ngIf="this.sApplication.openedWallet">
-        <ion-card *ngIf="this.sApplication.openedWallet.datas">
-          <ion-card-header>
-              Your Balance
-          </ion-card-header>
-          <ion-card-content>
-              <ion-card-title>
-                  {{this.sApplication.openedWallet.balanceUnlocked}} SUP
-              </ion-card-title>
-              </ion-card-content>
-        </ion-card>
-    </div>
     <form (ngSubmit)="generateTransaction()" #sendForm="ngForm">
         <ion-item color="dark">
           <ion-label stacked >Receiver Address</ion-label>
