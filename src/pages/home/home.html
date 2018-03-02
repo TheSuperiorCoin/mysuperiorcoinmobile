@@ -18,25 +18,19 @@
   </ion-header>
 <ion-content>
   <div *ngIf="this.sApplication.openedWallet">
-    <ion-card *ngIf="this.sApplication.openedWallet.datas">
+    <ion-card *ngIf="this.sApplication.openedWallet.datas" color="dark">
+      <ion-item color="dark">
+          <ion-avatar item-start clear ion-button (click)="openQrcodeModal('address')">
+                  <img src="assets/imgs/qr-code-white.png"/> 
+          </ion-avatar>
+          <h2>{{this.sApplication.openedWallet.balanceUnlocked}} SUP</h2>
+            <p>{{this.sApplication.openedWallet.balance}} SUP (locked)</p>
+      </ion-item>
       <ion-card-header>
-          Your Balance / Unlocked Balance
+          My wallet address
       </ion-card-header>
-      <ion-card-content>
-          <ion-card-title>
-              {{this.sApplication.openedWallet.balance}} SUP / {{this.sApplication.openedWallet.balanceUnlocked}} SUP
-          </ion-card-title>
-          </ion-card-content>
-          <ion-item>
-              <ion-avatar item-start>
-                  <button ion-item (click)="openQrcodeModal('address')">
-                      <ngx-qrcode [qrc-value]="this.sApplication.openedWallet.address" ></ngx-qrcode>
-                  </button>
-              </ion-avatar>
-            <h2>My wallet address</h2>
-          </ion-item>
-          <ion-card-content text-center>
-            <p>
+      <ion-card-content >
+            <p text-center>
               {{this.sApplication.openedWallet.address}} 
             </p>
           </ion-card-content>
@@ -53,22 +47,22 @@
             </ion-col>
           </ion-row>
       </ion-card>
-      <ion-card *ngIf="this.sApplication.openedWallet.datas">
+      <ion-card *ngIf="this.sApplication.openedWallet.datas" color="dark">
           <ion-card-header>
               Informations
           </ion-card-header>
           <ion-card-content>
-              <ion-item>
+              <ion-item color="dark">
                   <ion-icon name="cube" item-start large></ion-icon>
                   <h2>{{this.sApplication.openedWallet.datas.blockchain_height}}</h2>
                   <p>Blockchain height</p>
               </ion-item>
-              <ion-item>
+              <ion-item color="dark">
                   <ion-icon name="done-all" item-start large></ion-icon>
                   <h2>{{this.sApplication.openedWallet.datas.scanned_block_height}} ({{this.sApplication.openedWallet.datas.scanned_block_timestamp}})</h2>
                   <p>Scanned block height</p>
               </ion-item>
-              <ion-item>
+              <ion-item color="dark">
                   <ion-icon name="flag" item-start large></ion-icon>
                   <h2>{{this.sApplication.openedWallet.datas.start_height}}</h2>
                   <p>Start height</p>

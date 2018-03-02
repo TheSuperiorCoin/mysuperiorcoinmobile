@@ -748,7 +748,11 @@ transferSuccess(tx_h) {
   // if we need a higher fee
   if (this.neededFee.compare(prevFee) > 0) {
       console.log("Previous fee: " + this.cnUtil.formatMoneyFull(prevFee) + " New fee: " + this.cnUtil.formatMoneyFull(this.neededFee));
-      this.transfer().then(this.transferSuccess, this.transferFailure);
+      this.transfer().then((result:any) => {    
+        this.transferSuccess(result);
+      }, (err) => {
+        this.transferFailure(err);
+      });
       return;
   }
 
@@ -776,7 +780,7 @@ transferSuccess(tx_h) {
         var header = { "headers": {"Content-Type": "application/json;charset=UTF-8"} };
         this.http.post(this.sApplication.remotePath+'/submit_raw_tx', data, header).toPromise().then((response:any) =>
         {
-            var data = response.data;
+            var data = response;
     
             if (data.status === "error")
             {
@@ -784,27 +788,26 @@ transferSuccess(tx_h) {
                 this.submitting = false;
                 this.error = "Something unexpected occurred when submitting your transaction: " + data.error;
                 this.dismissLoadingDefault(this.error);
-
                 return;
-            }
-    
-            //console.log("Successfully submitted tx");
-            this.targets = [{}];
-            this.sent_tx = {
-                address: this.realDsts[0].address,
-                domain: this.realDsts[0].domain,
-                amount: this.realDsts[0].amount,
-                payment_id: this.payment_id,
-                tx_id: tx_hash,
-                tx_prvkey: tx_prvkey,
-                tx_fee: this.neededFee,//.add(getTxCharge(neededFee)),
-                explorerLink: "tx/" + tx_hash
-            };
-            this.dismissLoadingDefault("Tansfer ok !");
+            }else {
+                //console.log("Successfully submitted tx");
+                this.targets = [{}];
+                this.sent_tx = {
+                    address: this.realDsts[0].address,
+                    domain: this.realDsts[0].domain,
+                    amount: this.realDsts[0].amount,
+                    payment_id: this.payment_id,
+                    tx_id: tx_hash,
+                    tx_prvkey: tx_prvkey,
+                    tx_fee: this.neededFee,//.add(getTxCharge(neededFee)),
+                    explorerLink: "tx/" + tx_hash
+                };
+                this.dismissLoadingDefault("Tansfer ok !");
 
-            this.success_page = true;
-            this.status = "";
-            this.submitting = false;
+                this.success_page = true;
+                this.status = "";
+                this.submitting = false;
+            }
         }) 
         .catch((error) =>
         {

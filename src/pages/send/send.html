@@ -1,7 +1,7 @@
 <ion-header>
 
   <ion-navbar color="dark">
-    <ion-title>New transaction - {{this.sApplication.openedWallet.balanceUnlocked}} SUP</ion-title>
+    <ion-title>New transaction / {{this.sApplication.openedWallet.balanceUnlocked}} SUP</ion-title>
     <ion-buttons end>
         <button ion-button icon-only color="primary" (click)="scanCode()">
           <ion-icon name="barcode"></ion-icon>
@@ -13,6 +13,7 @@
 
 
 <ion-content >
+  
     <form (ngSubmit)="generateTransaction()" #sendForm="ngForm">
         <ion-item color="dark">
           <ion-label stacked >Receiver Address</ion-label>

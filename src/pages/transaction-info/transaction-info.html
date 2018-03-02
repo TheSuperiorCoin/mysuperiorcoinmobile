@@ -13,81 +13,44 @@
   </ion-header>
 
 <ion-content>
-    <ion-card *ngIf="this.sApplication.openedWallet.lastTransaction">
+    <ion-card *ngIf="this.sApplication.openedWallet.lastTransaction" color="dark">
         
-      <ion-item>
+      <ion-item color="dark">
           <h2>Hash</h2>
       </ion-item>
       <ion-card-content>
           <p>{{this.sApplication.openedWallet.lastTransaction.hash}}</p>
       </ion-card-content>
     <div *ngIf="this.sApplication.openedWallet.lastTransaction.confirmations">
-      <ion-item>
-        <h2>Confirmations</h2>
-    </ion-item>
-    <ion-card-content>
-        <p>{{this.sApplication.openedWallet.lastTransaction.confirmations}}</p>
-    </ion-card-content>
-</div>
-      <ion-item>
-          <h2>height</h2>
+        <ion-item color="dark">
+            <h2>Confirmations</h2>
+        </ion-item>
+        <ion-card-content>
+            <p>{{this.sApplication.openedWallet.lastTransaction.confirmations}}</p>
+        </ion-card-content>
+    </div>
+      <ion-item color="dark">
+          <h2>Block Height</h2>
       </ion-item>
       <ion-card-content>
           <p>{{this.sApplication.openedWallet.lastTransaction.height}}</p>
       </ion-card-content>
-      <ion-item>
-          <h2>id</h2>
-      </ion-item>
-      <ion-card-content>
-          <p>{{this.sApplication.openedWallet.lastTransaction.id}}</p>
-      </ion-card-content>
-      <ion-item>
-          <h2>mempool</h2>
-      </ion-item>
-      <ion-card-content>
-          <p>{{this.sApplication.openedWallet.lastTransaction.mempool}}</p>
-      </ion-card-content>
-      <ion-item>
-          <h2>mixin</h2>
-      </ion-item>
-      <ion-card-content>
-          <p>{{this.sApplication.openedWallet.lastTransaction.mixin}}</p>
-      </ion-card-content>
-      <ion-item>
+      <div *ngIf="this.sApplication.openedWallet.lastTransaction.payment_id">
+      <ion-item color="dark">
           <h2>payment_id</h2>
       </ion-item>
       <ion-card-content>
-          <p>{{this.sApplication.openedWallet.lastTransaction.payment_id}}</p>
-      </ion-card-content>
-      <ion-item>
-          <h2>total_received</h2>
-      </ion-item>
-      <ion-card-content>
-          <p>{{this.sApplication.openedWallet.lastTransaction.total_received}}</p>
-      </ion-card-content>
-      <ion-item>
-          <h2>total_sent</h2>
-      </ion-item>
-      <ion-card-content>
-          <p>{{this.sApplication.openedWallet.lastTransaction.total_sent}}</p>
-      </ion-card-content>
-      <ion-item>
-          <h2>tx_pub_key</h2>
-      </ion-item>
-      <ion-card-content>
-          <p>{{this.sApplication.openedWallet.lastTransaction.tx_pub_key}}</p>
-      </ion-card-content>
-      <ion-item>
-          <h2>unlock_time</h2>
-      </ion-item>
-      <ion-card-content>
-          <p>{{this.sApplication.openedWallet.lastTransaction.unlock_time}}</p>
-      </ion-card-content>
-      <ion-item>
+        <p>{{this.sApplication.openedWallet.lastTransaction.payment_id}}</p>
+    </ion-card-content>
+    </div>
+    
+    <!--
+      <ion-item color="dark">
         <h2>Blockchain Explorer !!</h2>
     </ion-item>
     <ion-card-content *ngIf="this.sApplication.openedWallet.lastTransaction.blockchainInfos">
         <p>{{this.sApplication.openedWallet.lastTransaction.blockchainInfos}}</p>
     </ion-card-content>
+-->
   </ion-card>
 </ion-content>

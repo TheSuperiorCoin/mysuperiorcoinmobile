@@ -78,9 +78,7 @@ export class WalletModel {
         this.refreshBalance();
     }
     refreshBalance(){
-        console.log(
-            this.total_sent, this.total_received, this.total_received_unlocked
-        );
+ 
         this.balance =  eval(((this.total_received - this.total_sent)/100000000).toFixed(8));
         this.balanceUnlocked = eval(((this.total_received_unlocked - this.total_sent)/100000000).toFixed(8));
 
@@ -117,7 +115,6 @@ export class WalletModel {
         this.calculateBalance();
     }
     decodeSeed(v){
-        console.log(v);
         this.spend_keys = v.spend;
         this.view_keys = v.view;
 
@@ -163,7 +160,6 @@ export class WalletModel {
     cachedKeyImage (tx_pub_key, out_index) {
        
         var cache_index = tx_pub_key + ':' + this.address + ':' + out_index;
-        console.log(this.key_images);
         if (this.key_images[cache_index]) {
             return this.key_images[cache_index];
         }
@@ -174,7 +170,6 @@ export class WalletModel {
             this.spend_keys.sec,
             out_index
         ).key_image;
-        console.log(this.key_images);
 
         return this.key_images[cache_index];
     }
