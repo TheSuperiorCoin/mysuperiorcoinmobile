@@ -9,6 +9,7 @@ import { ActionSheetController } from 'ionic-angular/components/action-sheet/act
 import { AlertController } from 'ionic-angular/components/alert/alert-controller';
 import { AccountDetailsPage } from '../account-details/account-details';
 import { QrcodePage } from '../qrcode/qrcode';
+import { ImportPage } from '../import/import';
 
 
 @Component({
@@ -26,7 +27,6 @@ export class HomePage {
     private toastCtrl: ToastController,
     public modalCtrl: ModalController,
     public actionSheetCtrl: ActionSheetController,
-    private alertCtrl: AlertController
   
   ) {
     
@@ -44,71 +44,13 @@ export class HomePage {
     });
   }
 
-  presentDeleteConfirm() {
-    let alert = this.alertCtrl.create({
-      title: 'Confirm',
-      message: 'Do you want to delete this wallet ?',
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel',
-          handler: () => {
-          }
-        },
-        {
-          text: 'Delete',
-          handler: () => {
-            this.sApplication.deleteWallet();            
-          }
-        }
-      ]
-    });
-    alert.present();
-  } 
-  presentActionSheet() {
-    let actionSheet = this.actionSheetCtrl.create({
-      title: 'Actions',
-      buttons: [
-        {
-          text: 'Wallet informations',
-          handler: () => {
-            this.openFormDetail();
-          }
-        },
-        {
-          text: 'Copy my address',
-          handler: () => {
-            this.copyToClipboard();
-          }
-        },
-        {
-          text: 'Share my address',
-          handler: () => {
-            this.share();
-          }
-        },
-        {
-          text: 'Delete',
-          role: 'destructive',
-          handler: () => {
-            this.presentDeleteConfirm();
-          }
-        },
-        
-        {
-          text: 'Cancel',
-          role: 'cancel',
-          handler: () => {
-            
-          }
-        }
-      ]
-    });
- 
-    actionSheet.present();
-  }
   openQrcodeModal(type) { 
     let modal = this.modalCtrl.create(QrcodePage, {t : type});
+    modal.present(); 
+      
+  }
+  openTransactions() { 
+    let modal = this.modalCtrl.create(ImportPage);
     modal.present(); 
       
   }

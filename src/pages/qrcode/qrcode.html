@@ -13,22 +13,22 @@
   </ion-header>
 
 <ion-content>
-  <ion-card>
+  <ion-card color="dark">
     <ngx-qrcode [qrc-value]="this.address" class="qr-code"></ngx-qrcode>
     <ion-card-content text-center>
         {{this.address}} 
     </ion-card-content>
 
-      <ion-item *ngIf="this.type == 'address'">
+      <ion-item *ngIf="this.type == 'address'" color="dark">
           <button ion-button clear item-start (click)="copyToClipboard()">Copy</button>
           <button ion-button clear item-end (click)="share()">Share</button>
       </ion-item> 
-      <ion-item *ngIf="this.type == 'integrated'">
+      <ion-item *ngIf="this.type == 'integrated'" color="dark">
           <button ion-button clear item-start (click)="generatePaymentId()">Generate payment ID</button>
           <button ion-button clear item-end (click)="copyToClipboard()">Copy</button>
           <button ion-button clear item-end (click)="share()">Share</button>
       </ion-item>  
-      <ion-item *ngIf="this.type == 'addressForReceive'">
+      <ion-item *ngIf="this.type == 'addressForReceive'" color="dark">
         <button ion-button clear item-start (click)="copyToClipboard()">Copy</button>
         <button ion-button clear item-end (click)="share()">Share</button>
     </ion-item> 

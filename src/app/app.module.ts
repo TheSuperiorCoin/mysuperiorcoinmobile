@@ -32,6 +32,7 @@ import { QrcodePage } from '../pages/qrcode/qrcode';
 import { NewPage } from '../pages/new/new';
 import { TransactionInfoPage } from '../pages/transaction-info/transaction-info';
 import { SendCoinProvider } from '../providers/send-coin/send-coin';
+import { ImportPage } from '../pages/import/import';
 
 //import { BigIntegerProvider } from '../providers/big-integer/big-integer';
 @NgModule({
@@ -46,7 +47,8 @@ import { SendCoinProvider } from '../providers/send-coin/send-coin';
     AccountDetailsPage,
     QrcodePage,
     NewPage,
-    TransactionInfoPage
+    TransactionInfoPage,
+    ImportPage
   ],
   imports: [
     BrowserModule,
@@ -69,7 +71,8 @@ import { SendCoinProvider } from '../providers/send-coin/send-coin';
     AccountDetailsPage,
     QrcodePage,
     NewPage,
-    TransactionInfoPage
+    TransactionInfoPage,
+    ImportPage
   ],
   providers: [
     StatusBar,

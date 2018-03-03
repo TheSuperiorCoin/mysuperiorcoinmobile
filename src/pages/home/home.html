@@ -1,11 +1,6 @@
 <ion-header >
   <ion-toolbar color="dark">
-    <ion-buttons start>
-      <button ion-button icon-only color="primary" (click)="presentActionSheet(t)">
-        <ion-icon name="menu"></ion-icon>
-      </button>
-    </ion-buttons>
-    <ion-title>{{this.sApplication.openedWallet.name}}</ion-title>
+    <ion-title (click)="openFormDetail()">{{this.sApplication.openedWallet.name}}</ion-title>
     <ion-buttons end>
       <button ion-button icon-only color="primary" (click)="this.sApplication.disconnect()">
         <ion-icon name="lock"></ion-icon>
@@ -26,11 +21,8 @@
           <h2>{{this.sApplication.openedWallet.balanceUnlocked}} SUP</h2>
             <p>{{this.sApplication.openedWallet.balance}} SUP (locked)</p>
       </ion-item>
-      <ion-card-header>
-          My wallet address
-      </ion-card-header>
-      <ion-card-content >
-            <p text-center>
+      <ion-card-content>
+            <p text-center margin-top>
               {{this.sApplication.openedWallet.address}} 
             </p>
           </ion-card-content>
@@ -46,7 +38,23 @@
               </button>
             </ion-col>
           </ion-row>
+          <ion-row>
+            <ion-col>
+                <button ion-button clear (click)="openFormDetail()">
+                    View my account details
+                  </button> 
+            </ion-col>
+          </ion-row>
+          <ion-row>
+              <ion-col>
+                  <button ion-button clear (click)="openTransactions()">
+                      Import transactions
+                    </button> 
+                    
+              </ion-col>
+            </ion-row>
       </ion-card>
+        
       <ion-card *ngIf="this.sApplication.openedWallet.datas" color="dark">
           <ion-card-header>
               Informations

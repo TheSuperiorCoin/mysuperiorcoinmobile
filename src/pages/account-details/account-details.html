@@ -14,26 +14,7 @@
 
 <ion-content>
     <div *ngIf="this.sApplication.openedWallet">
-        <form (ngSubmit)="refreshWallet()" #sendForm="ngForm">
-            <ion-card>
-        
-                <ion-item>
-                  <ion-label>Import transactions</ion-label>
-                  <ion-select [(ngModel)]="this.no_blocks" name="no_blocks">
-                    <ion-option value="1000" selected>1 day ago</ion-option>
-                    <ion-option value="5500">7 days ago</ion-option>
-                    <ion-option value="11000">15 days ago</ion-option>
-                    <ion-option value="22000">30 days ago</ion-option>
-                    <ion-option value="">Import all transactions</ion-option>
-                  </ion-select>
-                </ion-item>
-               
-                  <div padding text-center>
-                      <button ion-button type="submit" block [disabled]="!sendForm.form.valid">Import recent transactions</button>
-                  </div>
-              </ion-card>
-            </form>
-        <ion-card>
+        <ion-card  color="dark">
             <ion-card-header> 
                 Address
             </ion-card-header>
@@ -53,7 +34,7 @@
                 </ion-col>
               </ion-row>
           </ion-card>
-          <ion-card>
+          <ion-card color="dark">
               <ion-card-header>
                   Mnemonic passphrase
               </ion-card-header>
@@ -73,7 +54,7 @@
                   </ion-col>
                 </ion-row>
             </ion-card>
-            <ion-card>
+            <ion-card color="dark">
               <ion-card-header>
                   View key
               </ion-card-header>
@@ -93,7 +74,7 @@
                   </ion-col>
                 </ion-row>
             </ion-card>
-            <ion-card>
+            <ion-card color="dark">
               <ion-card-header>
                   Spend key
               </ion-card-header>
@@ -113,6 +94,10 @@
                   </ion-col>
                 </ion-row>
             </ion-card>
-            
+            <ion-card color="dark">
+                <button ion-button clear (click)="presentDeleteConfirm()">
+                    Delete wallet
+                  </button> 
+            </ion-card>
     </div>
 </ion-content>

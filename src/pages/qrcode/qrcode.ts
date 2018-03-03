@@ -36,11 +36,11 @@ export class QrcodePage {
   reload(){
     switch(this.type){
       case 'address':
-        this.title = "My Wallet Address";
+        this.title = this.sApplication.openedWallet.name;
         this.address = this.prefix+this.sApplication.openedWallet.address;
       break;
       case 'addressForReceive':
-        this.title = "My Wallet Address";
+        this.title = "Generated payment";
         this.address = this.prefix+this.sApplication.openedWallet.address;
         if(this.sApplication.openedWallet.trxAmount || this.sApplication.openedWallet.paymentId){
           this.address += '?';

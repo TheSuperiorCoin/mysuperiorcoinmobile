@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, AlertController } from 'ionic-angular';
 import { ApplicationProvider } from '../../providers/application/application';
 import { ViewController } from 'ionic-angular/navigation/view-controller';
 import { Clipboard } from '@ionic-native/clipboard';
@@ -12,7 +12,6 @@ import { ToastController } from 'ionic-angular/components/toast/toast-controller
   templateUrl: 'account-details.html',
 })
 export class AccountDetailsPage {
-  no_blocks:any = 1000;
   constructor(
     public navCtrl: NavController, 
     public navParams: NavParams,
@@ -21,6 +20,8 @@ export class AccountDetailsPage {
     private clipboard: Clipboard,
     private socialSharing: SocialSharing,
     private toastCtrl: ToastController,
+    private alertCtrl: AlertController
+
   ) {
   }
 
@@ -47,9 +48,7 @@ export class AccountDetailsPage {
     this.clipboard.copy(infos);
     this.presentToast();
   }
-  refreshWallet(){
-    this.sApplication.events.publish('refresh:wallettrx', this.no_blocks);
-  }
+
   share(type){
     let infos:any="";
     switch(type){
@@ -83,4 +82,25 @@ export class AccountDetailsPage {
   
     toast.present();
   }
+  presentDeleteConfirm() {
+    let alert = this.alertCtrl.create({
+      title: 'Confirm',
+      message: 'Do you want to delete this wallet ?',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          handler: () => {
+          }
+        },
+        {
+          text: 'Delete',
+          handler: () => {
+            this.sApplication.deleteWallet();            
+          }
+        }
+      ]
+    });
+    alert.present();
+  } 
 }

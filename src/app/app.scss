@@ -15,7 +15,7 @@
 // for the .md, .ios, or .wp mode classes. The mode class is
 // automatically applied to the <body> element in the app.
 .content {
-    background-color: #242A31;
+    background-color: #0d0d0d;
 }
 .qrcode {
     margin: 5px auto;
@@ -30,4 +30,16 @@ ion-content {
 }
 ion-item.item-md-dark {
     background-color: #0d0d0d;
+}
+.action-sheet-group {
+    background-color: #202020!important;
+}
+.action-sheet-group .action-sheet-button {
+    color: white!important;
+}
+.action-sheet-group .action-sheet-title {
+    color: #fdd736!important;
+}
+.action-sheet-button.activated {
+    background-color: #0d0d0d!important;
 }
