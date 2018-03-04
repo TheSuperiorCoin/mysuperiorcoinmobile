@@ -33,6 +33,9 @@ export class QrcodePage {
     this.sApplication.generatePaymentId();
     this.reload();
   }
+  reloadAddress() {
+    this.reload();
+  }
   reload(){
     switch(this.type){
       case 'address':

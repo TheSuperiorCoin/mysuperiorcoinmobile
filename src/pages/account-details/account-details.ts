@@ -96,7 +96,8 @@ export class AccountDetailsPage {
         {
           text: 'Delete',
           handler: () => {
-            this.sApplication.deleteWallet();            
+            this.sApplication.deleteWallet();     
+            this.dismiss();       
           }
         }
       ]

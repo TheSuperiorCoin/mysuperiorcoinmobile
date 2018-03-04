@@ -283,6 +283,7 @@ getUnspentOuts(trx){
       this.saveWallets();
     }
   }
+  
   login() {
     
     this.openedWallet.decodeSeed(this.decode_seed(this.openedWallet));
