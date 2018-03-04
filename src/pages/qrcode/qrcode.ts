@@ -43,7 +43,7 @@ export class QrcodePage {
         this.address = this.prefix+this.sApplication.openedWallet.address;
       break;
       case 'addressForReceive':
-        this.title = "Generated payment";
+        this.title = "Create a payment";
         this.address = this.prefix+this.sApplication.openedWallet.address;
         if(this.sApplication.openedWallet.trxAmount || this.sApplication.openedWallet.paymentId){
           this.address += '?';

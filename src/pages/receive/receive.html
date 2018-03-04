@@ -1,7 +1,12 @@
 <ion-header>
 
   <ion-navbar color="dark">
-    <ion-title>Receive</ion-title>
+    <ion-title>Receive coin</ion-title>
+    <ion-buttons end>
+            <button ion-button icon-only color="primary" (click)="openQrcodeModal('addressForReceive')">
+              <ion-icon name="add"></ion-icon>
+            </button>
+          </ion-buttons>
   </ion-navbar>
 
 </ion-header>
@@ -42,23 +47,4 @@
               <button ion-button clear item-end (click)="share('integrated')">Share</button>
             </ion-item>  
       </ion-card>
-      <ion-card color="secondary">  
-        <ion-card-header>
-            Create a payment
-        </ion-card-header>
-            <ion-item color="dark">
-                <button ion-button clear item-end (click)="generatePaymentId()">Generate</button>
-                <ion-label stacked>Payment Id</ion-label>
-                <ion-input type="text" [(ngModel)]="this.sApplication.openedWallet.paymentId" name="paymentId" placeholder="e.g 5d1c98f7d42d3a95"></ion-input>
-              </ion-item>
-            <ion-item color="dark">
-                <ion-label stacked>Amount</ion-label>
-                <ion-input type="text" [(ngModel)]="this.sApplication.openedWallet.trxAmount" name="trxAmount" placeholder="e.g 0.5"></ion-input>
-            </ion-item>
-            <ion-item color="dark">
-                <div padding text-center>
-                    <button ion-button (click)="openQrcodeModal('addressForReceive')">Generate payment</button>
-                </div>
-            </ion-item>
-        </ion-card>
 </ion-content>
