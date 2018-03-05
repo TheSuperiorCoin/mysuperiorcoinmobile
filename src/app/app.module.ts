@@ -33,6 +33,7 @@ import { NewPage } from '../pages/new/new';
 import { TransactionInfoPage } from '../pages/transaction-info/transaction-info';
 import { SendCoinProvider } from '../providers/send-coin/send-coin';
 import { ImportPage } from '../pages/import/import';
+import { LockScreenPage } from '../pages/lock-screen/lock-screen';
 
 //import { BigIntegerProvider } from '../providers/big-integer/big-integer';
 @NgModule({
@@ -48,7 +49,8 @@ import { ImportPage } from '../pages/import/import';
     QrcodePage,
     NewPage,
     TransactionInfoPage,
-    ImportPage
+    ImportPage,
+    LockScreenPage
   ],
   imports: [
     BrowserModule,
@@ -72,7 +74,8 @@ import { ImportPage } from '../pages/import/import';
     QrcodePage,
     NewPage,
     TransactionInfoPage,
-    ImportPage
+    ImportPage,
+    LockScreenPage
   ],
   providers: [
     StatusBar,

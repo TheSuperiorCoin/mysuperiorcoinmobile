@@ -16,10 +16,14 @@
     <ion-card>
         <ion-item>
             <ion-label stacked>Wallet name</ion-label>
-            <ion-textarea [(ngModel)]="this.walletName" name="walletName" placeholder="Your wallet name"></ion-textarea>
+            <ion-textarea [(ngModel)]="this.walletName" name="walletName" placeholder="Your wallet name" required></ion-textarea>
+          </ion-item>
+          <ion-item>
+            <ion-label stacked>PIN CODE</ion-label>
+            <ion-input type="password" [(ngModel)]="this.password" name="password" placeholder="Enter your PIN Code" required></ion-input>
           </ion-item>
     <ion-item>
-        <button color="primary"  text-center ion-item (click)="createWallet()" >
+        <button color="primary"  text-center ion-item (click)="createWallet()" [disabled]="!this.valid()">
           Generate a new Wallet
         </button>
       </ion-item>

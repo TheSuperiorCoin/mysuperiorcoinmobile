@@ -11,7 +11,7 @@ import { ViewController } from 'ionic-angular/navigation/view-controller';
 export class NewPage {
   privateKey:any;
   walletName:any;
-
+  password:any;
   constructor(
     public navCtrl: NavController, 
     public navParams: NavParams,
@@ -23,12 +23,18 @@ export class NewPage {
   dismiss() {
     this.viewCtrl.dismiss();
   }
+  valid(){
+    /*if(this.walletName != "" && this.password != ""){
+      return false;
+    }*/
+    return true;
+  }
   createWallet(){
-    this.sApplication.createWallet(this.walletName);
+    this.sApplication.createWallet(this.walletName, this.password);
     this.dismiss();
   }
   importWallet(){
-    this.sApplication.importWallet(this.walletName, this.privateKey);
+    this.sApplication.importWallet(this.walletName, this.privateKey, this.password);
     this.dismiss();
   }
 }

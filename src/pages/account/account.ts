@@ -4,6 +4,7 @@ import { ApplicationProvider } from '../../providers/application/application';
 import { NewPage } from '../new/new';
 import { ModalController } from 'ionic-angular/components/modal/modal-controller';
 import { ToastController } from 'ionic-angular/components/toast/toast-controller';
+import { LockScreenPage } from '../lock-screen/lock-screen';
 
 
 @Component({
@@ -24,6 +25,14 @@ export class AccountPage {
   loading:any;
   login(w){
     this.sApplication.openedWallet = w;
+    if(this.sApplication.openedWallet.secured){
+      this.openLockScreenModal();
+    }else {
+      this.loginToWallet();
+    }
+    
+  }
+  loginToWallet(){
     this.presentLoadingDefault('Login');
     this.sApplication.login().then((result) => { 
       if(this.sApplication.openedWallet.datas){
@@ -42,6 +51,10 @@ export class AccountPage {
   }
   openNewModal(){
     let modal = this.modalCtrl.create(NewPage);
+    modal.present(); 
+  }
+  openLockScreenModal(){
+    let modal = this.modalCtrl.create(LockScreenPage);
     modal.present(); 
   }
   presentLoadingDefault(message) {

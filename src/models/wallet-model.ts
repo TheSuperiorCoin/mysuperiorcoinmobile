@@ -28,6 +28,8 @@ export class WalletModel {
     total_received_unlocked:any = 0;
     total_received:any = 0;
 
+    secured:any = false;
+    pinCode:any = false;
     constructor(public cnUtil:CnutilProvider) {
   
     }
@@ -40,13 +42,17 @@ export class WalletModel {
         this.address = datas.address;
         this.mnemonic = datas.mnemonic;
         this.balance = datas.balance;
+        this.secured = datas.secured;
+        this.pinCode = datas.pinCode;
     }
     _toObject(){
       return {
         'id':this.id,
         'name':this.name,
         'address':this.address,
-        'mnemonic':this.mnemonic
+        'mnemonic':this.mnemonic,
+        'secured':this.secured,
+        'pinCode':this.pinCode
       };
     }
     getAddress() {
