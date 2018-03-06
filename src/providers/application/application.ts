@@ -84,7 +84,7 @@ export class ApplicationProvider {
       return false;
     }
   }
-  importWallet(walletName, privateKey, password){
+  importWallet(walletName, privateKey){
     privateKey = privateKey.trim();
     let v:any = this.decode_private_key(privateKey);
     let a:any = v.public_addr;
@@ -93,7 +93,7 @@ export class ApplicationProvider {
     if(walletName == null){
       walletName =  "Wallet #" + this.sCnutil.rand_8().toUpperCase();
     }
-    w.pinCode = password;
+    //w.pinCode = password;
     w.name = walletName;
     w.address = a;
     w.mnemonic = privateKey;
@@ -218,7 +218,7 @@ getUnspentOuts(trx){
       });*/
     });
   }
-  createWallet(walletName, password){
+  createWallet(walletName){
     let seed:any = this.sCnutil.rand_32();
     //let g:any = this.vanityAddress.toggleGeneration();
     let w:WalletModel = new WalletModel(this.sCnutil);
@@ -226,10 +226,10 @@ getUnspentOuts(trx){
     if(walletName == null){
       walletName =  "Wallet #" + this.sCnutil.rand_8().toUpperCase();
     }
-    if(password && password != ""){
+    /*if(password && password != ""){
       w.secured = true;
       w.pinCode = password;
-    }
+    }*/
     
     w.name = walletName;
     w.setKeys(this.sCnutil.create_address(seed));

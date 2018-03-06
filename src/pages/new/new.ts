@@ -30,11 +30,11 @@ export class NewPage {
     return true;
   }
   createWallet(){
-    this.sApplication.createWallet(this.walletName, this.password);
+    this.sApplication.createWallet(this.walletName);
     this.dismiss();
   }
   importWallet(){
-    this.sApplication.importWallet(this.walletName, this.privateKey, this.password);
+    this.sApplication.importWallet(this.walletName, this.privateKey);
     this.dismiss();
   }
 }
