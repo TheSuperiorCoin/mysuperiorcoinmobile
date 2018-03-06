@@ -33,6 +33,7 @@ export class AccountPage {
     
   }
   loginToWallet(){
+    this.sApplication.events.unsubscribe('wallet:unlock');
     this.presentLoadingDefault('Login');
     this.sApplication.login().then((result) => { 
       if(this.sApplication.openedWallet.datas){
@@ -49,11 +50,25 @@ export class AccountPage {
       this.presentToast("Can't connect to server");
     });
   }
+  logout(){
+    this.sApplication.events.unsubscribe('wallet:unlock');
+    this.sApplication.openedWallet = null;
+    if(this.loading)this.loading.dismiss();
+    this.loading = null;
+    this.presentToast("Can't access to wallet");
+  }
   openNewModal(){
     let modal = this.modalCtrl.create(NewPage);
     modal.present(); 
   }
   openLockScreenModal(){
+    this.sApplication.events.subscribe('wallet:unlock', (access) => {
+      if(access){
+        this.loginToWallet();
+      }else {
+        this.logout();
+      }
+    });
     let modal = this.modalCtrl.create(LockScreenPage);
     modal.present(); 
   }

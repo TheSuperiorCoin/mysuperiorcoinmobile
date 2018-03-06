@@ -59,6 +59,20 @@ export class ApplicationProvider {
       this.refreshWallet(no_blocks);
     });
   }
+  encryptWallet(pinCode){
+    if(this.openedWallet){
+      this.openedWallet.secured = true;
+      this.openedWallet.pinCode = pinCode;
+      this.saveWallets();
+    }
+  }
+  disablePinCode(){
+    if(this.openedWallet){
+      this.openedWallet.secured = null;
+      this.openedWallet.pinCode = null;
+      this.saveWallets();
+    }
+  }
   presentToast(message) {
     let toast = this.toastCtrl.create({
       message: message,

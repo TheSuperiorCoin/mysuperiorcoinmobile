@@ -10,6 +10,7 @@ import { AlertController } from 'ionic-angular/components/alert/alert-controller
 import { AccountDetailsPage } from '../account-details/account-details';
 import { QrcodePage } from '../qrcode/qrcode';
 import { ImportPage } from '../import/import';
+import { SettingsPage } from '../settings/settings';
 
 
 @Component({
@@ -43,7 +44,10 @@ export class HomePage {
       // Error!
     });
   }
-
+  openSettings() { 
+    let modal = this.modalCtrl.create(SettingsPage);
+    modal.present(); 
+  }
   openQrcodeModal(type) { 
     let modal = this.modalCtrl.create(QrcodePage, {t : type});
     modal.present(); 
