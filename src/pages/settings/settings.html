@@ -15,7 +15,7 @@
 <ion-content>
   <ion-list *ngIf="this.sApplication.openedWallet">
       <ion-item color="dark">
-          <ion-label>Wallet encrypted</ion-label>
+          <ion-label>Encrypt my Wallet</ion-label>
           <ion-toggle [(ngModel)]="this.toggleEncrypted" name="toggleEncrypted" (ngModelChange)="updateToggleEncrypt()"></ion-toggle>
         </ion-item>
   </ion-list>

@@ -9,7 +9,7 @@ import { ViewController } from 'ionic-angular/navigation/view-controller';
   templateUrl: 'lock-screen.html',
 })
 export class LockScreenPage {
-  pinCode:any;
+  pinCode:any = new Array();
   pinCodeSecond:any;
   title:any = "Unlock your wallet";
   enable:any;
@@ -21,17 +21,19 @@ export class LockScreenPage {
     public viewCtrl: ViewController,
   ) {
     this.action = navParams.get('action');
-    this.pinCode = null;
     this.pinCodeSecond = null;
+    this.pinCode = new Array();
     this.initLockScreen();
   }
   dismiss() {
     this.viewCtrl.dismiss();
   }
+  deletePrevious(){
+    this.pinCode.pop();
+  }
   initLockScreen(){
     
     if(this.sApplication.openedWallet.secured){
-      console.log(this.action);
       if(this.action == "disablePin"){
         this.title = "Disable PIN code";
       }else {
@@ -48,7 +50,6 @@ export class LockScreenPage {
     }
   }
   setPinNumber(num){
-    console.log(this.pinCode);
     if(this.pinCode == null){
       this.pinCode = new Array();
     }
@@ -68,7 +69,6 @@ export class LockScreenPage {
   }
   
   confirmPinCode(){
-    console.log('confirmPinCode :'+this.pinCodeSecond+' -- '+this.pinCode);
     if(this.pinCodeSecond){
       let ok:boolean = true;
       for(var i=0;i<6;i++){
@@ -83,25 +83,22 @@ export class LockScreenPage {
       }
     }else {
       this.pinCodeSecond = this.pinCode;
-      this.pinCode = null;
+      this.pinCode = new Array();
       this.initLockScreen();
     }
   }
   unlockWallet(){
-    console.log('unlockWallet');
     this.dismiss();
-    let access:any = this.sApplication.openedWallet.checkPinCode(this.pinCode);
+    let access:any = this.sApplication.checkPinCode(this.pinCode);
 
     this.sApplication.events.publish('wallet:unlock', access);
   }
   encryptWallet(){
-    console.log('encryptWallet');
     this.sApplication.encryptWallet(this.pinCode.join(''));
     this.dismiss();
   }
   disablePin(){
-    console.log('disablePin');
-    let access:any = this.sApplication.openedWallet.checkPinCode(this.pinCode);
+    let access:any = this.sApplication.checkPinCode(this.pinCode);
     if(access){
       this.sApplication.disablePinCode();
       this.dismiss();
@@ -111,6 +108,11 @@ export class LockScreenPage {
     
   }
   cancel(){
+    switch(this.action){
+      case "unlockWallet":
+      this.sApplication.openedWallet = null;
+      break;
+    }
     this.sApplication.events.unsubscribe('wallet:unlock');
     this.dismiss();
   }

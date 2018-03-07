@@ -9,13 +9,15 @@ import { Observable } from 'rxjs/Rx';
 import { Events } from 'ionic-angular';
 import { ToastController } from 'ionic-angular/components/toast/toast-controller';
 import { CnutilProvider } from '../cnutil/cnutil';
-
+import CryptoJS from 'crypto-js';
 //C:\Users\Bergery\Desktop\PROJETs\Mobile\superiorwallet\platforms\android\CordovaLib\src\org\apache\cordova\engine\SystemWebViewClient.java
 //super.onReceivedSslError(view, handler, error);
 //**handler.proceed();
-
+//secretKey = "33hai3mGTNazGowpbMqrDJTbffgyeH3kFkLc0eIp"; 
 @Injectable()
 export class ApplicationProvider {
+  secretKey:any = "33hai3mGTNazGowpbMqrDJTbffgyeH3kFkLc0eIp"; // NEVER CHANGE IT - USE TO ENCRYPT PIN CODE
+
   remotePath:string = "https://mysuperiorcoin.com:1984";
   pathBlockchainExplorer:string = "http://superior-coin.com:8081/api/";
   mnemonic_language:string = 'english';
@@ -24,7 +26,7 @@ export class ApplicationProvider {
   mNemonic:string;
   keys:any;
   prefixQRCode:any = "Superior:";
-
+  
   wallets:Array<WalletModel> = new Array();
   openedWallet:WalletModel;
   subscriptionRefresh = null;
@@ -41,6 +43,16 @@ export class ApplicationProvider {
   ) {
     this.initLocalStorage();
     this.initEvents();
+  }
+  encryptDatas(datas, key){
+    var ciphertext = CryptoJS.AES.encrypt(datas, key);
+    return ciphertext.toString();
+  }
+  decryptDatas(encryptedDatas, key){
+    console.log(encryptedDatas, key);
+    var bytes  = CryptoJS.AES.decrypt(encryptedDatas, key);
+    var plaintext = bytes.toString(CryptoJS.enc.Utf8);
+    return plaintext;
   }
   initEvents(){
     this.events.subscribe('refresh:address', () => {
@@ -59,17 +71,25 @@ export class ApplicationProvider {
       this.refreshWallet(no_blocks);
     });
   }
+  checkPinCode(pinCode){
+    if(this.decryptDatas(this.openedWallet.pinCode, this.secretKey) == pinCode.join('')){
+        return true;
+    }
+    return false;
+  }
   encryptWallet(pinCode){
-    if(this.openedWallet){
+    if(this.openedWallet && this.openedWallet.secured == false){
       this.openedWallet.secured = true;
-      this.openedWallet.pinCode = pinCode;
+      this.openedWallet.pinCode = this.encryptDatas(pinCode, this.secretKey);
+      this.openedWallet.mnemonic = this.encryptDatas(this.openedWallet.mnemonic, pinCode);
       this.saveWallets();
     }
   }
   disablePinCode(){
-    if(this.openedWallet){
-      this.openedWallet.secured = null;
+    if(this.openedWallet && this.openedWallet.secured == true){
+      this.openedWallet.mnemonic = this.decryptDatas(this.openedWallet.mnemonic, this.decryptDatas(this.openedWallet.pinCode, this.secretKey));
       this.openedWallet.pinCode = null;
+      this.openedWallet.secured = false;
       this.saveWallets();
     }
   }
@@ -165,7 +185,6 @@ status:"success"
 */
 startUnspentOuts(trx){
   this.getUnspentOuts(trx).then((resultUnspentOuts) => { 
-    console.log(resultUnspentOuts);
     /*this.sApplication.getRandomOuts(resultUnspentOuts).then((resultRandomOuts) => { 
       console.log(resultRandomOuts);
     }, (err) => {
@@ -187,10 +206,8 @@ getUnspentOuts(trx){
     use_dust: false,
     view_key: this.openedWallet.viewKey
   };
-  console.log(data);
   data = JSON.stringify(data);
   var header = { "headers": {"Content-Type": "application/json;charset=UTF-8"} };
-  console.log(data);
   return new Promise((resolve, reject) => {
 
     this.http.post(this.remotePath+'/get_unspent_outs', data, header).toPromise().then((response) =>
@@ -219,7 +236,6 @@ getUnspentOuts(trx){
     var header = { "headers": {"Content-Type": "application/json;charset=UTF-8"} };
     
     return new Promise((resolve, reject) => {
-      console.log(data);
       resolve(data);
       /*this.http.post(this.remotePath+'/get_random_outs', data, header).toPromise().then((response) =>
       {
@@ -506,24 +522,38 @@ getUnspentOuts(trx){
   { 
       var seed;
       var keys;
+      let mnemonic:any = w.mnemonic;
+      if(w.secured){
+        mnemonic = this.decryptDatas(mnemonic, this.decryptDatas(w.pinCode, this.secretKey));
+      }
+
       switch (this.mnemonic_language) {
           case 'english':
               try {
-                  seed = this.sMnemonic.mn_decode(w.mnemonic, null);
+                  seed = this.sMnemonic.mn_decode(mnemonic, null);
               } catch (e) {
                   // Try decoding as an electrum seed, on failure throw the original exception
                   try {
-                      seed = this.sMnemonic.mn_decode(w.mnemonic, "electrum");
+                      seed = this.sMnemonic.mn_decode(mnemonic, "electrum");
                   } catch (ee) {
                       throw e;
                   }
               }
               break;
           default:
-              seed = this.sMnemonic.mn_decode(w.mnemonic, this.mnemonic_language);
+              seed = this.sMnemonic.mn_decode(mnemonic, this.mnemonic_language);
               break; 
       }
       keys = this.sCnutil.create_address(seed);
       return keys;
+  }
+  decryptMnemonic()
+  { 
+      let w:any = this.openedWallet;
+      let mnemonic:any = w.mnemonic;
+      if(w.secured){
+        mnemonic = this.decryptDatas(mnemonic, this.decryptDatas(w.pinCode, this.secretKey));
+      }
+      return mnemonic;
   };
 }

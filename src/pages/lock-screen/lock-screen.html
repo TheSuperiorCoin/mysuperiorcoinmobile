@@ -4,7 +4,7 @@
         {{this.title}}
       </ion-title>
       <ion-buttons start>
-        <button ion-button (click)="dismiss()">
+        <button ion-button (click)="cancel()">
           <span ion-text showWhen="ios">Cancel</span>
           <ion-icon name="md-close" showWhen="android,windows"></ion-icon>
         </button>
@@ -14,42 +14,58 @@
 
 
 <ion-content padding>
+    <ion-item color="dark">
+        <p text-center margin-top>Enter your Passcode</p>
+        <ion-row padding>
+        <ion-col text-center *ngFor="let i of [0,1,2,3,4,5]">
+            <ion-icon name="radio-button-off" color="light" *ngIf="i >= this.pinCode.length"></ion-icon>
+            <ion-icon name="radio-button-on" color="light" *ngIf="i < this.pinCode.length"></ion-icon>
+        </ion-col>
+        </ion-row>
+    </ion-item>
     <ion-row>
-        <ion-col text-center>
-            <button ion-button round outline (click)="setPinNumber(1)">1</button>
+        <ion-col text-center padding>
+            <button ion-button round large outline (click)="setPinNumber(1)">1</button>
         </ion-col>
-        <ion-col text-center>
-            <button ion-button round outline (click)="setPinNumber(2)">2</button>
+        <ion-col text-center padding>
+            <button ion-button round large outline (click)="setPinNumber(2)">2</button>
         </ion-col>
-        <ion-col text-center>
-            <button ion-button round outline (click)="setPinNumber(3)">3</button>
+        <ion-col text-center padding>
+            <button ion-button round large outline (click)="setPinNumber(3)">3</button>
         </ion-col>
       </ion-row>
       <ion-row>
-          <ion-col text-center>
-              <button ion-button round outline (click)="setPinNumber(4)">4</button>
+          <ion-col text-center padding>
+              <button ion-button round large outline (click)="setPinNumber(4)">4</button>
           </ion-col>
-          <ion-col text-center>
-              <button ion-button round outline (click)="setPinNumber(5)">5</button>
+          <ion-col text-center padding>
+              <button ion-button round large outline (click)="setPinNumber(5)">5</button>
           </ion-col>
-          <ion-col text-center>
-              <button ion-button round outline (click)="setPinNumber(6)">6</button>
+          <ion-col text-center padding>
+              <button ion-button round large outline (click)="setPinNumber(6)">6</button>
           </ion-col>
         </ion-row>
         <ion-row>
-            <ion-col text-center>
-                <button ion-button round outline (click)="setPinNumber(7)">7</button>
+            <ion-col text-center padding>
+                <button ion-button round large outline (click)="setPinNumber(7)">7</button>
             </ion-col>
-            <ion-col text-center>
-                <button ion-button round outline (click)="setPinNumber(8)">8</button>
+            <ion-col text-center padding>
+                <button ion-button round large outline (click)="setPinNumber(8)">8</button>
             </ion-col>
-            <ion-col text-center>
-                <button ion-button round outline (click)="setPinNumber(9)">9</button>
+            <ion-col text-center padding>
+                <button ion-button round large outline (click)="setPinNumber(9)">9</button>
             </ion-col>
           </ion-row>
           <ion-row>
-            <ion-col text-center>
-                <button ion-button round outline (click)="setPinNumber(0)">0</button>
+            <ion-col text-center padding>
+                <button ion-button round large outline (click)="setPinNumber(0)">0</button>
             </ion-col>
           </ion-row>
+          <ion-row *ngIf="this.pinCode.length != 0">
+                <ion-col>
+                    <button ion-button clear (click)="deletePrevious()" float-end>
+                        Delete
+                    </button> 
+                </ion-col>
+            </ion-row>
 </ion-content>

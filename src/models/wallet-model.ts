@@ -55,13 +55,7 @@ export class WalletModel {
         'pinCode':this.pinCode
       };
     }
-    checkPinCode(pinCode){
-        console.log(this.pinCode+' == '+pinCode.join(''));
-        if(this.pinCode == pinCode.join('')){
-            return true;
-        }
-        return false;
-    }
+    
     getAddress() {
         return this.address;
     }
