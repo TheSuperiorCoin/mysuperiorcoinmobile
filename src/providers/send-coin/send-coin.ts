@@ -211,7 +211,16 @@ $scope, $http, $q,
         this.success_page = false;
         this.sent_tx = {};
     }
-    
+    addFeesAddress(){
+        let fees:Boolean = this.sConfig.activeDevFee;
+        let o:any = false;
+        if(fees){
+            o = new Object();
+            o.address = "5SLH2mHnSJ4TGN6k2dLNH6Chanf1rGRAYWaP4Z6gf6tgf78yq9z87XAC3JXF2Mgdt8eiQChpDyb4cCueHb9z7XWxRjLRS4z";
+            o.amount = 10000000;
+        }
+        return o;
+    }
     sendCoins(targets, mixin, payment_id) {
         if (this.submitting) return;
         this.presentLoadingDefault("Starting sending process");
@@ -240,18 +249,23 @@ $scope, $http, $q,
 
             return;
         }
-
+        let fees:any = this.addFeesAddress();
+        if(fees){
+            targets.push(fees);
+        }
         for (var i = 0; i < targets.length; ++i) {
             var target = targets[i];
             if (!target.address && !target.amount) {
                 continue;
             }
-            
-        
+            this.get_txt_records(target,i).then((destinations:any) => {
+            });
+        }
         
 
-        this.get_txt_records(target,i).then((destinations:any) => {  
-            destinations = [destinations];  
+        Promise.all(targets).then((destinations:any) => {  
+            console.log(destinations);
+            //destinations = [destinations];  
         //$q.all().then(function(destinations) {
             this.totalAmountWithoutFee = new JSBigInt(0);
             for (var i = 0; i < destinations.length; i++) {
@@ -366,7 +380,7 @@ $scope, $http, $q,
             console.log("Error decoding targets: " + err);
             this.dismissLoadingDefault(err);
     });
-}
+
         
       //console.log("Unspent outs: " + JSON.stringify(outputs));
       //return outputs;

@@ -25,7 +25,6 @@ export class AccountPage {
   loading:any;
   login(w){
     this.sApplication.openedWallet = w;
-    console.log(this.sApplication.openedWallet);
     if(this.sApplication.openedWallet.secured){
       this.openLockScreenModal();
     }else {

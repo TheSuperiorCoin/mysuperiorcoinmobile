@@ -72,15 +72,18 @@ export class WalletModel {
         this.datas = result;
         //this.total_sent = this.datas.total_sent;
         this.total_received = new JSBigInt(this.datas.total_received);
-        this.datas.spent_outputs.forEach(spent_output => {
-            var key_image = this.cachedKeyImage(
-                spent_output.tx_pub_key,
-                spent_output.out_index
-            );
-            if (spent_output.key_image !== key_image) {
-                this.total_sent = new JSBigInt(this.datas.total_sent).subtract(spent_output.amount);
-            }
-        });
+        this.total_sent = new JSBigInt(this.datas.total_sent);
+        if(this.datas.spent_outputs){
+            this.datas.spent_outputs.forEach(spent_output => {
+                var key_image = this.cachedKeyImage(
+                    spent_output.tx_pub_key,
+                    spent_output.out_index
+                );
+                if (spent_output.key_image !== key_image) {
+                    this.total_sent = this.total_sent.subtract(spent_output.amount);
+                }
+            });
+        }
         this.refreshBalance();
     }
     calculateBalance(){
@@ -94,13 +97,12 @@ export class WalletModel {
     }
     getUnlockedBalance(){
         let b:any = this.total_received_unlocked.subtract(this.total_sent);
-        console.log(b.toString());
-        return b;
+    
+        return b/100000000;
     }
     getBalance(){
         let b:any = this.total_received.subtract(this.total_sent);
-        console.log(b.toString());
-        return b;
+        return b/100000000;
     }
     getSpentInTransactions(){
         let v:any = 0;
@@ -116,6 +118,17 @@ export class WalletModel {
         
         this.balance =  this.getBalance();
         this.balanceUnlocked = this.getUnlockedBalance();
+        let s:any = 0;
+        let r:any = 0;
+        if(this.transactions){
+            this.transactions.forEach(element => {
+                s+=element.total_sent;
+                r+=element.total_received;
+            });
+        }
+        s = new JSBigInt(s);
+        r = new JSBigInt(r);
+
 
     }
     calculatePendingBalance(){
@@ -141,16 +154,96 @@ export class WalletModel {
         this.total_received = new JSBigInt(this.datasTransaction.total_received || 0);
         this.total_received_unlocked = new JSBigInt(this.datasTransaction.total_received_unlocked || 0);
         let trxTmp:Array<TransactionModel> = new Array();
-        result.transactions.forEach(element => {
-            if (new JSBigInt(element.total_received).compare(0) <= 0){
+
+
+        var transactions = this.datasTransaction.transactions || [];
+        for (var i = 0; i < transactions.length; ++i) {
+            if ((transactions[i].spent_outputs || []).length > 0)
+            {
+               
+                for (var j = 0; j < transactions[i].spent_outputs.length; ++j)
+                {
+                    var key_image = this.cachedKeyImage(
+                        transactions[i].spent_outputs[j].tx_pub_key,
+                        transactions[i].spent_outputs[j].out_index
+                    );
+                    if (transactions[i].spent_outputs[j].key_image !== key_image)
+                    {
+                        transactions[i].total_sent = new JSBigInt(transactions[i].total_sent).subtract(transactions[i].spent_outputs[j].amount).toString();
+                        transactions[i].spent_outputs.splice(j, 1);
+                        j--;
+                    }
+                }
+                
+            }
+/*if (transactions[i].payment_id.length == 16) {
+                if (transactions[i].tx_pub_key) {
+                    var decrypted_payment_id8
+                        = this.decrypt_payment_id(transactions[i].payment_id,
+                                            transactions[i].tx_pub_key,
+                                            AccountService.getViewKey());
+                    //console.log("decrypted_payment_id8: " + decrypted_payment_id8);
+                    transactions[i].payment_id = decrypted_payment_id8;
+                }
+            }*/
+
+
+
+            if (new JSBigInt(transactions[i].total_received || 0).add(transactions[i].total_sent || 0).compare(0) <= 0)
+            {
+                transactions.splice(i, 1);
+                i--;
+                continue;
+            }
+
+
+            transactions[i].amount = new JSBigInt(transactions[i].total_received || 0).subtract(transactions[i].total_sent || 0).toString();
+            
+
+            transactions[i].approx_float_amount = parseFloat(this.cnUtil.formatMoney(transactions[i].amount));
+            transactions[i].timestamp = new Date(transactions[i].timestamp * 1000);
+        }
+
+        transactions.sort(function(a, b)
+        {
+            return b.id - a.id;
+
+        });
+        transactions.forEach(element => {
+            let o:TransactionModel = new TransactionModel();
+            o.init(element);
+            trxTmp.push(o);
+        });
+        this.transactions = trxTmp;
+        this.total_received = new JSBigInt(this.datasTransaction.total_received || 0);
+        this.total_received_unlocked = new JSBigInt(this.datasTransaction.total_received_unlocked || 0);
+        
+       /* result.transactions.forEach(element => {
+            for (var j = 0; j < element.spent_outputs.length; ++j)
+            {
+                var key_image = this.cachedKeyImage(
+                    element.spent_outputs[j].tx_pub_key,
+                    element.spent_outputs[j].out_index
+                );
+                if (element.spent_outputs[j].key_image !== key_image)
+                {
+                    element.total_sent = new JSBigInt(element.total_sent).subtract(element.spent_outputs[j].amount).toString();
+                    element.spent_outputs.splice(j, 1);
+                    j--;
+                }
+            }
+
+
+
+            if ((element.total_received > 0 || element.total_sent > 0) && element.unlock_time != 0){
                 let o:TransactionModel = new TransactionModel();
                 o.init(element);
                 trxTmp.push(o);
             }
         });
         trxTmp = trxTmp.reverse();
-        this.transactions = trxTmp;
-        this.calculateBalance();
+        this.transactions = trxTmp;*/
+        this.refreshBalance();
     }
     decodeSeed(v){
         this.spend_keys = v.spend;

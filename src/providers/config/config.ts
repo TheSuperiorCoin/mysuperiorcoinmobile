@@ -30,6 +30,8 @@ export class ConfigProvider {
   avgBlockTime = 120;
   debugMode = false;
   coinUnits:any = new JSBigInt("100000000");
+  activeDevFee:Boolean = false;
+  devFees:any = 10000000;
     
   constructor(public http: HttpClient) {
     

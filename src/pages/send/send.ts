@@ -46,7 +46,7 @@ export class SendPage {
     this.sApplication.events.publish('call:get_unspent_outs', trx);*/
     let targets = [{
       address:this.receiverAddress,
-      amount:this.amountToSend
+      amount:this.amountToSend*100000000
     }]
     this.sSendCoin.sendCoins(targets, this.mixin, this.paymentId);
   }

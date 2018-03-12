@@ -49,7 +49,6 @@ export class ApplicationProvider {
     return ciphertext.toString();
   }
   decryptDatas(encryptedDatas, key){
-    console.log(encryptedDatas, key);
     var bytes  = CryptoJS.AES.decrypt(encryptedDatas, key);
     var plaintext = bytes.toString(CryptoJS.enc.Utf8);
     return plaintext;
@@ -168,12 +167,12 @@ stopTransactionRefresh(){
     this.subscriptionRefreshTransaction.unsubscribe();
   }
 }
-formateTrx(received,sent){
-  if(sent != 0){
-    let t:any = sent - received;
-    return (parseFloat(t)/100000000) + " SUP SENT";
+formateTrx(trx){
+  if(trx.total_sent != 0){
+    let t:any = trx.total_sent - trx.total_received;
+    return "-"+(parseFloat(t)/100000000) + " SUP";
   }else {
-    return (parseFloat(received)/100000000) + " SUP RECEIVED";
+    return (parseFloat(trx.total_received)/100000000) + " SUP";
   }
 }
 /*
@@ -390,7 +389,8 @@ getUnspentOuts(trx){
   requestTransactionInfo() {
   
     return new Promise((resolve, reject) => {
-      this.http.get(this.pathBlockchainExplorer+'transaction/'+this.openedWallet.lastTransaction.hash).toPromise().then((response) =>
+      if(this.openedWallet.lastTransaction){
+        this.http.get(this.pathBlockchainExplorer+'transaction/'+this.openedWallet.lastTransaction.hash).toPromise().then((response) =>
       {
         let res = response;
         
@@ -400,6 +400,10 @@ getUnspentOuts(trx){
       {
         reject(error);
       });
+      }else {
+        reject();
+      }
+      
     });
   }
   requestTrxInfo() {

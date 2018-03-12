@@ -36,7 +36,11 @@ export class AccountDetailsPage {
       infos = this.sApplication.openedWallet.address;
       break;
       case 'mnemonic':
-      infos = this.sApplication.openedWallet.mnemonic;
+        if(this.sApplication.openedWallet.secured){
+          infos = this.sApplication.decryptDatas(this.sApplication.openedWallet.mnemonic, this.sApplication.decryptDatas(this.sApplication.openedWallet.pinCode, this.sApplication.secretKey));
+        }else {
+          infos = this.sApplication.openedWallet.mnemonic;
+        }
       break;
       case 'viewKey':
       infos = this.sApplication.openedWallet.viewKey;
@@ -56,7 +60,11 @@ export class AccountDetailsPage {
       infos = this.sApplication.openedWallet.address;
       break;
       case 'mnemonic':
-      infos = this.sApplication.openedWallet.mnemonic;
+      if(this.sApplication.openedWallet.secured){
+        infos = this.sApplication.decryptDatas(this.sApplication.openedWallet.mnemonic, this.sApplication.decryptDatas(this.sApplication.openedWallet.pinCode, this.sApplication.secretKey));
+      }else {
+        infos = this.sApplication.openedWallet.mnemonic;
+      }
       break;
       case 'viewKey':
       infos = this.sApplication.openedWallet.viewKey;
