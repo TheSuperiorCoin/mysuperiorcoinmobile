@@ -666,7 +666,6 @@ export class CnutilProvider {
   };
 
   generate_key_image (tx_pub, view_sec, spend_pub, spend_sec, output_index) {
-      console.log([tx_pub, view_sec, spend_pub, spend_sec, output_index]);
       if (tx_pub.length !== 64) {
           throw "Invalid tx_pub length";
       }
@@ -680,15 +679,11 @@ export class CnutilProvider {
           throw "Invalid spend_sec length";
       }
       let recv_derivation = this.generate_key_derivation(tx_pub, view_sec);
-      console.log(recv_derivation);
       let ephemeral_pub = this.derive_public_key(recv_derivation, output_index, spend_pub);
-      console.log(ephemeral_pub);
 
       let ephemeral_sec = this.derive_secret_key(recv_derivation, output_index, spend_sec);
-      console.log(ephemeral_sec);
 
       let k_image = this.generate_key_image_2(ephemeral_pub, ephemeral_sec);
-      console.log(k_image);
 
       return {
           ephemeral_pub: ephemeral_pub,

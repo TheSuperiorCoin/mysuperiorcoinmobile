@@ -24,9 +24,9 @@ export class WalletModel {
     spend_keys:any;
     view_keys:any;
 
-    total_sent:any = 0;
-    total_received_unlocked:any = 0;
-    total_received:any = 0;
+    total_sent:any = JSBigInt.ZERO;;
+    total_received_unlocked:any = JSBigInt.ZERO;;
+    total_received:any = JSBigInt.ZERO;;
 
     secured:any = false;
     pinCode:any = false;
@@ -70,10 +70,18 @@ export class WalletModel {
     }
     setInfosDatas(result){
         this.datas = result;
-        this.total_sent = this.datas.total_sent;
-        this.total_received = this.datas.total_received;
-
-        this.calculatePendingBalance();
+        //this.total_sent = this.datas.total_sent;
+        this.total_received = new JSBigInt(this.datas.total_received);
+        this.datas.spent_outputs.forEach(spent_output => {
+            var key_image = this.cachedKeyImage(
+                spent_output.tx_pub_key,
+                spent_output.out_index
+            );
+            if (spent_output.key_image !== key_image) {
+                this.total_sent = new JSBigInt(this.datas.total_sent).subtract(spent_output.amount);
+            }
+        });
+        this.refreshBalance();
     }
     calculateBalance(){
         /*let b:any = 0;
@@ -84,10 +92,30 @@ export class WalletModel {
         this.balance = (b/100000000).toFixed(8);*/
         this.refreshBalance();
     }
+    getUnlockedBalance(){
+        let b:any = this.total_received_unlocked.subtract(this.total_sent);
+        console.log(b.toString());
+        return b;
+    }
+    getBalance(){
+        let b:any = this.total_received.subtract(this.total_sent);
+        console.log(b.toString());
+        return b;
+    }
+    getSpentInTransactions(){
+        let v:any = 0;
+        if(this.transactions){
+            this.transactions.forEach(element => {
+                v -= element.total_sent;
+            });
+        }
+        
+        return v;
+    }
     refreshBalance(){
- 
-        this.balance =  eval(((this.total_received - this.total_sent)/100000000).toFixed(8));
-        this.balanceUnlocked = eval(((this.total_received_unlocked - this.total_sent)/100000000).toFixed(8));
+        
+        this.balance =  this.getBalance();
+        this.balanceUnlocked = this.getUnlockedBalance();
 
     }
     calculatePendingBalance(){
@@ -110,12 +138,15 @@ export class WalletModel {
     setTransaction(result){
         
         this.datasTransaction = result;
-        this.total_received_unlocked = this.datasTransaction.total_received_unlocked;
+        this.total_received = new JSBigInt(this.datasTransaction.total_received || 0);
+        this.total_received_unlocked = new JSBigInt(this.datasTransaction.total_received_unlocked || 0);
         let trxTmp:Array<TransactionModel> = new Array();
         result.transactions.forEach(element => {
-            let o:TransactionModel = new TransactionModel();
-            o.init(element);
-            trxTmp.push(o);
+            if (new JSBigInt(element.total_received).compare(0) <= 0){
+                let o:TransactionModel = new TransactionModel();
+                o.init(element);
+                trxTmp.push(o);
+            }
         });
         trxTmp = trxTmp.reverse();
         this.transactions = trxTmp;
