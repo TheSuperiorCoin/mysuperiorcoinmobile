@@ -42,15 +42,14 @@
       <ion-card-content>
         <p>{{this.sApplication.openedWallet.lastTransaction.payment_id}}</p>
     </ion-card-content>
-    </div>
     
-    <!-- 
-      <ion-item color="dark">
-        <h2>Blockchain Explorer !!</h2>
-    </ion-item>
-    <ion-card-content *ngIf="this.sApplication.openedWallet.lastTransaction.blockchainInfos">
-        <p>{{this.sApplication.openedWallet.lastTransaction.blockchainInfos}}</p>
-    </ion-card-content>
--->
+    </div>
+    <ion-row>
+        <ion-col>
+          <button ion-button clear small (click)="openExplorer()">
+            <div>View on explorer</div> 
+          </button> 
+        </ion-col>
+    </ion-row>
   </ion-card>
 </ion-content>

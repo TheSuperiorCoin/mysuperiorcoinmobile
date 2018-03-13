@@ -35,7 +35,7 @@ import { SendCoinProvider } from '../providers/send-coin/send-coin';
 import { ImportPage } from '../pages/import/import';
 import { LockScreenPage } from '../pages/lock-screen/lock-screen';
 import { SettingsPage } from '../pages/settings/settings';
-
+import { InAppBrowser } from '@ionic-native/in-app-browser';
 //import { BigIntegerProvider } from '../providers/big-integer/big-integer';
 @NgModule({
   declarations: [
@@ -95,7 +95,8 @@ import { SettingsPage } from '../pages/settings/settings';
     Clipboard,
     SocialSharing,
     BarcodeScanner,
-    SendCoinProvider
+    SendCoinProvider,
+    InAppBrowser
   ]
 })
 export class AppModule {}
