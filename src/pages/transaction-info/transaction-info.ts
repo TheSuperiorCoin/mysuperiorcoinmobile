@@ -24,7 +24,7 @@ export class TransactionInfoPage {
     this.sApplication.startTransactionRefresh();
   }
   openExplorer(){
-    const browser = this.iab.create('http://superior-coin.info:8081/tx/'+this.sApplication.openedWallet.lastTransaction.hash);
+    const browser = this.iab.create('http://superior-coin.info:8081/tx/'+this.sApplication.openedWallet.lastTransaction.hash, '_blank', 'location=yes');
   }
 
   dismiss() {
