@@ -16,7 +16,8 @@
                 <img src="assets/imgs/arrow_out.png" item-start *ngIf="!t.isReceived()" class="icon-trx"/>
             </ion-thumbnail>
             <h2>{{this.sApplication.formateTrx(t)}} </h2>
-            <p>{{t.hash}}</p>
+            <h3>{{t.hash}}</h3>
+            <p>{{t.timestamp | date: 'dd/MM/yyyy H:mm' }}</p>
           </button>
     </ion-list>
 </ion-content>

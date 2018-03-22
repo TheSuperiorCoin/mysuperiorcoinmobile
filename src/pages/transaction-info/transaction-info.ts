@@ -20,6 +20,7 @@ export class TransactionInfoPage {
 
   ) {
     this.sApplication.openedWallet.lastTransaction = navParams.get('transaction');
+    console.log(this.sApplication.openedWallet.lastTransaction);
     this.sApplication.stopTransactionRefresh();
     this.sApplication.startTransactionRefresh();
   }

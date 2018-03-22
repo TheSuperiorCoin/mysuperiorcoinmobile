@@ -44,6 +44,12 @@
     </ion-card-content>
     
     </div>
+    <ion-item color="dark">
+        <h2>Date</h2>
+    </ion-item>
+    <ion-card-content>
+        <p>{{this.sApplication.openedWallet.lastTransaction.timestamp | date: 'dd/MM/yyyy H:mm' }}</p>
+    </ion-card-content>
     <ion-row>
         <ion-col>
           <button ion-button clear small (click)="openExplorer()">
