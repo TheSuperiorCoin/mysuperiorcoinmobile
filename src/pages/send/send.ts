@@ -50,6 +50,20 @@ export class SendPage {
     }]
     this.sSendCoin.sendCoins(targets, this.mixin, this.paymentId);
   }
+  scanCodePayment(){
+    this.barcodeScanner.scan().then((barcodeData) => {
+      
+      if (barcodeData.cancelled) {
+        return false;
+      }
+      let address:any;
+      let str:any = barcodeData.text;
+      this.paymentId = str;
+      
+    }, (err) => {
+        console.log('Error: ', err);
+    });
+  }
   scanCode(){
     this.barcodeScanner.scan().then((barcodeData) => {
       
@@ -61,6 +75,8 @@ export class SendPage {
       str = str.split(':');
       if(str[0] == "Superior"){
         str = str[1];
+      }else {
+        str = str[0];
       }
       str = str.split('?');
       this.receiverAddress = str[0];

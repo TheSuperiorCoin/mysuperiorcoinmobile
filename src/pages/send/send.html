@@ -27,6 +27,7 @@
         </ion-item>
         <ion-item color="dark">
           <button ion-button type="button" clear item-end (click)="generatePaymentId()">Generate</button>
+          <button ion-button type="button" clear item-end (click)="scanCodePayment()"><ion-icon name="barcode"></ion-icon></button>
           <ion-label stacked>Payment ID (optional)</ion-label>
           <ion-input type="text" placeholder='e.g. f816938c9437ac9f' [(ngModel)]="this.paymentId" name="paymentId"></ion-input>
         </ion-item>
