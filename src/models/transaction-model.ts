@@ -1,3 +1,4 @@
+declare var JSBigInt;
 export class TransactionModel {
 
     coinbase:any;
@@ -13,7 +14,7 @@ export class TransactionModel {
     tx_pub_key:any;
     unlock_time:any;
     blockchainInfos:any;
-
+    fee:any;
     confirmations:any;
     constructor() {
   
@@ -35,6 +36,7 @@ export class TransactionModel {
     }
     setInfosFromExplorer(result){
         this.confirmations = result.data.confirmations;
+        this.fee = result.data.tx_fee;
         this.blockchainInfos = JSON.stringify(result);
         console.log();
     }
@@ -42,6 +44,16 @@ export class TransactionModel {
       return {
         //'id':this.id,
       };
+    }
+    getFee(){
+        if(this.fee){
+            return this.fee / 100000000;
+        }
+        return 0;
+    }
+    getAmount(){
+
+        return (this.total_received - this.total_sent) / 100000000;
     }
     isReceived(){
         if(this.total_sent){

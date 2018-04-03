@@ -19,8 +19,8 @@ export class ConfigProvider {
   integratedAddressPrefix = 27;
   addressPrefixTestnet = 70;
   integratedAddressPrefixTestnet = 57;
-  feePerKB = 2000000000;//20^10 - for testnet its not used; as fee is dynamic.
-  dustThreshold = 100000000;//10^10 used for choosing outputs/change - we decompose all the way down if the receiver wants now regardless of threshold
+  feePerKB = new JSBigInt('2000000000');//20^10 - for testnet its not used; as fee is dynamic.
+  dustThreshold = new JSBigInt('1000000000');//10^10 used for choosing outputs/change - we decompose all the way down if the receiver wants now regardless of threshold
   txChargeRatio = 0.5;
   defaultMixin = 4; // minimum mixin for hardfork v5
   txChargeAddress = '';
@@ -29,9 +29,9 @@ export class ConfigProvider {
   maxBlockNumber = 500000000;
   avgBlockTime = 120;
   debugMode = false;
-  coinUnits:any = new JSBigInt("100000000");
+  coinUnits:any = new JSBigInt(10).pow(this.coinUnitPlaces);
   activeDevFee:Boolean = false;
-  devFees:any = 10000000;
+  devFees:any = new JSBigInt("10000000");
     
   constructor(public http: HttpClient) {
     

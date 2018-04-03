@@ -15,12 +15,32 @@
 <ion-content>
     <ion-card *ngIf="this.sApplication.openedWallet.lastTransaction" color="dark">
         
-      <ion-item color="dark">
-          <h2>Hash</h2>
-      </ion-item>
-      <ion-card-content>
-          <p>{{this.sApplication.openedWallet.lastTransaction.hash}}</p>
-      </ion-card-content>
+        <ion-item color="dark">
+            <h2>Amount</h2>
+        </ion-item>
+        <ion-card-content>
+            <p>{{this.sApplication.openedWallet.lastTransaction.getAmount()}}</p>
+        </ion-card-content>
+        <div *ngIf="this.sApplication.openedWallet.lastTransaction.fee">
+            <ion-item color="dark">
+                <h2>Fee</h2>
+            </ion-item>
+            <ion-card-content>
+                <p>{{this.sApplication.openedWallet.lastTransaction.getFee()}}</p>
+            </ion-card-content> 
+        </div>
+        <ion-item color="dark">
+                <h2>Hash</h2>
+            </ion-item>
+            <ion-card-content>
+                <p>{{this.sApplication.openedWallet.lastTransaction.hash}}</p>
+            </ion-card-content>
+    <ion-item color="dark">
+        <h2>Block Height</h2>
+    </ion-item>
+    <ion-card-content>
+        <p>{{this.sApplication.openedWallet.lastTransaction.height}}</p>
+    </ion-card-content>
     <div *ngIf="this.sApplication.openedWallet.lastTransaction.confirmations">
         <ion-item color="dark">
             <h2>Confirmations</h2>

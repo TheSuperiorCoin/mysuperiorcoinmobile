@@ -349,7 +349,7 @@ $scope, $http, $q,
                       this.feePerKB = new JSBigInt(data.per_kb_fee);
                       this.neededFee = this.feePerKB.multiply(13).multiply(this.fee_multiplayer);
                     }
-                    console.log('ici');
+                
                     this.transfer().then((result:any) => {    
                         this.transferSuccess(result);
                       }, (err) => {
@@ -689,16 +689,12 @@ createTx(mix_outs)
             return raw_tx_and_hash;
         }
 checkUnspentOuts(outputs) {
-    console.log(outputs);
+
 for (var i = 0; i < outputs.length; i++) {
     
   for (var j = 0; outputs[i] && j < outputs[i].spend_key_images.length; j++) {
     
       let key_img = this.sApplication.openedWallet.cachedKeyImage(outputs[i].tx_pub_key, outputs[i].index);
-      console.log(outputs[i].tx_pub_key);
-      console.log(outputs[i].index);
-      console.log(key_img);
-      console.log(outputs[i].spend_key_images[j]);
 
       if (key_img === outputs[i].spend_key_images[j]) {
           console.log("Output was spent with key image: " + key_img + " amount: " + this.cnUtil.formatMoneyFull(outputs[i].amount));
@@ -816,7 +812,7 @@ transferSuccess(tx_h) {
                     tx_fee: this.neededFee,//.add(getTxCharge(neededFee)),
                     explorerLink: "tx/" + tx_hash
                 };
-                this.dismissLoadingDefault("Tansfer ok !");
+                this.dismissLoadingDefault("Transfer ok !");
 
                 this.success_page = true;
                 this.status = "";
