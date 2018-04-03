@@ -55,6 +55,14 @@
       <ion-card-content>
           <p>{{this.sApplication.openedWallet.lastTransaction.height}}</p>
       </ion-card-content>
+      <div *ngIf="this.sApplication.openedWallet.lastTransaction.mixin">
+            <ion-item color="dark">
+                <h2>Mixin</h2>
+            </ion-item>
+            <ion-card-content>
+                <p>{{this.sApplication.openedWallet.lastTransaction.mixin}}</p>
+            </ion-card-content>
+        </div>
       <div *ngIf="this.sApplication.openedWallet.lastTransaction.payment_id">
       <ion-item color="dark">
           <h2>payment_id</h2>

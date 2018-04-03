@@ -123,7 +123,8 @@ export class CnutilProvider {
   //creates a Pedersen commitment from an amount (in scalar form) and a mask
   //C = bG + aH where b = mask, a = amount
   commit(amount, mask){
-      if (!this.valid_hex(mask) || mask.length !== 64 || !!this.valid_hex(amount) || amount.length !== 64){
+
+      if (!this.valid_hex(mask) || mask.length !== 64 || !this.valid_hex(amount) || amount.length !== 64){
           throw "invalid amount or mask!";
       }
       let C = this.ge_double_scalarmult_base_vartime(amount, this.H, mask);
@@ -1198,12 +1199,11 @@ export class CnutilProvider {
       let teststart = new Date().getTime();
       rv.p.rangeSigs[i] = this.proveRange(cmObj, outAmounts[i], nrings, 0, 0);
       let testfinish = new Date().getTime() - teststart;
-      console.log("Time take for range proof " + i + ": " + testfinish);
+      //console.log("Time take for range proof " + i + ": " + testfinish);
       rv.outPk[i] = cmObj.C;
       sumout = this.sc_add(sumout, cmObj.mask);
       rv.ecdhInfo[i] = this.encode_rct_ecdh({mask: cmObj.mask, amount: this.d2s(outAmounts[i])}, amountKeys[i]);
     }
-
     //simple
     if (rv.type === 2){
       let ai = [];
@@ -1211,6 +1211,7 @@ export class CnutilProvider {
       //create pseudoOuts
       let i:any;
       for (i = 0; i < inAmounts.length - 1; i++){
+        
         ai[i] = this.random_scalar();
         sumpouts = this.sc_add(sumpouts, ai[i]);
         rv.pseudoOuts[i] = this.commit(this.d2s(inAmounts[i]), ai[i]);
@@ -1231,6 +1232,7 @@ export class CnutilProvider {
       let full_message = this.get_pre_mlsag_hash(rv);
       rv.p.MGs.push(this.proveRctMG(full_message, mixRing[0], inSk[0], kimg[0], sumout, sumC, indices[0]));
     }
+    
     return rv;
   };
 
@@ -1701,13 +1703,16 @@ export class CnutilProvider {
       mix_outs = mix_outs || [];
       let i, j;
       if (dsts.length === 0) {
+        console.log('Destinations empty');
           throw 'Destinations empty';
       }
       if (mix_outs.length !== outputs.length && fake_outputs_count !== 0) {
+        console.log('Wrong number of mix outs provided (' + outputs.length + ' outputs, ' + mix_outs.length + ' mix outs)');
           throw 'Wrong number of mix outs provided (' + outputs.length + ' outputs, ' + mix_outs.length + ' mix outs)';
       }
       for (i = 0; i < mix_outs.length; i++) {
           if ((mix_outs[i].outputs || []).length < fake_outputs_count) {
+            console.log('Not enough outputs to mix with');
               throw 'Not enough outputs to mix with';
           }
       }
@@ -1722,12 +1727,14 @@ export class CnutilProvider {
           }
       };
       if (!this.valid_keys(keys.view.pub, keys.view.sec, keys.spend.pub, keys.spend.sec)) {
+        console.log('Invalid secret keys!');
           throw "Invalid secret keys!";
       }
       let needed_money = JSBigInt.ZERO;
       for (i = 0; i < dsts.length; ++i) {
           needed_money = needed_money.add(dsts[i].amount);
           if (needed_money.compare(this.UINT64_MAX) !== -1) {
+            console.log('Output overflow!');
               throw "Output overflow!";
           }
       }

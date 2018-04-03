@@ -33,18 +33,18 @@
         </ion-item>
         <ion-item color="dark">
           <ion-label>Privacy Level</ion-label>
-          <ion-select [(ngModel)]="this.mixin" name="mixin">
-            <ion-option value="4" selected>Low (ring size 5)</ion-option>
-            <ion-option value="6">Medium (ring size 7)</ion-option>
-            <ion-option value="10">High (ring size 11)</ion-option>
-            <ion-option value="20">Paranoid (ring size 21)</ion-option>
+          <ion-select [(ngModel)]="this.sConfig.defaultMixin" name="defaultMixin">
+            <ion-option value="5">Low (ring size 5)</ion-option>
+            <ion-option value="7">Medium (ring size 7)</ion-option>
+            <ion-option value="11">High (ring size 11)</ion-option>
+            <ion-option value="21">Paranoid (ring size 21)</ion-option>
           </ion-select>
         </ion-item>
         <ion-item color="dark">
             <ion-label>Priority Level</ion-label>
-            <ion-select>
+            <ion-select [(ngModel)]="this.sConfig.defaultPriority" name="defaultPriority">
               <ion-option value="1">Low (the cheapest)</ion-option>
-              <ion-option value="2" selected>Medium (default)</ion-option>
+              <ion-option value="2">Medium (default)</ion-option>
               <ion-option value="3">High (if you are in hurry)</ion-option>
               <ion-option value="4">Paranoid (absolute priority)</ion-option>
             </ion-select>

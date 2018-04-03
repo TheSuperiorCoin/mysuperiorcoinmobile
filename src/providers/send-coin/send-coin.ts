@@ -24,8 +24,7 @@ export class SendCoinProvider {
 
     // few multiplayers based on uint64_t wallet2::get_fee_multiplier
     fee_multiplayers = [1, 4, 20, 166];
-    default_priority = 2;
-    priority = this.default_priority;
+    priority = parseInt(this.sConfig.defaultPriority);
     openaliasDialog = undefined;
   unused_outs;
   using_outs;
@@ -39,7 +38,7 @@ export class SendCoinProvider {
   totalAmountWithoutFee;
   unspentOuts;
   pid_encrypt = false; //don't encrypt payment ID unless we find an integrated one
-  mixin;
+  mixin = parseInt(this.sConfig.defaultMixin);
   loading:any = null;
   constructor(
     public http: HttpClient,
@@ -622,7 +621,12 @@ transfer() {
                 this.http.post(this.sApplication.remotePath+'/get_random_outs', data, header).toPromise().then((response:any) =>
                 {
                     let elmt:any = this.createTx(response.amount_outs);
-                    resolve(elmt);
+                    if(elmt == false){
+                        reject("Can't create transaction");
+                    }else {
+                        resolve(elmt);
+                    }
+                    
                 }) 
                 .catch((error) =>
                 {
@@ -671,7 +675,7 @@ createTx(mix_outs)
                 console.log(e)
 
                 //reject("Failed to create transaction: " + e);
-                return;
+                return false;
             }
             //console.log("signed tx: ", JSON.stringify(signed));
             //move some stuff here to normalize this.rct vs non

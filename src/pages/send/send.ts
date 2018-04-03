@@ -6,6 +6,7 @@ import { ToastController } from 'ionic-angular/components/toast/toast-controller
 import { Events } from 'ionic-angular/util/events';
 import { SendCoinProvider } from '../../providers/send-coin/send-coin';
 import { CnutilProvider } from '../../providers/cnutil/cnutil';
+import { ConfigProvider } from '../../providers/config/config';
 
 
 @Component({
@@ -16,7 +17,6 @@ export class SendPage {
   receiverAddress:any = "";
   paymentId:any = "";
   amountToSend:any = "";
-  mixin:any = 4;
 
 
   constructor(
@@ -26,7 +26,8 @@ export class SendPage {
     private barcodeScanner: BarcodeScanner,
     private toastCtrl: ToastController,
     public sSendCoin:SendCoinProvider,
-    public sCnutil:CnutilProvider
+    public sCnutil:CnutilProvider,
+    public sConfig:ConfigProvider
   ) {
   }
 
@@ -36,19 +37,11 @@ export class SendPage {
     this.paymentId =  this.sCnutil.rand_8();
   }
   generateTransaction(){
-    /*let trx:any = {
-      receiverAddress:this.receiverAddress,
-      paymentId:this.paymentId,
-      amountToSend:this.amountToSend,
-      mixin:this.mixin,
-      dust_threshold: "1000000000"
-    };
-    this.sApplication.events.publish('call:get_unspent_outs', trx);*/
     let targets = [{
       address:this.receiverAddress,
       amount:this.amountToSend*100000000
     }]
-    this.sSendCoin.sendCoins(targets, this.mixin, this.paymentId);
+    this.sSendCoin.sendCoins(targets, parseInt(this.sConfig.defaultMixin), this.paymentId);
   }
   scanCodePayment(){
     this.barcodeScanner.scan().then((barcodeData) => {
