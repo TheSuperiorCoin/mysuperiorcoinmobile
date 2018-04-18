@@ -39,7 +39,8 @@ export class AccountPage {
       if(this.sApplication.openedWallet.datas){
         this.loading.dismiss();
         this.loading = null;
-      }else {
+      }
+      else {
         this.dismissLoadingDefault('Refreshing Wallet');
       }
       
@@ -84,19 +85,24 @@ export class AccountPage {
 
   }
   dismissLoadingDefault(message) {
-    if(this.loading) {
-        this.loading.setContent(message);
-    }else {
-        this.loading = this.loadingCtrl.create({
-            content: message
-        });
-        this.loading.present();
-    }
-    setTimeout(() => {
-      this.loading.dismiss();
-      this.loading = null;
-    }, 2000);
+    
+    // temporary workaround
+
+    this.loading.dismiss();
+    // if(this.loading) {
+    //     this.loading.setContent(message);
+    // }else {
+    //     this.loading = this.loadingCtrl.create({
+    //         content: message
+    //     });
+    //     this.loading.present();
+    // }
+    // setTimeout(() => {
+    //   this.loading.dismiss();
+    //   this.loading = null;
+    // }, 2000);
   }
+
   presentToast(message) {
     let toast = this.toastCtrl.create({
       message: message,

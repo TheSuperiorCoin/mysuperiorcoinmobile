@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController } from 'ionic-angular';
+import { NavController, LoadingController } from 'ionic-angular';
 import { ApplicationProvider } from '../../providers/application/application';
 import { ToastController } from 'ionic-angular/components/toast/toast-controller';
 import { Clipboard } from '@ionic-native/clipboard';
@@ -28,9 +28,28 @@ export class HomePage {
     private toastCtrl: ToastController,
     public modalCtrl: ModalController,
     public actionSheetCtrl: ActionSheetController,
-  
+    public loading : LoadingController
   ) {
+
+    // temporary workaround
+    // to avoid blank screen during interval
+    setTimeout(() => {
+      this.initializeWalletInfo();
+    },2000)
     
+  }
+
+  initializeWalletInfo(){
+    let loading = this.loading.create({
+      content : 'Fetching wallet information...'
+    });
+    loading.present();
+    let sub = setInterval(() => {
+      if(this.sApplication.openedWallet.datas){
+        loading.dismiss();
+        clearInterval(sub)
+      }
+    },100)
   }
 
   copyToClipboard(){
@@ -63,6 +82,7 @@ export class HomePage {
     modal.present(); 
       
   }
+
   presentToast() {
     let toast = this.toastCtrl.create({
       message: 'Address copied',

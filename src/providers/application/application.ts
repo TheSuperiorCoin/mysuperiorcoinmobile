@@ -290,6 +290,7 @@ getUnspentOuts(trx){
     this.wallets.push(w);
     this.saveWallets();
   }
+  
   startEventsRefresh(){
     if (this.subscriptionRefresh != null) {
       this.subscriptionRefresh.unsubscribe();
@@ -348,6 +349,8 @@ getUnspentOuts(trx){
       });
     });
   }
+
+
   refreshWallet(no_blocks){
     this.refreshWalletInfos(no_blocks).then((result:any) => {    
       this.presentToast(result.status);
