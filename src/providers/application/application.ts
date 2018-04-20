@@ -153,7 +153,9 @@ export class ApplicationProvider {
       
     });    
 }
+
 disconnect(){
+  
   if (this.subscriptionRefresh != null) {
     this.subscriptionRefresh.unsubscribe();
   }
@@ -162,6 +164,7 @@ disconnect(){
   }
   this.openedWallet = null;
 }
+
 stopTransactionRefresh(){
   if (this.subscriptionRefreshTransaction != null) {
     this.subscriptionRefreshTransaction.unsubscribe();

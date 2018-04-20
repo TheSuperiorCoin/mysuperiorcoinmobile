@@ -33,23 +33,17 @@ export class HomePage {
 
     // temporary workaround
     // to avoid blank screen during interval
-    setTimeout(() => {
-      this.initializeWalletInfo();
-    },2000)
-    
-  }
-
-  initializeWalletInfo(){
-    let loading = this.loading.create({
-      content : 'Fetching wallet information...'
+    this.sApplication.events.subscribe('loader',(loading) => {
+      loading.loading.setContent('Fetching wallet information...');
+      this.sApplication.events.unsubscribe('loader');
+      let sub = setInterval(() => {
+        if(this.sApplication.openedWallet.datas){
+          loading.loading.dismiss();
+          clearInterval(sub)
+        }
+      },100)
     });
-    loading.present();
-    let sub = setInterval(() => {
-      if(this.sApplication.openedWallet.datas){
-        loading.dismiss();
-        clearInterval(sub)
-      }
-    },100)
+
   }
 
   copyToClipboard(){

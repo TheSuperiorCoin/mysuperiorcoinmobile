@@ -13,14 +13,19 @@
   </ion-header>
 
 <ion-content>
-  <div *ngIf="this.sApplication.openedWallet">
-    <ion-card *ngIf="this.sApplication.openedWallet.datas" color="dark">
+  <div>
+    <ion-card color="dark">
       <ion-item color="dark">
           <ion-avatar item-start clear ion-button (click)="openQrcodeModal('address')">
                   <img src="assets/imgs/qr-code-white.png"/> 
           </ion-avatar>
-          <h2>{{this.sApplication.openedWallet.balance}} SUP</h2>
-            <p>{{this.sApplication.openedWallet.balanceUnlocked}} SUP (unlocked)</p>
+          <div *ngIf="this.sApplication.openedWallet">
+            <div *ngIf="this.sApplication.openedWallet.datas">
+              <h2>{{this.sApplication.openedWallet.balance}} SUP</h2>
+              <p>{{this.sApplication.openedWallet.balanceUnlocked}} SUP (unlocked)</p>
+            </div>
+          </div>
+          
       </ion-item>
       <ion-card-content>
             <p text-center margin-top>

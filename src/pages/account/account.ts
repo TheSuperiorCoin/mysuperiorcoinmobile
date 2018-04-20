@@ -85,10 +85,11 @@ export class AccountPage {
 
   }
   dismissLoadingDefault(message) {
+  
     
     // temporary workaround
-
-    this.loading.dismiss();
+    this.sApplication.events.publish('loader',{loading : this.loading})
+    
     // if(this.loading) {
     //     this.loading.setContent(message);
     // }else {
