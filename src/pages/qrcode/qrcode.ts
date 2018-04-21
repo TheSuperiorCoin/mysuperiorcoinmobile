@@ -69,7 +69,9 @@ export class QrcodePage {
     this.viewCtrl.dismiss();
   }
   copyToClipboard(){
-    this.clipboard.copy(this.address);
+    // remove 'Superior:' text on copy
+    let newAddress = this.address.split(':')[1];    
+    this.clipboard.copy(newAddress);
     this.presentToast();
   }
   share(){
