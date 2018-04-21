@@ -33,8 +33,9 @@ export class AccountDetailsPage {
     let infos:any="";
     switch(type){
       case 'address':
-      infos = this.sApplication.openedWallet.address;
-      break;
+        let address = this.sApplication.openedWallet.address;
+        infos = address.split(':')[1];
+        break;
       case 'mnemonic':
         if(this.sApplication.openedWallet.secured){
           infos = this.sApplication.decryptDatas(this.sApplication.openedWallet.mnemonic, this.sApplication.decryptDatas(this.sApplication.openedWallet.pinCode, this.sApplication.secretKey));
