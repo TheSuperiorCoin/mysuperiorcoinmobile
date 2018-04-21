@@ -15,6 +15,7 @@ export class QrcodePage {
   title:any;
   address:any;
   type:any;
+  newAddress:any;
   prefix:any = "Superior:";
   constructor(
     public navCtrl: NavController, 
@@ -27,14 +28,17 @@ export class QrcodePage {
   ) {
     this.type = navParams.get('t');
     this.reload();
+    this.newAddress = this.address.split(':')[1];
   }
   generatePaymentId(){
     
     this.sApplication.generatePaymentId();
     this.reload();
+    this.newAddress = this.address.split(':')[1];
   }
   reloadAddress() {
     this.reload();
+    this.newAddress = this.address.split(':')[1];
   }
   reload(){
     switch(this.type){
@@ -68,10 +72,11 @@ export class QrcodePage {
   dismiss() {
     this.viewCtrl.dismiss();
   }
+
   copyToClipboard(){
     // remove 'Superior:' text on copy
-    let newAddress = this.address.split(':')[1];    
-    this.clipboard.copy(newAddress);
+    this.clipboard.copy(this.newAddress);
+    // this.clipboard.copy(this.address);
     this.presentToast();
   }
   share(){
