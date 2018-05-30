@@ -22,7 +22,7 @@ export class ConfigProvider {
   feePerKB = new JSBigInt('200000');//20^6 - for testnet its not used; as fee is dynamic.
   dustThreshold = new JSBigInt('100000');//10^6 used for choosing outputs/change - we decompose all the way down if the receiver wants now regardless of threshold
   txChargeRatio = 0.5;
-  defaultMixin:any = 7; // minimum mixin for hardfork v5
+  defaultMixin:any = 6; // minimum mixin for hardfork v7
   defaultPriority:any = 2;
   txChargeAddress = '';
   idleTimeout = 30;
