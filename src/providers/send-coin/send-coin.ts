@@ -308,6 +308,7 @@ $scope, $http, $q,
                     return;
                 } else if (decode_result.intPaymentId) {
                     payment_id = decode_result.intPaymentId;
+                    this.payment_id = payment_id;
                     this.pid_encrypt = true; //encrypt if using an integrated address
                 }
             }
