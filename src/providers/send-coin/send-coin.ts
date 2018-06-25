@@ -131,7 +131,7 @@ $scope, $http, $q,
         return new Promise((resolve, reject) => {
             let alert = this.alertCtrl.create({
                 title: 'Confirm',
-                message: 'Do you want to send this transaction With payment ID' + payment_id + ' ?',
+                message: 'Do you want to send this transaction of ' + amount + 'SUP to ' + address + ' With payment ID ' + payment_id + '?',
                 buttons: [
                   {
                     text: 'No',
@@ -278,26 +278,6 @@ $scope, $http, $q,
                 this.dismissLoadingDefault(this.error);
 
                 return;
-            }
-            if (payment_id.length >= 16)
-            {
-                if (payment_id.length <= 64 && /^[0-9a-fA-F]+$/.test(payment_id))
-                {
-                    // if payment id is shorter, but has correct number, just
-                    // pad it to required length with zeros
-                    payment_id = this.strpad(payment_id, "0", 64);
-                }
-
-                // now double check if ok, when we padded it
-                if (payment_id.length !== 64 || !(/^[0-9a-fA-F]{64}$/.test(payment_id)))
-                {
-                    this.submitting = false;
-                    this.error = "The payment ID you've entered is not valid";
-                    this.dismissLoadingDefault(this.error);
-
-                    return;
-                }
-
             }
             if (this.realDsts.length === 1) {//multiple destinations aren't supported by MyMonero, but don't include integrated ID anyway (possibly should error in the future)
                 var decode_result = this.cnUtil.decode_address(this.realDsts[0].address);
