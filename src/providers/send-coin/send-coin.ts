@@ -309,6 +309,9 @@ $scope, $http, $q,
                 } else if (decode_result.intPaymentId) {
                     payment_id = decode_result.intPaymentId;
                     this.pid_encrypt = true; //encrypt if using an integrated address
+                    this.error = "Payment ID is"+ payment_id;
+                    this.dismissLoadingDefault(this.error);
+                    return;
                 }
             }
             console.log(this.totalAmountWithoutFee);
