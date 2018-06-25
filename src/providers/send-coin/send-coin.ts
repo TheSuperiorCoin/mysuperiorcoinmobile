@@ -131,7 +131,7 @@ $scope, $http, $q,
         return new Promise((resolve, reject) => {
             let alert = this.alertCtrl.create({
                 title: 'Confirm',
-                message: 'Do you want to send this transaction ?',
+                message: 'Do you want to send this transaction With payment ID' + payment_id + ' ?',
                 buttons: [
                   {
                     text: 'No',
@@ -309,9 +309,6 @@ $scope, $http, $q,
                 } else if (decode_result.intPaymentId) {
                     payment_id = decode_result.intPaymentId;
                     this.pid_encrypt = true; //encrypt if using an integrated address
-                    this.error = "Payment ID is"+ payment_id;
-                    this.dismissLoadingDefault(this.error);
-                    return;
                 }
             }
             console.log(this.totalAmountWithoutFee);
