@@ -64,9 +64,9 @@ $scope, $http, $q,
         });
         this.loading.present();
     }
-
-
-
+    
+  
+    
 
   }
   dismissLoadingDefault(message) {
@@ -78,14 +78,14 @@ $scope, $http, $q,
         });
         this.loading.present();
     }
-
+  
     setTimeout(() => {
         this.loading.dismiss();
         this.loading = null;
       }, 3000);
 
   }
-
+    
     isInt(value:any) {
         return !isNaN(value) &&
             parseInt(value) == value &&
@@ -117,7 +117,7 @@ $scope, $http, $q,
                 }
             };
         });
-
+        
     }
 
     transferConfirmDialog = undefined;
@@ -153,7 +153,7 @@ $scope, $http, $q,
                 ]
               });
               alert.present();
-
+            
         /*if (this.transferConfirmDialog !== undefined) {
             reject("transferConfirmDialog is already being shown!");
             return;
@@ -189,7 +189,7 @@ $scope, $http, $q,
         return amount.divide(1 / this.sConfig.txChargeRatio);
     }
 
-
+    
     removeTarget(index) {
         this.targets.splice(index, 1);
     }
@@ -260,11 +260,11 @@ $scope, $http, $q,
             this.get_txt_records(target,i).then((destinations:any) => {
             });
         }
+        
 
-
-        Promise.all(targets).then((destinations:any) => {
+        Promise.all(targets).then((destinations:any) => {  
             console.log(destinations);
-            //destinations = [destinations];
+            //destinations = [destinations];  
         //$q.all().then(function(destinations) {
             this.totalAmountWithoutFee = new JSBigInt(0);
             for (var i = 0; i < destinations.length; i++) {
@@ -279,6 +279,26 @@ $scope, $http, $q,
 
                 return;
             }
+            if (payment_id)
+            {
+                if (payment_id.length <= 64 && /^[0-9a-fA-F]+$/.test(payment_id))
+                {
+                    // if payment id is shorter, but has correct number, just
+                    // pad it to required length with zeros
+                    payment_id = this.strpad(payment_id, "0", 64);
+                }
+
+                // now double check if ok, when we padded it
+                if (payment_id.length !== 64 || !(/^[0-9a-fA-F]{64}$/.test(payment_id)))
+                {
+                    this.submitting = false;
+                    this.error = "The payment ID you've entered is not valid";
+                    this.dismissLoadingDefault(this.error);
+
+                    return;
+                }
+
+            }
             if (this.realDsts.length === 1) {//multiple destinations aren't supported by MyMonero, but don't include integrated ID anyway (possibly should error in the future)
                 var decode_result = this.cnUtil.decode_address(this.realDsts[0].address);
                 if (decode_result.intPaymentId && payment_id) {
@@ -290,26 +310,6 @@ $scope, $http, $q,
                     payment_id = decode_result.intPaymentId;
                     this.pid_encrypt = true; //encrypt if using an integrated address
                 }
-            }
-            if (payment_id)
-            {
-              if (payment_id.length <= 64 && /^[0-9a-fA-F]+$/.test(payment_id))
-              {
-                // if payment id is shorter, but has correct number, just
-                // pad it to required length with zeros
-                payment_id = this.strpad(payment_id, "0", 64);
-              }
-
-              // now double check if ok, when we padded it
-              if (payment_id.length !== 64 || !(/^[0-9a-fA-F]{64}$/.test(payment_id)))
-              {
-                this.submitting = false;
-                this.error = "The payment ID you've entered is not valid";
-                this.dismissLoadingDefault(this.error);
-
-                return;
-              }
-
             }
             console.log(this.totalAmountWithoutFee);
             if (this.totalAmountWithoutFee.compare(0) <= 0) {
@@ -334,7 +334,7 @@ $scope, $http, $q,
               var header = { "headers": {"Content-Type": "application/json;charset=UTF-8"} };
               console.log(getUnspentOutsRequest);
               return new Promise((resolve, reject) => {
-
+            
                 this.http.post(this.sApplication.remotePath+'/get_unspent_outs', getUnspentOutsRequest, header).toPromise().then((request:any) =>
                 {
                     let data = request;
@@ -348,15 +348,15 @@ $scope, $http, $q,
                       this.feePerKB = new JSBigInt(data.per_kb_fee);
                       this.neededFee = this.feePerKB.multiply(13).multiply(this.fee_multiplayer);
                     }
-
-                    this.transfer().then((result:any) => {
+                
+                    this.transfer().then((result:any) => {    
                         this.transferSuccess(result);
                       }, (err) => {
                         this.transferFailure(err);
                       });
-
+             
                     //resolve();
-                })
+                }) 
                 .catch((error) =>
                 {
                     this.status = "";
@@ -380,7 +380,7 @@ $scope, $http, $q,
             this.dismissLoadingDefault(err);
     });
 
-
+        
       //console.log("Unspent outs: " + JSON.stringify(outputs));
       //return outputs;
   }
@@ -392,7 +392,7 @@ $scope, $http, $q,
             return str;
         }
   get_txt_records(target,i){
-
+      
     return new Promise((resolve, reject) => {
         var amount;
         try {
@@ -403,7 +403,7 @@ $scope, $http, $q,
         }
         console.log(amount);
         if (target.address.indexOf('.') === -1) {
-
+            
             try {
                 // verify that the address is valid
                 this.cnUtil.decode_address(target.address);
@@ -422,7 +422,7 @@ $scope, $http, $q,
             let data:any = {
 
               };
-
+              
               data = JSON.stringify(data);
               var header = { "headers": {"Content-Type": "application/json;charset=UTF-8"} };
             this.http.post(this.sApplication.remotePath+'/get_txt_records', data, header).toPromise().then((response:any) =>
@@ -477,13 +477,13 @@ $scope, $http, $q,
                         reject("Failed to decode OpenAlias address: " + oaRecords[0].address + ": " + e);
                         return;
                     }
-            })
+            }) 
             .catch((error) =>
             {
                 reject("Failed to resolve DNS records for '" + domain + "': " + "Unknown error");
 
             });
-
+    
         }
     //})(deferred, target);
 });
@@ -522,14 +522,14 @@ dsts:any;
 transfer() {
     return new Promise((resolve, reject) => {
         this.dsts = this.realDsts.slice(0);
-
+        
         var totalAmount = this.totalAmountWithoutFee.add(this.neededFee)/*.add(chargeAmount)*/;
         let mess:any = "Balance required: " + this.cnUtil.formatMoneySymbol(totalAmount);
         console.log(mess);
         this.presentLoadingDefault(mess);
 
         this.select_outputs(totalAmount);
-
+        
         //compute fee as closely as possible before hand
         if (this.using_outs.length > 1 && this.rct)
         {
@@ -601,7 +601,7 @@ transfer() {
                 amount: 0
             });
         }
-
+        
 
         if (this.mixin > 0)
         {
@@ -626,8 +626,8 @@ transfer() {
                     }else {
                         resolve(elmt);
                     }
-
-                })
+                    
+                }) 
                 .catch((error) =>
                 {
                     console.log(error);
@@ -661,7 +661,7 @@ createTx(mix_outs)
                 console.log('Decomposed destinations:');
 
                 this.cnUtil.printDsts(splittedDsts);
-
+  
 
                 signed = this.cnUtil.create_transaction(
                     this.sApplication.openedWallet.getPublicKeys(),
@@ -695,9 +695,9 @@ createTx(mix_outs)
 checkUnspentOuts(outputs) {
 
 for (var i = 0; i < outputs.length; i++) {
-
+    
   for (var j = 0; outputs[i] && j < outputs[i].spend_key_images.length; j++) {
-
+    
       let key_img = this.sApplication.openedWallet.cachedKeyImage(outputs[i].tx_pub_key, outputs[i].index);
 
       if (key_img === outputs[i].spend_key_images[j]) {
@@ -707,7 +707,7 @@ for (var i = 0; i < outputs.length; i++) {
           if (outputs[i]) {
               j = outputs[i].spend_key_images.length;
           }
-          i--;
+          i--; 
       } else {
 
           console.log("Output used as mixin (" + key_img + "/" + outputs[i].spend_key_images[j] + ")");
@@ -762,7 +762,7 @@ transferSuccess(tx_h) {
   // if we need a higher fee
   if (this.neededFee.compare(prevFee) > 0) {
       console.log("Previous fee: " + this.cnUtil.formatMoneyFull(prevFee) + " New fee: " + this.cnUtil.formatMoneyFull(this.neededFee));
-      this.transfer().then((result:any) => {
+      this.transfer().then((result:any) => {    
         this.transferSuccess(result);
       }, (err) => {
         this.transferFailure(err);
@@ -783,8 +783,8 @@ transferSuccess(tx_h) {
 
   this.confirmTransfer(this.realDsts[0].address, this.realDsts[0].amount,
     tx_hash, this.neededFee, tx_prvkey, this.payment_id,
-    this.mixin, this.priority, txBlobKBytes).then((result:any) => {
-
+    this.mixin, this.priority, txBlobKBytes).then((result:any) => {    
+    
         let data:any = {
             address: this.sApplication.openedWallet.address,
             view_key: this.sApplication.openedWallet.viewKey,
@@ -795,7 +795,7 @@ transferSuccess(tx_h) {
         this.http.post(this.sApplication.remotePath+'/submit_raw_tx', data, header).toPromise().then((response:any) =>
         {
             var data = response;
-
+    
             if (data.status === "error")
             {
                 this.status = "";
@@ -822,7 +822,7 @@ transferSuccess(tx_h) {
                 this.status = "";
                 this.submitting = false;
             }
-        })
+        }) 
         .catch((error) =>
         {
             this.status = "";
@@ -830,7 +830,7 @@ transferSuccess(tx_h) {
                   this.error = "Something unexpected occurred when submitting your transaction: ";
                   this.dismissLoadingDefault(this.error);
             //reject(error);
-        });
+        });  
   }, (err) => {
     this.transferFailure("Transfer canceled");
   });
