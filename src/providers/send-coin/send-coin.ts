@@ -129,9 +129,17 @@ $scope, $http, $q,
                                     this.loading = null;
                                 }
         return new Promise((resolve, reject) => {
+          let message ="";
+          if (payment_id){
+            message = 'Do you want to send this transaction of ' + amount/100000000 + 'SUP to ' + address + ' With payment ID ' + payment_id + '?';
+          }
+          else{
+            message = 'Do you want to send this transaction of ' + amount/100000000 + 'SUP to ' + address + '?';
+
+          }
             let alert = this.alertCtrl.create({
                 title: 'Confirm',
-                message: 'Do you want to send this transaction of ' + amount + 'SUP to ' + address + ' With payment ID ' + payment_id + '?',
+                message: '' + message,
                 buttons: [
                   {
                     text: 'No',
