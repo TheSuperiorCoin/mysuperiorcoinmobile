@@ -74,7 +74,7 @@ export class AccountDetailsPage {
       infos = this.sApplication.openedWallet.spendKey;
       break;
     }
-    this.socialSharing.share(infos, "Receive from SuperioCoin Mobile Wallet").then(() => {
+    this.socialSharing.share(infos, "Received from SuperiorCoin Mobile Wallet").then(() => {
       // Success!
     }).catch(() => {
       // Error!

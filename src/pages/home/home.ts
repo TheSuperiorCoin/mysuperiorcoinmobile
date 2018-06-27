@@ -51,7 +51,7 @@ export class HomePage {
     this.presentToast();
   }
   share(){
-    this.socialSharing.share(this.sApplication.openedWallet.address, "Receive from SuperioCoin Mobile Wallet").then(() => {
+    this.socialSharing.share(this.sApplication.openedWallet.address, "Received from SuperiorCoin Mobile Wallet").then(() => {
       // Success!
     }).catch(() => {
       // Error!

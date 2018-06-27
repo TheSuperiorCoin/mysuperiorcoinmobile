@@ -80,7 +80,7 @@ export class QrcodePage {
     this.presentToast();
   }
   share(){
-    this.socialSharing.share(this.address, "Receive from SuperioCoin Mobile Wallet").then(() => {
+    this.socialSharing.share(this.address, "Received from SuperiorCoin Mobile Wallet").then(() => {
       // Success!
     }).catch(() => {
       // Error!
